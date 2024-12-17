@@ -17,6 +17,42 @@ if SYSMOD_ADDR is None:
 if DEVCTRL_ADDR is None:
     DEVCTRL_ADDR = "localhost:2822"
 
+def NameToPoint(name:str, multiple_matches:bool=False, addr:str=SYSMOD_ADDR) -> None | str | list[str]:
+    response: comms_pb2.QueryResponse
+    with grpc.insecure_channel(addr) as channel:
+        stub = comms_pb2_grpc.SysmodStub(channel)
+        response = stub.NameToPoints(comms_pb2.GetRequest(
+            Key=name
+        ))
+        if response.Error > 0:
+            print("get '{}' error: {}".format(response.Response.Key,
+                                              response.Response.Error))
+    # cast as a more user-friendly type
+    matches = response.Value.split()
+    if multiple_matches:
+        return matches
+    elif len(matches) > 0:
+        return matches[0]
+    else:
+        return None
+    
+
+def TypeToPoint(_type:str, addr:str=SYSMOD_ADDR) -> None | str | list[str]:
+    response: comms_pb2.QueryResponse
+    with grpc.insecure_channel(addr) as channel:
+        stub = comms_pb2_grpc.SysmodStub(channel)
+        response = stub.TypeToPoints(comms_pb2.GetRequest(
+            Key=_type
+        ))
+        if response.Error > 0:
+            print("get '{}' error: {}".format(response.Response.Key,
+                                              response.Response.Error))
+    # cast as a more user-friendly type
+    matches = response.Value.split()
+    return matches
+
+
+
 class GetResponse(object):
     def __init__(self):
         self.Key:str
@@ -104,7 +140,7 @@ def CheckLatency(addr:str, num_pings:int=5) -> dt.timedelta | None:
     return running_total / num_pings
         
 
-def Get(key:str, addr:str=DEVCTRL_ADDR) -> GetResponse:
+def Get(key:str, full_response=False, addr:str=DEVCTRL_ADDR) -> GetResponse | bool:
     response: comms_pb2.GetResponse
     with grpc.insecure_channel(addr) as channel:
         stub = comms_pb2_grpc.GetSetRunStub(channel)
@@ -112,12 +148,15 @@ def Get(key:str, addr:str=DEVCTRL_ADDR) -> GetResponse:
             Key=key
         ))
         if response.Error > 0:
-            print("get '{}' error: {}".format(response.Response.Key,
-                                              response.Response.Error))
+            print("get '{}' error: {}".format(response.Key, 
+                                              response.Error))
     # cast as a more user-friendly type
-    return NewGetResponse(response)
+    r = NewGetResponse(response)
+    if full_response:
+        return r
+    return r.Value
 
-def Set(key:str, value:str, addr=DEVCTRL_ADDR) -> SetResponse:
+def Set(key:str, value:str, full_response=False, addr=DEVCTRL_ADDR) -> SetResponse | bool:
     response: comms_pb2.SetResponse
     with grpc.insecure_channel(addr) as channel:
         stub = comms_pb2_grpc.GetSetRunStub(channel)
@@ -128,10 +167,13 @@ def Set(key:str, value:str, addr=DEVCTRL_ADDR) -> SetResponse:
         if not response.Ok:
             print("set '{}' error: {}".format(response.Response.Key,
                                               response.Response.Error))
-    return NewSetResponse(response)
+    r = NewSetResponse(response)
+    if full_response:
+        return r
+    return r.Ok
 
 
-def GetMutiple(keys:list[str], addr=DEVCTRL_ADDR) -> list[GetResponse]:
+def GetMutiple(keys:list[str], full_response=False, addr=DEVCTRL_ADDR) -> list[GetResponse] | dict[str, object]:
     responses: comms_pb2.GetMultipleResponse
     with grpc.insecure_channel(addr) as channel:
         stub = comms_pb2_grpc.GetSetRunStub(channel)
@@ -140,7 +182,14 @@ def GetMutiple(keys:list[str], addr=DEVCTRL_ADDR) -> list[GetResponse]:
                 Keys=keys
             )
         )
-    return NewGetMultipleResponse(responses)
+    R = NewGetMultipleResponse(responses)
+    if full_response:
+        return R
+    resp_dict = {}
+    for r in R:
+        resp_dict[r.Key] = r.Value
+    return resp_dict
+    
 
 
 def SetMultiple(key_value_pairs:tuple[str,str], addr=DEVCTRL_ADDR) -> list[SetResponse]:
@@ -177,7 +226,7 @@ def DecodeValue(s:str, dtype:comms_pb2.Dtype=comms_pb2.UNSPECIFIED):
     else:
         return UntypedString(s)
     
-    
+
 class UntypedString(str):
     """ Used to show that a value received by Get or GetMultiple was cast to a 
     native python type but that the function did not receive dtype information 

@@ -1,4 +1,4 @@
-import client as c
+import services.wrappers.python.bos as c
 import comms_pb2
 
 if __name__ == "__main__":

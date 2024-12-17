@@ -318,18 +318,18 @@ class SysmodStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.NameToId = channel.unary_unary(
-                '/bos.Sysmod/NameToId',
+        self.NameToPoints = channel.unary_unary(
+                '/bos.Sysmod/NameToPoints',
                 request_serializer=comms__pb2.GetRequest.SerializeToString,
                 response_deserializer=comms__pb2.QueryResponse.FromString,
                 _registered_method=True)
-        self.ClassToId = channel.unary_unary(
-                '/bos.Sysmod/ClassToId',
+        self.TypeToPoints = channel.unary_unary(
+                '/bos.Sysmod/TypeToPoints',
                 request_serializer=comms__pb2.GetRequest.SerializeToString,
                 response_deserializer=comms__pb2.QueryResponse.FromString,
                 _registered_method=True)
-        self.LocationToId = channel.unary_unary(
-                '/bos.Sysmod/LocationToId',
+        self.LocationToPoints = channel.unary_unary(
+                '/bos.Sysmod/LocationToPoints',
                 request_serializer=comms__pb2.GetRequest.SerializeToString,
                 response_deserializer=comms__pb2.QueryResponse.FromString,
                 _registered_method=True)
@@ -349,21 +349,21 @@ class SysmodServicer(object):
     """the PointId (pid) service takes classes, names, or regexes
     """
 
-    def NameToId(self, request, context):
+    def NameToPoints(self, request, context):
         """Key are the point names. Response is POINT_ID or POINT_ID_LIST
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def ClassToId(self, request, context):
+    def TypeToPoints(self, request, context):
         """Key are the class. Response is POINT_ID or POINT_ID_LIST
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def LocationToId(self, request, context):
+    def LocationToPoints(self, request, context):
         """Key is the location. Response is POINT_ID or POINT_ID_LIST
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -387,18 +387,18 @@ class SysmodServicer(object):
 
 def add_SysmodServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'NameToId': grpc.unary_unary_rpc_method_handler(
-                    servicer.NameToId,
+            'NameToPoints': grpc.unary_unary_rpc_method_handler(
+                    servicer.NameToPoints,
                     request_deserializer=comms__pb2.GetRequest.FromString,
                     response_serializer=comms__pb2.QueryResponse.SerializeToString,
             ),
-            'ClassToId': grpc.unary_unary_rpc_method_handler(
-                    servicer.ClassToId,
+            'TypeToPoints': grpc.unary_unary_rpc_method_handler(
+                    servicer.TypeToPoints,
                     request_deserializer=comms__pb2.GetRequest.FromString,
                     response_serializer=comms__pb2.QueryResponse.SerializeToString,
             ),
-            'LocationToId': grpc.unary_unary_rpc_method_handler(
-                    servicer.LocationToId,
+            'LocationToPoints': grpc.unary_unary_rpc_method_handler(
+                    servicer.LocationToPoints,
                     request_deserializer=comms__pb2.GetRequest.FromString,
                     response_serializer=comms__pb2.QueryResponse.SerializeToString,
             ),
@@ -425,7 +425,7 @@ class Sysmod(object):
     """
 
     @staticmethod
-    def NameToId(request,
+    def NameToPoints(request,
             target,
             options=(),
             channel_credentials=None,
@@ -438,7 +438,7 @@ class Sysmod(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/bos.Sysmod/NameToId',
+            '/bos.Sysmod/NameToPoints',
             comms__pb2.GetRequest.SerializeToString,
             comms__pb2.QueryResponse.FromString,
             options,
@@ -452,7 +452,7 @@ class Sysmod(object):
             _registered_method=True)
 
     @staticmethod
-    def ClassToId(request,
+    def TypeToPoints(request,
             target,
             options=(),
             channel_credentials=None,
@@ -465,7 +465,7 @@ class Sysmod(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/bos.Sysmod/ClassToId',
+            '/bos.Sysmod/TypeToPoints',
             comms__pb2.GetRequest.SerializeToString,
             comms__pb2.QueryResponse.FromString,
             options,
@@ -479,7 +479,7 @@ class Sysmod(object):
             _registered_method=True)
 
     @staticmethod
-    def LocationToId(request,
+    def LocationToPoints(request,
             target,
             options=(),
             channel_credentials=None,
@@ -492,7 +492,7 @@ class Sysmod(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/bos.Sysmod/LocationToId',
+            '/bos.Sysmod/LocationToPoints',
             comms__pb2.GetRequest.SerializeToString,
             comms__pb2.QueryResponse.FromString,
             options,

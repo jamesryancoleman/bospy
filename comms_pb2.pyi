@@ -227,17 +227,17 @@ class PointQueryRequest(_message.Message):
     def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Device: _Optional[str] = ..., Types: _Optional[_Iterable[str]] = ..., Names: _Optional[_Iterable[str]] = ..., Locations: _Optional[_Iterable[str]] = ..., ConsiderDeviceLoc: bool = ..., Dtype: _Optional[_Union[Dtype, str]] = ..., Error: _Optional[_Union[QueryError, str]] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...
 
 class QueryResponse(_message.Message):
-    __slots__ = ("Header", "Key", "Value", "Dtype", "Error", "ErrorMsg")
+    __slots__ = ("Header", "Query", "Value", "Dtype", "Error", "ErrorMsg")
     HEADER_FIELD_NUMBER: _ClassVar[int]
-    KEY_FIELD_NUMBER: _ClassVar[int]
+    QUERY_FIELD_NUMBER: _ClassVar[int]
     VALUE_FIELD_NUMBER: _ClassVar[int]
     DTYPE_FIELD_NUMBER: _ClassVar[int]
     ERROR_FIELD_NUMBER: _ClassVar[int]
     ERRORMSG_FIELD_NUMBER: _ClassVar[int]
     Header: Header
-    Key: str
+    Query: str
     Value: str
     Dtype: Dtype
     Error: QueryError
     ErrorMsg: str
-    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Key: _Optional[str] = ..., Value: _Optional[str] = ..., Dtype: _Optional[_Union[Dtype, str]] = ..., Error: _Optional[_Union[QueryError, str]] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...
+    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Query: _Optional[str] = ..., Value: _Optional[str] = ..., Dtype: _Optional[_Union[Dtype, str]] = ..., Error: _Optional[_Union[QueryError, str]] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...
