@@ -1,5 +1,9 @@
 # bospy
-python wrappers for accessing bos services. 
+python wrappers for accessing bos services.
+
+The basic operating principle of `bospy` is that points are accessed via "pointers". You get a pointer by using a function like `NameToPoint` and pass the output to a function like `get` or `set`.
+
+making a query and you get or set a value using that pointer. The pointers are the uri strings of the point stored in the `sysmod`. 
 
 ## `get`
 `get(key:str)` takes a bos point key and returns a response object containing the 
@@ -7,7 +11,7 @@ value.
 
 Usage:
 ``` python
-pt = GetPointByName('BLDG3.AHU2.RM1.TEMP')
+pt = NameToPoint('BLDG3.AHU2.RM1.TEMP')
 value = Get(pt)
 print(value)
 ```
