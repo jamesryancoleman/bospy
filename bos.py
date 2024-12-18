@@ -2,6 +2,8 @@ import comms_pb2_grpc
 import comms_pb2 
 import grpc
 
+import bos_utils
+
 import datetime as dt
 import sys
 import os
@@ -21,12 +23,12 @@ def NameToPoint(name:str, multiple_matches:bool=False, addr:str=SYSMOD_ADDR) -> 
     response: comms_pb2.QueryResponse
     with grpc.insecure_channel(addr) as channel:
         stub = comms_pb2_grpc.SysmodStub(channel)
-        response = stub.NameToPoints(comms_pb2.GetRequest(
+        response = stub.NameToPoint(comms_pb2.GetRequest(
             Key=name
         ))
         if response.Error > 0:
-            print("get '{}' error: {}".format(response.Response.Key,
-                                              response.Response.Error))
+            print("get '{}' error: {}".format(response.Query,
+                                              response.Error))
     # cast as a more user-friendly type
     matches = response.Value.split()
     if multiple_matches:
@@ -36,22 +38,60 @@ def NameToPoint(name:str, multiple_matches:bool=False, addr:str=SYSMOD_ADDR) -> 
     else:
         return None
     
+def PointToName(pt:str, addr:str=SYSMOD_ADDR) -> str:
+    response: comms_pb2.QueryResponse
+    with grpc.insecure_channel(addr) as channel:
+        stub = comms_pb2_grpc.SysmodStub(channel)
+        response = stub.PointToName(comms_pb2.GetRequest(
+            Key=pt
+        ))
+        if response.Error > 0:
+            print("get '{}' error: {}".format(response.Query,
+                                              response.Error))
+    return response.Value
 
 def TypeToPoint(_type:str, addr:str=SYSMOD_ADDR) -> None | str | list[str]:
     response: comms_pb2.QueryResponse
     with grpc.insecure_channel(addr) as channel:
         stub = comms_pb2_grpc.SysmodStub(channel)
-        response = stub.TypeToPoints(comms_pb2.GetRequest(
-            Key=_type
-        ))
+        response = stub.TypeToPoint(comms_pb2.GetRequest(
+            Key=_type))
         if response.Error > 0:
-            print("get '{}' error: {}".format(response.Response.Key,
-                                              response.Response.Error))
+            print("get '{}' error: {}".format(response.Query,
+                                              response.Error))
     # cast as a more user-friendly type
     matches = response.Value.split()
     return matches
 
+def LocationToPoint(location:str, addr:str=SYSMOD_ADDR) -> None | str | list[str]:
+    response: comms_pb2.QueryResponse
+    with grpc.insecure_channel(addr) as channel:
+        stub = comms_pb2_grpc.SysmodStub(channel)
+        response = stub.LocationToPoint(comms_pb2.GetRequest(
+            Key=location))
+        if response.Error > 0:
+            print("get '{}' error: {}".format(response.Query,
+                                              response.Error))
+    matches = response.Value.split()
+    return matches
 
+def QueryPoints(_type:str=None, location:str=None, inherit_device_loc:bool=True, addr:str=SYSMOD_ADDR):
+    if _type == "" and location == "":
+        print("error: must provide type or location")
+        return
+    response: comms_pb2.QueryResponse
+    with grpc.insecure_channel(addr) as channel:
+        stub = comms_pb2_grpc.SysmodStub(channel)
+        response = stub.QueryPoints(comms_pb2.PointQueryRequest(
+            Types=[_type],
+            Locations=[location],
+            ConsiderDeviceLoc=inherit_device_loc,
+        ))
+        if response.Error > 0:
+            print("get '{}' error: {}".format(response.Query,
+                                              response.Error))
+    matches = response.Value.split()
+    return matches
 
 class GetResponse(object):
     def __init__(self):
@@ -231,6 +271,10 @@ class UntypedString(str):
     """ Used to show that a value received by Get or GetMultiple was cast to a 
     native python type but that the function did not receive dtype information 
     (i.e., the Dtype=UNSPECIFIED)
+    """
+
+class PointUri(str):
+    """ Used to indicate that a value is not just a str but specifically a point uri.
     """
 
 

@@ -205,11 +205,11 @@ class SetMultipleResponse(_message.Message):
     def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Responses: _Optional[_Iterable[_Union[SetResponse, _Mapping]]] = ...) -> None: ...
 
 class PointQueryRequest(_message.Message):
-    __slots__ = ("Header", "Device", "Types", "Names", "Locations", "ConsiderDeviceLoc", "Dtype", "Error", "ErrorMsg")
+    __slots__ = ("Header", "Device", "Names", "Types", "Locations", "ConsiderDeviceLoc", "Dtype", "Error", "ErrorMsg")
     HEADER_FIELD_NUMBER: _ClassVar[int]
     DEVICE_FIELD_NUMBER: _ClassVar[int]
-    TYPES_FIELD_NUMBER: _ClassVar[int]
     NAMES_FIELD_NUMBER: _ClassVar[int]
+    TYPES_FIELD_NUMBER: _ClassVar[int]
     LOCATIONS_FIELD_NUMBER: _ClassVar[int]
     CONSIDERDEVICELOC_FIELD_NUMBER: _ClassVar[int]
     DTYPE_FIELD_NUMBER: _ClassVar[int]
@@ -217,14 +217,14 @@ class PointQueryRequest(_message.Message):
     ERRORMSG_FIELD_NUMBER: _ClassVar[int]
     Header: Header
     Device: str
-    Types: _containers.RepeatedScalarFieldContainer[str]
     Names: _containers.RepeatedScalarFieldContainer[str]
+    Types: _containers.RepeatedScalarFieldContainer[str]
     Locations: _containers.RepeatedScalarFieldContainer[str]
     ConsiderDeviceLoc: bool
     Dtype: Dtype
     Error: QueryError
     ErrorMsg: str
-    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Device: _Optional[str] = ..., Types: _Optional[_Iterable[str]] = ..., Names: _Optional[_Iterable[str]] = ..., Locations: _Optional[_Iterable[str]] = ..., ConsiderDeviceLoc: bool = ..., Dtype: _Optional[_Union[Dtype, str]] = ..., Error: _Optional[_Union[QueryError, str]] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...
+    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Device: _Optional[str] = ..., Names: _Optional[_Iterable[str]] = ..., Types: _Optional[_Iterable[str]] = ..., Locations: _Optional[_Iterable[str]] = ..., ConsiderDeviceLoc: bool = ..., Dtype: _Optional[_Union[Dtype, str]] = ..., Error: _Optional[_Union[QueryError, str]] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...
 
 class QueryResponse(_message.Message):
     __slots__ = ("Header", "Query", "Value", "Dtype", "Error", "ErrorMsg")
