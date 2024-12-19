@@ -8,6 +8,8 @@ import datetime as dt
 import sys
 import os
 
+from typing import Any
+
 """ Provides the wrapper functions used to access openBOS points in Python
 """
 
@@ -19,6 +21,7 @@ if SYSMOD_ADDR is None:
 if DEVCTRL_ADDR is None:
     DEVCTRL_ADDR = "localhost:2822"
 
+# client calls for the sysmod rpc calls
 def NameToPoint(name:str, multiple_matches:bool=False, addr:str=SYSMOD_ADDR) -> None | str | list[str]:
     response: comms_pb2.QueryResponse
     with grpc.insecure_channel(addr) as channel:
@@ -30,11 +33,10 @@ def NameToPoint(name:str, multiple_matches:bool=False, addr:str=SYSMOD_ADDR) -> 
             print("get '{}' error: {}".format(response.Query,
                                               response.Error))
     # cast as a more user-friendly type
-    matches = response.Value.split()
     if multiple_matches:
-        return matches
-    elif len(matches) > 0:
-        return matches[0]
+        return response.Value
+    elif len(response.Value) > 0:
+        return response.Value[0]
     else:
         return None
     
@@ -48,7 +50,7 @@ def PointToName(pt:str, addr:str=SYSMOD_ADDR) -> str:
         if response.Error > 0:
             print("get '{}' error: {}".format(response.Query,
                                               response.Error))
-    return response.Value
+    return response.Value[0]
 
 def TypeToPoint(_type:str, addr:str=SYSMOD_ADDR) -> None | str | list[str]:
     response: comms_pb2.QueryResponse
@@ -60,8 +62,7 @@ def TypeToPoint(_type:str, addr:str=SYSMOD_ADDR) -> None | str | list[str]:
             print("get '{}' error: {}".format(response.Query,
                                               response.Error))
     # cast as a more user-friendly type
-    matches = response.Value.split()
-    return matches
+    return response.Value
 
 def LocationToPoint(location:str, addr:str=SYSMOD_ADDR) -> None | str | list[str]:
     response: comms_pb2.QueryResponse
@@ -72,8 +73,7 @@ def LocationToPoint(location:str, addr:str=SYSMOD_ADDR) -> None | str | list[str
         if response.Error > 0:
             print("get '{}' error: {}".format(response.Query,
                                               response.Error))
-    matches = response.Value.split()
-    return matches
+    return response.Value
 
 def QueryPoints(_type:str=None, location:str=None, inherit_device_loc:bool=True, addr:str=SYSMOD_ADDR):
     if _type == "" and location == "":
@@ -90,9 +90,9 @@ def QueryPoints(_type:str=None, location:str=None, inherit_device_loc:bool=True,
         if response.Error > 0:
             print("get '{}' error: {}".format(response.Query,
                                               response.Error))
-    matches = response.Value.split()
-    return matches
+    return response.Value
 
+# devctrl rpc calls
 class GetResponse(object):
     def __init__(self):
         self.Key:str
@@ -180,37 +180,53 @@ def CheckLatency(addr:str, num_pings:int=5) -> dt.timedelta | None:
     return running_total / num_pings
         
 
-def Get(key:str, full_response=False, addr:str=DEVCTRL_ADDR) -> GetResponse | bool:
-    response: comms_pb2.GetResponse
-    with grpc.insecure_channel(addr) as channel:
-        stub = comms_pb2_grpc.GetSetRunStub(channel)
-        response = stub.Get(comms_pb2.GetRequest(
-            Key=key
-        ))
-        if response.Error > 0:
-            print("get '{}' error: {}".format(response.Key, 
-                                              response.Error))
-    # cast as a more user-friendly type
-    r = NewGetResponse(response)
-    if full_response:
-        return r
-    return r.Value
+def Get(k:str|list[str], full_response=False, addr:str=DEVCTRL_ADDR) -> GetResponse | dict[str, Any] | Any :
+    """ Get takes a single bos point uri or a list of point uris. Passing 1 uri 
+    returns 1 value. Passing a list of uris returns a map of uris and their 
+    corresponding values.
+    """
+    if type(k) == list:
+        return GetMutiple(k, full_response=full_response, addr=DEVCTRL_ADDR)
+    else:
+        response: comms_pb2.GetResponse
+        with grpc.insecure_channel(addr) as channel:
+            stub = comms_pb2_grpc.GetSetRunStub(channel)
+            response = stub.Get(comms_pb2.GetRequest(
+                Key=k
+            ))
+            if response.Error > 0:
+                print("get '{}' error: {}".format(response.Key, 
+                                                response.Error))
+        # cast as a more user-friendly type
+        r = NewGetResponse(response)
+        if full_response:
+            return r
+        return r.Value
 
-def Set(key:str, value:str, full_response=False, addr=DEVCTRL_ADDR) -> SetResponse | bool:
-    response: comms_pb2.SetResponse
-    with grpc.insecure_channel(addr) as channel:
-        stub = comms_pb2_grpc.GetSetRunStub(channel)
-        response = stub.Set(comms_pb2.SetRequest(
-            Key=key, 
-            Value=str(value),
-        ))
-        if not response.Ok:
-            print("set '{}' error: {}".format(response.Response.Key,
-                                              response.Response.Error))
-    r = NewSetResponse(response)
-    if full_response:
-        return r
-    return r.Ok
+def Set(k:str|list[str], v:str|list[str], full_response=False, addr=DEVCTRL_ADDR) -> SetResponse | dict[str, bool] | bool:
+    if type(k) == list and type(v) == list:
+        if len(k) == len(v) and type(v) == list:
+            return SetMultiple(list(zip(k, v)), addr=addr)
+        else:
+            print("error: unequal number of keys and values ({} != {})", len(k), len(v))
+            return False
+    elif type(k) == list and type(v) != list:
+        return SetMultiple(list(zip(k, [v] * len(k))), addr=addr)
+    else:
+        response: comms_pb2.SetResponse
+        with grpc.insecure_channel(addr) as channel:
+            stub = comms_pb2_grpc.GetSetRunStub(channel)
+            response = stub.Set(comms_pb2.SetRequest(
+                Key=k, 
+                Value=str(v),
+            ))
+            if not response.Ok:
+                print("set '{}' error: {}".format(response.Key,
+                                                response.Error))
+        r = NewSetResponse(response)
+        if full_response:
+            return r
+        return r.Ok
 
 
 def GetMutiple(keys:list[str], full_response=False, addr=DEVCTRL_ADDR) -> list[GetResponse] | dict[str, object]:

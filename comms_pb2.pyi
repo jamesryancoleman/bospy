@@ -236,8 +236,8 @@ class QueryResponse(_message.Message):
     ERRORMSG_FIELD_NUMBER: _ClassVar[int]
     Header: Header
     Query: str
-    Value: str
+    Value: _containers.RepeatedScalarFieldContainer[str]
     Dtype: Dtype
     Error: QueryError
     ErrorMsg: str
-    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Query: _Optional[str] = ..., Value: _Optional[str] = ..., Dtype: _Optional[_Union[Dtype, str]] = ..., Error: _Optional[_Union[QueryError, str]] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...
+    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Query: _Optional[str] = ..., Value: _Optional[_Iterable[str]] = ..., Dtype: _Optional[_Union[Dtype, str]] = ..., Error: _Optional[_Union[QueryError, str]] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...

@@ -5,7 +5,7 @@ def GetTest(bosPtUri:str):
     print(bosPtUri, "->", value, "({})".format(type(value)))
     
 def GetMultipleTest(bosPtUris:list[str]):
-    R = GetMutiple(bosPtUris)
+    R = Get(bosPtUris)
     for key, value in R.items():
         print(key, "->", value, "({})".format(type(value)))
 

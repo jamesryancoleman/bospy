@@ -5,11 +5,10 @@ The basic operating principle of `bospy` is that points are accessed via "pointe
 
 making a query and you get or set a value using that pointer. The pointers are the uri strings of the point stored in the `sysmod`. 
 
-## `get`
-`get(key:str)` takes a bos point key and returns a response object containing the 
-value.
+## `Get`
+`Get(points)` takes one or more point uris and returns values for each uri passed.
 
-Usage:
+Getting a single point by name:
 ``` python
 pt = NameToPoint('BLDG3.AHU2.RM1.TEMP')
 value = Get(pt)
@@ -20,9 +19,24 @@ Output:
 $ python get_example.py
 21.0
 ```
+Getting multiple values by location:
+```python
+pts = GetPointByLocation('ROOM_1')
+resp = Get(pts)
+for k, v in resp.items()
+    name = GetPointName(k)
+    print(name, v)
+```
+Output
+``` bash
+$ python get_multiple_example.py
+BLDG3.AHU2.RM1.TEMP 22.5
+BLDG3.AHU2.RM1.SETPOINT 21.0
+BLDG3.AHU2.RM1.DAMPER_POS 85.0
+```
 
-## `set`
-`set(key:str, value:str)` takes 1 bos point key and 1 value and returns a response object confirming whether the operation succeeded.
+## `Set`
+`Set(points, values)` takes 1 or more point uris and an equal number of values. You may also pass a single value to be written to all provides 
 
 Usage:
 ``` python
@@ -42,20 +56,7 @@ success
 These work the same way as `get` and `set` but you pass a list of points to specify what points to read or write. To `set_multiple` points you can either pass 1 value that will be written to all points or a list of values the same length as the list of points. 
 
 `get_multiple` usage:
-```python
-pts = GetPointByLocation('ROOM_1')
-resp = get_multiple(pts)
-for k, v in resp.items()
-    name = GetPointName(k)
-    print(name, v)
-```
-Output
-``` bash
-$ python get_multiple_example.py
-BLDG3.AHU2.RM1.TEMP 22.5
-BLDG3.AHU2.RM1.SETPOINT 21.0
-BLDG3.AHU2.RM1.DAMPER_POS 85.0
-```
+
 
 `set_multiple` usage:
 ```python

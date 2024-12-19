@@ -1,8 +1,8 @@
 from bos import *
 
 def GetValueByNameTest(name:str):
-    pt = NameToPoint(name)
-    value = Get(pt)
+    pts = NameToPoint(name)
+    value = Get(pts)
     print(name, "->", value)
 
 if __name__ == "__main__":
