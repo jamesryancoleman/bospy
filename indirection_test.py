@@ -1,6 +1,6 @@
 from bos import *
 
-def GetValueByNameTest(name:str):
+def ValueByNameTest(name:str|list[str]):
     pts = NameToPoint(name)
     value = Get(pts)
     print(name, "->", value)
@@ -8,4 +8,7 @@ def GetValueByNameTest(name:str):
 if __name__ == "__main__":
 
     name1 = "air_temp" # a name that returns 1 point
-    GetValueByNameTest(name1)
+    ValueByNameTest(name1)
+
+    name2 = "status"
+    ValueByNameTest([name1, name2])

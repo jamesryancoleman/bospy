@@ -21,7 +21,7 @@ $ python get_example.py
 ```
 Getting multiple values by location:
 ```python
-pts = GetPointByLocation('ROOM_1')
+pts = LocationToPoint('ROOM_1')
 resp = Get(pts)
 for k, v in resp.items()
     name = GetPointName(k)
@@ -51,15 +51,4 @@ Output:
 ``` bash
 $ python set_example.py
 success
-```
-## `get_multiple` and `set_multiple`
-These work the same way as `get` and `set` but you pass a list of points to specify what points to read or write. To `set_multiple` points you can either pass 1 value that will be written to all points or a list of values the same length as the list of points. 
-
-`get_multiple` usage:
-
-
-`set_multiple` usage:
-```python
-pts = GetPointByType('brick:Air_Temperature_Setpoint')
-resp = set_multiple(pts, 25) # degress celsius
 ```
