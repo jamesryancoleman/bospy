@@ -1,14 +1,16 @@
-from bos import *
+from bospy import bos
+
+from typing import Any
 
 def SetTest(bosPtUri:str, value:str):
-    ok = Set(bosPtUri, value)
+    ok = bos.Set(bosPtUri, value)
     if ok:
         print(bosPtUri, "<-", value, "(ok)")
     else:
         print(bosPtUri, "<-", value, "(SetError)")
 
 def SetMultipleTest(keys:list[str], values:list[Any]):
-    R = Set(keys, values)
+    R = bos.Set(keys, values, full_response=True)
     for r in R:
         bosPtUri = r.Key
         valueStr = r.ValueStr # drivers are not required to provide this in response
@@ -18,21 +20,25 @@ def SetMultipleTest(keys:list[str], values:list[Any]):
             print(bosPtUri, "<-", valueStr, "(SetError)")
 
 if __name__ == "__main__":
-    print("sysmod address: ", SYSMOD_ADDR)
-    print("devctrl address:", DEVCTRL_ADDR)
+    # print("sysmod address: ", bos.SYSMOD_ADDR)
+    # print("devctrl address:", bos.DEVCTRL_ADDR)
     
-    test1_url = "bos://localhost/dev/1/pts/1"
-    SetTest(test1_url, 420)
+    pt1 = "bos://localhost/dev/1/pts/1"
+    SetTest(pt1, 420)
 
-    test2_url = "bos://localhost/dev/1/pts/2"
-    test3_url = "bos://localhost/dev/1/pts/4"
-    test4_url = "bos://localhost/dev/1/pts/5"
+    pt2 = "bos://localhost/dev/1/pts/2"
+    pt3 = "bos://localhost/dev/1/pts/4"
+    pt4 = "bos://localhost/dev/1/pts/5"
     SetMultipleTest(
-        [test2_url, test3_url, test4_url],
+        [pt2, pt3, pt4],
         [18, 80, True],
         )
     
+    # if n pts and 1 value are passed, the value is assigned to all n pts
     SetMultipleTest(
-         [test2_url, test3_url], 
+         [pt2, pt3], 
          20
     )
+
+    pt5 = "bos://localhost/dev/2/pts/2"
+    SetTest(pt5, False)

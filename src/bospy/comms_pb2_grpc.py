@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-import comms_pb2 as comms__pb2
+from . import comms_pb2 as comms__pb2
 
 GRPC_GENERATED_VERSION = '1.66.0'
 GRPC_VERSION = grpc.__version__
@@ -25,78 +25,6 @@ if _version_not_supported:
     )
 
 
-class HealthCheckStub(object):
-    """Missing associated documentation comment in .proto file."""
-
-    def __init__(self, channel):
-        """Constructor.
-
-        Args:
-            channel: A grpc.Channel.
-        """
-        self.Ping = channel.unary_unary(
-                '/bos.HealthCheck/Ping',
-                request_serializer=comms__pb2.Empty.SerializeToString,
-                response_deserializer=comms__pb2.Empty.FromString,
-                _registered_method=True)
-
-
-class HealthCheckServicer(object):
-    """Missing associated documentation comment in .proto file."""
-
-    def Ping(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-
-def add_HealthCheckServicer_to_server(servicer, server):
-    rpc_method_handlers = {
-            'Ping': grpc.unary_unary_rpc_method_handler(
-                    servicer.Ping,
-                    request_deserializer=comms__pb2.Empty.FromString,
-                    response_serializer=comms__pb2.Empty.SerializeToString,
-            ),
-    }
-    generic_handler = grpc.method_handlers_generic_handler(
-            'bos.HealthCheck', rpc_method_handlers)
-    server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('bos.HealthCheck', rpc_method_handlers)
-
-
- # This class is part of an EXPERIMENTAL API.
-class HealthCheck(object):
-    """Missing associated documentation comment in .proto file."""
-
-    @staticmethod
-    def Ping(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            '/bos.HealthCheck/Ping',
-            comms__pb2.Empty.SerializeToString,
-            comms__pb2.Empty.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
-
-
 class GetSetRunStub(object):
     """the GetSetRun service provides the fundamental driver functionality for Setting 
     values, getting them, and running commands.
@@ -113,20 +41,10 @@ class GetSetRunStub(object):
                 request_serializer=comms__pb2.GetRequest.SerializeToString,
                 response_deserializer=comms__pb2.GetResponse.FromString,
                 _registered_method=True)
-        self.GetMultiple = channel.unary_unary(
-                '/bos.GetSetRun/GetMultiple',
-                request_serializer=comms__pb2.GetMultipleRequest.SerializeToString,
-                response_deserializer=comms__pb2.GetMultipleResponse.FromString,
-                _registered_method=True)
         self.Set = channel.unary_unary(
                 '/bos.GetSetRun/Set',
                 request_serializer=comms__pb2.SetRequest.SerializeToString,
                 response_deserializer=comms__pb2.SetResponse.FromString,
-                _registered_method=True)
-        self.SetMultiple = channel.unary_unary(
-                '/bos.GetSetRun/SetMultiple',
-                request_serializer=comms__pb2.SetMultipleRequest.SerializeToString,
-                response_deserializer=comms__pb2.SetMultipleResponse.FromString,
                 _registered_method=True)
 
 
@@ -142,22 +60,8 @@ class GetSetRunServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetMultiple(self, request, context):
-        """rpc for getting multiple values from a driver
-        """
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
     def Set(self, request, context):
         """rpc for setting a value on a driver
-        """
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def SetMultiple(self, request, context):
-        """rpc for setting multiple response
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -171,20 +75,10 @@ def add_GetSetRunServicer_to_server(servicer, server):
                     request_deserializer=comms__pb2.GetRequest.FromString,
                     response_serializer=comms__pb2.GetResponse.SerializeToString,
             ),
-            'GetMultiple': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetMultiple,
-                    request_deserializer=comms__pb2.GetMultipleRequest.FromString,
-                    response_serializer=comms__pb2.GetMultipleResponse.SerializeToString,
-            ),
             'Set': grpc.unary_unary_rpc_method_handler(
                     servicer.Set,
                     request_deserializer=comms__pb2.SetRequest.FromString,
                     response_serializer=comms__pb2.SetResponse.SerializeToString,
-            ),
-            'SetMultiple': grpc.unary_unary_rpc_method_handler(
-                    servicer.SetMultiple,
-                    request_deserializer=comms__pb2.SetMultipleRequest.FromString,
-                    response_serializer=comms__pb2.SetMultipleResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -227,33 +121,6 @@ class GetSetRun(object):
             _registered_method=True)
 
     @staticmethod
-    def GetMultiple(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            '/bos.GetSetRun/GetMultiple',
-            comms__pb2.GetMultipleRequest.SerializeToString,
-            comms__pb2.GetMultipleResponse.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
-
-    @staticmethod
     def Set(request,
             target,
             options=(),
@@ -270,33 +137,6 @@ class GetSetRun(object):
             '/bos.GetSetRun/Set',
             comms__pb2.SetRequest.SerializeToString,
             comms__pb2.SetResponse.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
-
-    @staticmethod
-    def SetMultiple(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            '/bos.GetSetRun/SetMultiple',
-            comms__pb2.SetMultipleRequest.SerializeToString,
-            comms__pb2.SetMultipleResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -592,6 +432,78 @@ class Sysmod(object):
             '/bos.Sysmod/GetDriverXref',
             comms__pb2.GetRequest.SerializeToString,
             comms__pb2.QueryResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+
+class HealthCheckStub(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def __init__(self, channel):
+        """Constructor.
+
+        Args:
+            channel: A grpc.Channel.
+        """
+        self.Ping = channel.unary_unary(
+                '/bos.HealthCheck/Ping',
+                request_serializer=comms__pb2.Empty.SerializeToString,
+                response_deserializer=comms__pb2.Empty.FromString,
+                _registered_method=True)
+
+
+class HealthCheckServicer(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def Ping(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+
+def add_HealthCheckServicer_to_server(servicer, server):
+    rpc_method_handlers = {
+            'Ping': grpc.unary_unary_rpc_method_handler(
+                    servicer.Ping,
+                    request_deserializer=comms__pb2.Empty.FromString,
+                    response_serializer=comms__pb2.Empty.SerializeToString,
+            ),
+    }
+    generic_handler = grpc.method_handlers_generic_handler(
+            'bos.HealthCheck', rpc_method_handlers)
+    server.add_generic_rpc_handlers((generic_handler,))
+    server.add_registered_method_handlers('bos.HealthCheck', rpc_method_handlers)
+
+
+ # This class is part of an EXPERIMENTAL API.
+class HealthCheck(object):
+    """Missing associated documentation comment in .proto file."""
+
+    @staticmethod
+    def Ping(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bos.HealthCheck/Ping',
+            comms__pb2.Empty.SerializeToString,
+            comms__pb2.Empty.FromString,
             options,
             channel_credentials,
             insecure,

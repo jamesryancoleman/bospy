@@ -1,4 +1,5 @@
 import re
+import os
 
 point_re = re.compile(r'(?P<prefix>^bos://[A-Za-z0-9.-]+/dev/)(?P<point>[0-9]+/pts/[0-9]+$)')
 dev_point_re = re.compile(r'(?P<device>[0-9]+)/pts/(?P<point>[0-9]+)')

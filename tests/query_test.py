@@ -16,7 +16,7 @@ def NameTest2(name:str):
     if simple_output:
         pts = SimplifyPoint(pts)
     print("== point(s) named {} ==".format(name))
-    print("\t", " ".join(pts))
+    print("\t", pts)
     return pts
 
 def PointNameTest(pt:str):
@@ -33,7 +33,7 @@ def TypeTest(_type:str):
         pts = SimplifyPoint(pts)
         _type = SimplifyBrickType(_type)
     print("== point(s) typed {} ==".format(_type))
-    print("\t", " ".join(pts))
+    print("\t", pts)
     return pts
 
 def LocationTest(location:str):
@@ -44,21 +44,22 @@ def LocationTest(location:str):
     print("\t", " ".join(pts))
     return pts
 
-def QueryTest(_type:str=None, location:str=None):
-    if _type == "" and location == "":
-        print("error: must provide type or location")
-        return
-    pt = QueryPoints(_type, location)
+def QueryTest(types:str|list[str]=None, locations:str|list[str]=None):
+    if type(locations) == str:
+        locations = [locations]
+    if type(types) == str:
+        types == [types]
+    pts = QueryPoints(types, locations)
     if simple_output:
-        pt = SimplifyPoint(pt)
-        _type = SimplifyBrickType(_type)
-    print("== point(s) located in '{}' with type {} ==".format(location, _type))
-    print("\t", pt)
-    return pt
+        pts = [SimplifyPoint(pt) for pt in pts]
+        types = [SimplifyBrickType(types) for t in types]
+    print("== point(s) located in '{}' with type {} ==".format(locations[0], types[0]))
+    print("\t", " ".join(pts))
+    return pts
 
 if __name__ == "__main__":
     name1 = "air_temp" # will only return 1 point
-    name2 = "temp"     # will return more than 1 point
+    name2 = "voltage"     # will return more than 1 point
 
     NameTest(name1)
     NameTest2(name2)
@@ -69,8 +70,8 @@ if __name__ == "__main__":
     type1 = "https://brickschema.org/schema/Brick#Air_Temperature_Sensor"
     TypeTest(type1)
 
-    location1 = "SouthSt"
+    location1 = "home"
     LocationTest(location1)
 
-    location2 = "lab"
-    QueryTest(type1, location2)
+    # location2 = "lab"
+    QueryTest(type1, location1)

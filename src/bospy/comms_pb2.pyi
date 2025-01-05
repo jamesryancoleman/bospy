@@ -6,6 +6,14 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
+class ServiceError(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = ()
+    SERVICE_ERROR_NONE: _ClassVar[ServiceError]
+    SERVICE_ERROR_UNSPECIFIED: _ClassVar[ServiceError]
+    SERVICE_ERROR_NO_RESPONSE: _ClassVar[ServiceError]
+    SERVICE_ERROR_TIMEOUT: _ClassVar[ServiceError]
+    SERVICE_ERROR_ACCESS_DENIED: _ClassVar[ServiceError]
+
 class GetError(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = ()
     GET_ERROR_NONE: _ClassVar[GetError]
@@ -63,6 +71,11 @@ class Dtype(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     DEVICE_ID_LIST: _ClassVar[Dtype]
     DRIVER_ID: _ClassVar[Dtype]
     DRIVER_XREF: _ClassVar[Dtype]
+SERVICE_ERROR_NONE: ServiceError
+SERVICE_ERROR_UNSPECIFIED: ServiceError
+SERVICE_ERROR_NO_RESPONSE: ServiceError
+SERVICE_ERROR_TIMEOUT: ServiceError
+SERVICE_ERROR_ACCESS_DENIED: ServiceError
 GET_ERROR_NONE: GetError
 GET_ERROR_UNSPECIFIED: GetError
 GET_ERROR_KEY_DOES_NOT_EXIST: GetError
@@ -122,31 +135,37 @@ class Header(_message.Message):
     Dst: str
     def __init__(self, Src: _Optional[str] = ..., Dst: _Optional[str] = ...) -> None: ...
 
-class GetRequest(_message.Message):
-    __slots__ = ("Header", "Key")
-    HEADER_FIELD_NUMBER: _ClassVar[int]
-    KEY_FIELD_NUMBER: _ClassVar[int]
-    Header: Header
-    Key: str
-    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Key: _Optional[str] = ...) -> None: ...
-
-class GetResponse(_message.Message):
-    __slots__ = ("Header", "Key", "Value", "Dtype", "Error", "ErrorMsg")
-    HEADER_FIELD_NUMBER: _ClassVar[int]
+class GetPair(_message.Message):
+    __slots__ = ("Key", "Value", "Dtype", "Error", "ErrorMsg")
     KEY_FIELD_NUMBER: _ClassVar[int]
     VALUE_FIELD_NUMBER: _ClassVar[int]
     DTYPE_FIELD_NUMBER: _ClassVar[int]
     ERROR_FIELD_NUMBER: _ClassVar[int]
     ERRORMSG_FIELD_NUMBER: _ClassVar[int]
-    Header: Header
     Key: str
     Value: str
     Dtype: Dtype
     Error: GetError
     ErrorMsg: str
-    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Key: _Optional[str] = ..., Value: _Optional[str] = ..., Dtype: _Optional[_Union[Dtype, str]] = ..., Error: _Optional[_Union[GetError, str]] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...
+    def __init__(self, Key: _Optional[str] = ..., Value: _Optional[str] = ..., Dtype: _Optional[_Union[Dtype, str]] = ..., Error: _Optional[_Union[GetError, str]] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...
 
-class GetMultipleRequest(_message.Message):
+class SetPair(_message.Message):
+    __slots__ = ("Key", "Value", "Dtype", "Ok", "Error", "ErrorMsg")
+    KEY_FIELD_NUMBER: _ClassVar[int]
+    VALUE_FIELD_NUMBER: _ClassVar[int]
+    DTYPE_FIELD_NUMBER: _ClassVar[int]
+    OK_FIELD_NUMBER: _ClassVar[int]
+    ERROR_FIELD_NUMBER: _ClassVar[int]
+    ERRORMSG_FIELD_NUMBER: _ClassVar[int]
+    Key: str
+    Value: str
+    Dtype: Dtype
+    Ok: bool
+    Error: SetError
+    ErrorMsg: str
+    def __init__(self, Key: _Optional[str] = ..., Value: _Optional[str] = ..., Dtype: _Optional[_Union[Dtype, str]] = ..., Ok: bool = ..., Error: _Optional[_Union[SetError, str]] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...
+
+class GetRequest(_message.Message):
     __slots__ = ("Header", "Keys")
     HEADER_FIELD_NUMBER: _ClassVar[int]
     KEYS_FIELD_NUMBER: _ClassVar[int]
@@ -154,55 +173,37 @@ class GetMultipleRequest(_message.Message):
     Keys: _containers.RepeatedScalarFieldContainer[str]
     def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Keys: _Optional[_Iterable[str]] = ...) -> None: ...
 
-class GetMultipleResponse(_message.Message):
-    __slots__ = ("Header", "Responses")
+class GetResponse(_message.Message):
+    __slots__ = ("Header", "Pairs", "Error", "ErrorMsg")
     HEADER_FIELD_NUMBER: _ClassVar[int]
-    RESPONSES_FIELD_NUMBER: _ClassVar[int]
-    Header: Header
-    Responses: _containers.RepeatedCompositeFieldContainer[GetResponse]
-    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Responses: _Optional[_Iterable[_Union[GetResponse, _Mapping]]] = ...) -> None: ...
-
-class SetRequest(_message.Message):
-    __slots__ = ("Header", "Key", "Value")
-    HEADER_FIELD_NUMBER: _ClassVar[int]
-    KEY_FIELD_NUMBER: _ClassVar[int]
-    VALUE_FIELD_NUMBER: _ClassVar[int]
-    Header: Header
-    Key: str
-    Value: str
-    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Key: _Optional[str] = ..., Value: _Optional[str] = ...) -> None: ...
-
-class SetResponse(_message.Message):
-    __slots__ = ("Header", "Ok", "Key", "Value", "Error", "ErrorMsg")
-    HEADER_FIELD_NUMBER: _ClassVar[int]
-    OK_FIELD_NUMBER: _ClassVar[int]
-    KEY_FIELD_NUMBER: _ClassVar[int]
-    VALUE_FIELD_NUMBER: _ClassVar[int]
+    PAIRS_FIELD_NUMBER: _ClassVar[int]
     ERROR_FIELD_NUMBER: _ClassVar[int]
     ERRORMSG_FIELD_NUMBER: _ClassVar[int]
     Header: Header
-    Ok: bool
-    Key: str
-    Value: str
-    Error: SetError
+    Pairs: _containers.RepeatedCompositeFieldContainer[GetPair]
+    Error: ServiceError
     ErrorMsg: str
-    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Ok: bool = ..., Key: _Optional[str] = ..., Value: _Optional[str] = ..., Error: _Optional[_Union[SetError, str]] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...
+    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Pairs: _Optional[_Iterable[_Union[GetPair, _Mapping]]] = ..., Error: _Optional[_Union[ServiceError, str]] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...
 
-class SetMultipleRequest(_message.Message):
-    __slots__ = ("Header", "Requests")
+class SetRequest(_message.Message):
+    __slots__ = ("Header", "Pairs")
     HEADER_FIELD_NUMBER: _ClassVar[int]
-    REQUESTS_FIELD_NUMBER: _ClassVar[int]
+    PAIRS_FIELD_NUMBER: _ClassVar[int]
     Header: Header
-    Requests: _containers.RepeatedCompositeFieldContainer[SetRequest]
-    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Requests: _Optional[_Iterable[_Union[SetRequest, _Mapping]]] = ...) -> None: ...
+    Pairs: _containers.RepeatedCompositeFieldContainer[SetPair]
+    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Pairs: _Optional[_Iterable[_Union[SetPair, _Mapping]]] = ...) -> None: ...
 
-class SetMultipleResponse(_message.Message):
-    __slots__ = ("Header", "Responses")
+class SetResponse(_message.Message):
+    __slots__ = ("Header", "Pairs", "Error", "ErrorMsg")
     HEADER_FIELD_NUMBER: _ClassVar[int]
-    RESPONSES_FIELD_NUMBER: _ClassVar[int]
+    PAIRS_FIELD_NUMBER: _ClassVar[int]
+    ERROR_FIELD_NUMBER: _ClassVar[int]
+    ERRORMSG_FIELD_NUMBER: _ClassVar[int]
     Header: Header
-    Responses: _containers.RepeatedCompositeFieldContainer[SetResponse]
-    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Responses: _Optional[_Iterable[_Union[SetResponse, _Mapping]]] = ...) -> None: ...
+    Pairs: _containers.RepeatedCompositeFieldContainer[SetPair]
+    Error: ServiceError
+    ErrorMsg: str
+    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Pairs: _Optional[_Iterable[_Union[SetPair, _Mapping]]] = ..., Error: _Optional[_Union[ServiceError, str]] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...
 
 class PointQueryRequest(_message.Message):
     __slots__ = ("Header", "Device", "Names", "Types", "Locations", "ConsiderDeviceLoc", "Dtype", "Error", "ErrorMsg")
@@ -227,17 +228,17 @@ class PointQueryRequest(_message.Message):
     def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Device: _Optional[str] = ..., Names: _Optional[_Iterable[str]] = ..., Types: _Optional[_Iterable[str]] = ..., Locations: _Optional[_Iterable[str]] = ..., ConsiderDeviceLoc: bool = ..., Dtype: _Optional[_Union[Dtype, str]] = ..., Error: _Optional[_Union[QueryError, str]] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...
 
 class QueryResponse(_message.Message):
-    __slots__ = ("Header", "Query", "Value", "Dtype", "Error", "ErrorMsg")
+    __slots__ = ("Header", "Query", "Values", "Dtype", "Error", "ErrorMsg")
     HEADER_FIELD_NUMBER: _ClassVar[int]
     QUERY_FIELD_NUMBER: _ClassVar[int]
-    VALUE_FIELD_NUMBER: _ClassVar[int]
+    VALUES_FIELD_NUMBER: _ClassVar[int]
     DTYPE_FIELD_NUMBER: _ClassVar[int]
     ERROR_FIELD_NUMBER: _ClassVar[int]
     ERRORMSG_FIELD_NUMBER: _ClassVar[int]
     Header: Header
     Query: str
-    Value: _containers.RepeatedScalarFieldContainer[str]
+    Values: _containers.RepeatedScalarFieldContainer[str]
     Dtype: Dtype
     Error: QueryError
     ErrorMsg: str
-    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Query: _Optional[str] = ..., Value: _Optional[_Iterable[str]] = ..., Dtype: _Optional[_Union[Dtype, str]] = ..., Error: _Optional[_Union[QueryError, str]] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...
+    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Query: _Optional[str] = ..., Values: _Optional[_Iterable[str]] = ..., Dtype: _Optional[_Union[Dtype, str]] = ..., Error: _Optional[_Union[QueryError, str]] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...

@@ -1,8 +1,6 @@
-import comms_pb2_grpc
-import comms_pb2 
+from . import comms_pb2_grpc
+from . import comms_pb2
 import grpc
-
-import bos_utils
 
 import datetime as dt
 import sys
@@ -16,110 +14,134 @@ from typing import Any
 SYSMOD_ADDR = os.environ.get('SYSMOD_ADDR')
 DEVCTRL_ADDR = os.environ.get('DEVCTRL_ADDR')
 
+# apply defaults
 if SYSMOD_ADDR is None:
     SYSMOD_ADDR = "localhost:2821"
 if DEVCTRL_ADDR is None:
     DEVCTRL_ADDR = "localhost:2822"
 
 # client calls for the sysmod rpc calls
-def NameToPoint(name:str, multiple_matches:bool=False, addr:str=SYSMOD_ADDR) -> None | str | list[str]:
+def NameToPoint(names:str|list[str], multiple_matches:bool=False, addr:str=SYSMOD_ADDR) -> None | list[str]:
+    if isinstance(names, str):
+        names = [names]
+    else:
+        multiple_matches = True
+
     response: comms_pb2.QueryResponse
     with grpc.insecure_channel(addr) as channel:
         stub = comms_pb2_grpc.SysmodStub(channel)
         response = stub.NameToPoint(comms_pb2.GetRequest(
-            Key=name
+            Keys=names
         ))
         if response.Error > 0:
             print("get '{}' error: {}".format(response.Query,
                                               response.Error))
     # cast as a more user-friendly type
     if multiple_matches:
-        return response.Value
-    elif len(response.Value) > 0:
-        return response.Value[0]
+        return response.Values
+    elif len(response.Values) == 1:
+        return response.Values[0]
     else:
         return None
     
-def PointToName(pt:str, addr:str=SYSMOD_ADDR) -> str:
+def PointToName(pt:str, addr:str=SYSMOD_ADDR) -> None | str:
     response: comms_pb2.QueryResponse
     with grpc.insecure_channel(addr) as channel:
         stub = comms_pb2_grpc.SysmodStub(channel)
         response = stub.PointToName(comms_pb2.GetRequest(
-            Key=pt
+            Keys=[pt]
         ))
         if response.Error > 0:
             print("get '{}' error: {}".format(response.Query,
                                               response.Error))
-    return response.Value[0]
+    if len(response.Values) > 0:
+        return response.Values[0]
+    else:
+        return None
 
-def TypeToPoint(_type:str, addr:str=SYSMOD_ADDR) -> None | str | list[str]:
+def TypeToPoint(types:str|list[str], addr:str=SYSMOD_ADDR) -> None | str | list[str]:
+    if isinstance(types, str):
+        types = [types]
     response: comms_pb2.QueryResponse
     with grpc.insecure_channel(addr) as channel:
         stub = comms_pb2_grpc.SysmodStub(channel)
         response = stub.TypeToPoint(comms_pb2.GetRequest(
-            Key=_type))
+            Keys=types))
         if response.Error > 0:
             print("get '{}' error: {}".format(response.Query,
                                               response.Error))
     # cast as a more user-friendly type
-    return response.Value
+    return response.Values
 
-def LocationToPoint(location:str, addr:str=SYSMOD_ADDR) -> None | str | list[str]:
+def LocationToPoint(locations:str|list[str], addr:str=SYSMOD_ADDR) -> None | str | list[str]:
+    print(locations, type(locations))
+    if isinstance(locations, str):
+        locations = [locations]
     response: comms_pb2.QueryResponse
     with grpc.insecure_channel(addr) as channel:
         stub = comms_pb2_grpc.SysmodStub(channel)
         response = stub.LocationToPoint(comms_pb2.GetRequest(
-            Key=location))
+            Keys=locations))
         if response.Error > 0:
             print("get '{}' error: {}".format(response.Query,
                                               response.Error))
-    return response.Value
+    return response.Values
 
-def QueryPoints(_type:str=None, location:str=None, inherit_device_loc:bool=True, addr:str=SYSMOD_ADDR):
-    if _type == "" and location == "":
+def QueryPoints(types:str|list[str]=None, locations:str|list[str]=None, inherit_device_loc:bool=True, addr:str=SYSMOD_ADDR):
+    if (types is None or len(types) == 0) and (locations is None or len(locations) == 0):
         print("error: must provide type or location")
         return
+    
+    if isinstance(types, str):
+        types = [types]
+    if isinstance(locations, str):
+        locations = [locations]
+
     response: comms_pb2.QueryResponse
     with grpc.insecure_channel(addr) as channel:
         stub = comms_pb2_grpc.SysmodStub(channel)
         response = stub.QueryPoints(comms_pb2.PointQueryRequest(
-            Types=[_type],
-            Locations=[location],
+            Types=types,
+            Locations=locations,
             ConsiderDeviceLoc=inherit_device_loc,
         ))
         if response.Error > 0:
             print("get '{}' error: {}".format(response.Query,
                                               response.Error))
-    return response.Value
+    return response.Values
 
 # devctrl rpc calls
-class GetResponse(object):
+class GetValue(object):
     def __init__(self):
         self.Key:str
-        self.ValueStr:str
-        self.Value = None 
+        self.Value:str
+
+class GetResponse(object):
+    def __init__(self):
+        self.Values:list[GetValue] = []
 
 
-def NewGetResponse(resp:comms_pb2.GetResponse) -> GetResponse:
-    r = GetResponse()
-    if resp.Key is not None:
-            r.Key = resp.Key
-    
-    r.ValueStr = resp.Value
-    r.Value = GetTypedValue(resp)
-    return r
+def NewGetValues(resp:comms_pb2.GetResponse) -> list[GetValue]:
+    V:list[GetValue] = []
+    for v in resp.Pairs:
+        _v = GetValue()
+        _v.Key = v.Key
+        _v.Value = GetTypedValue(v)
+        V.append(_v)
+        
+    return V
 
 
-def NewGetMultipleResponse(responses:comms_pb2.GetMultipleResponse) -> list[GetResponse]:
-    R:list[GetResponse] = []
-    for resp in responses.Responses:
-        r = GetResponse()
-        if resp.Key is not None:
-            r.Key = resp.Key
-        r.ValueStr = resp.Value
-        r.Value = GetTypedValue(resp)
-        R.append(r)
-    return R
+# def NewGetMultipleResponse(responses:comms_pb2.GetResponse) -> list[GetValue]:
+#     R:list[GetResponse] = []
+#     for resp in responses.Responses:
+#         r = GetResponse()
+#         if resp.Key is not None:
+#             r.Key = resp.Key
+#         r.ValueStr = resp.Value
+#         r.Value = GetTypedValue(resp)
+#         R.append(r)
+#     return R
 
 
 class SetResponse(object):
@@ -129,26 +151,26 @@ class SetResponse(object):
         self.Ok:bool = False
 
 
-def NewSetResponse(resp:comms_pb2.SetResponse) -> SetResponse:
-    r = SetResponse()
-    print(resp.Key)
-    if resp.Key is not None:
-        r.Key = resp.Key
-    if resp.Value is not None:
-        r.ValueStr = resp.Value
-    r.Ok = resp.Ok
-    return r
+# def NewSetResponse(resp:comms_pb2.SetResponse) -> SetResponse:
+#     r = SetResponse()
+#     print(resp.Key)
+#     if resp.Key is not None:
+#         r.Key = resp.Key
+#     if resp.Value is not None:
+#         r.ValueStr = resp.Value
+#     r.Ok = resp.Ok
+#     return r
 
 
-def NewSetMultipleResponse(responses:comms_pb2.SetMultipleResponse) -> list[SetResponse]:
+def NewSetResponse(responses:comms_pb2.SetResponse) -> list[SetResponse]:
     R:list[SetResponse] = []
-    for resp in responses.Responses:
+    for p in responses.Pairs:
         r = SetResponse()
-        if resp.Key is not None:
-            r.Key = resp.Key
-        if resp.Value is not None:
-            r.ValueStr = resp.Value
-        r.Ok = resp.Ok
+        if p.Key is not None:
+            r.Key = p.Key
+        if p.Value is not None:
+            r.ValueStr = p.Value
+        r.Ok = p.Ok
         R.append(r)
     return R
 
@@ -180,94 +202,58 @@ def CheckLatency(addr:str, num_pings:int=5) -> dt.timedelta | None:
     return running_total / num_pings
         
 
-def Get(k:str|list[str], full_response=False, addr:str=DEVCTRL_ADDR) -> GetResponse | dict[str, Any] | Any :
-    """ Get takes a single bos point uri or a list of point uris. Passing 1 uri 
-    returns 1 value. Passing a list of uris returns a map of uris and their 
-    corresponding values.
-    """
-    if type(k) == list:
-        return GetMutiple(k, full_response=full_response, addr=DEVCTRL_ADDR)
-    else:
-        response: comms_pb2.GetResponse
-        with grpc.insecure_channel(addr) as channel:
-            stub = comms_pb2_grpc.GetSetRunStub(channel)
-            response = stub.Get(comms_pb2.GetRequest(
-                Key=k
-            ))
-            if response.Error > 0:
-                print("get '{}' error: {}".format(response.Key, 
-                                                response.Error))
-        # cast as a more user-friendly type
-        r = NewGetResponse(response)
-        if full_response:
-            return r
-        return r.Value
+def Get(keys:str|list[str], full_response=False, addr=DEVCTRL_ADDR) -> list[GetResponse] | dict[str, object]:
+    if type(keys) == str:
+        keys = [keys]
 
-def Set(k:str|list[str], v:str|list[str], full_response=False, addr=DEVCTRL_ADDR) -> SetResponse | dict[str, bool] | bool:
-    if type(k) == list and type(v) == list:
-        if len(k) == len(v) and type(v) == list:
-            return SetMultiple(list(zip(k, v)), addr=addr)
-        else:
-            print("error: unequal number of keys and values ({} != {})", len(k), len(v))
-            return False
-    elif type(k) == list and type(v) != list:
-        return SetMultiple(list(zip(k, [v] * len(k))), addr=addr)
-    else:
-        response: comms_pb2.SetResponse
-        with grpc.insecure_channel(addr) as channel:
-            stub = comms_pb2_grpc.GetSetRunStub(channel)
-            response = stub.Set(comms_pb2.SetRequest(
-                Key=k, 
-                Value=str(v),
-            ))
-            if not response.Ok:
-                print("set '{}' error: {}".format(response.Key,
-                                                response.Error))
-        r = NewSetResponse(response)
-        if full_response:
-            return r
-        return r.Ok
-
-
-def GetMutiple(keys:list[str], full_response=False, addr=DEVCTRL_ADDR) -> list[GetResponse] | dict[str, object]:
-    responses: comms_pb2.GetMultipleResponse
+    response: comms_pb2.GetResponse
     with grpc.insecure_channel(addr) as channel:
         stub = comms_pb2_grpc.GetSetRunStub(channel)
-        responses = stub.GetMultiple(
-            comms_pb2.GetMultipleRequest(
-                Keys=keys
-            )
-        )
-    R = NewGetMultipleResponse(responses)
+        response = stub.Get(comms_pb2.GetRequest(Keys=keys))
+    R = NewGetValues(response)
     if full_response:
         return R
-    resp_dict = {}
+    D = {}
     for r in R:
-        resp_dict[r.Key] = r.Value
-    return resp_dict
-    
+        D[r.Key] = r.Value
+    return D
 
+def Set(keys:str|list[str], values:str|list[str], full_response=False, addr=DEVCTRL_ADDR) -> SetResponse | dict[str, bool] | bool:
+    if isinstance(keys, str):
+        keys = [keys]
+    if isinstance(values, (str, float, int, bool)):
+        values = [values]
 
-def SetMultiple(key_value_pairs:tuple[str,str], addr=DEVCTRL_ADDR) -> list[SetResponse]:
-    responses : comms_pb2.SetMultipleResponse
-    # convert all values to strings
-    for i, pair in enumerate(key_value_pairs):
-        key_value_pairs[i] = (pair[0], str(pair[1]))
+    # validate the number of keys and values
+    if len(keys) != len(values) :
+        if len(keys) >= 1 and len(values) == 1:
+            values = [values[0]] * len(keys)
+        else:
+            print("error: unable to broadcast values to match number of keys")
+            print("\thave {} keys and {} values".format(len(keys), len(values)))
+            return False
+
+    # by now now we must have an equal number of keys and values, format them
+    pairs = [comms_pb2.SetPair(Key=k, Value=str(values[i])) for i, k in enumerate(keys)]
+
+    response: comms_pb2.SetResponse
     with grpc.insecure_channel(addr) as channel:
         stub = comms_pb2_grpc.GetSetRunStub(channel)
-        responses = stub.SetMultiple(
-            comms_pb2.SetMultipleRequest(
-                Requests=[comms_pb2.SetRequest(Key=t[0], Value=t[1]) for t in key_value_pairs]
-            )
-        )
-    return NewSetMultipleResponse(responses)
+        response = stub.Set(comms_pb2.SetRequest(Pairs=pairs))
+        if response.Error > 0:
+            print("SET_ERROR_{}: {}".format(response.Error, response.ErrorMsg))
+            return False
+    r = NewSetResponse(response)
+    if full_response:
+        return r
+    return True
 
 
-def GetTypedValue(resp:comms_pb2.GetResponse):
+def GetTypedValue(v:comms_pb2.GetPair|comms_pb2.SetPair):
     """ a helper function that uses the appropriate fields from a comms_pb2.GetReponse
     to return a typed value.
     """
-    return DecodeValue(resp.Value, resp.Dtype)
+    return DecodeValue(v.Value, v.Dtype)
 
 
 def DecodeValue(s:str, dtype:comms_pb2.Dtype=comms_pb2.UNSPECIFIED):
