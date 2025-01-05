@@ -1,45 +1,44 @@
-from bos_utils import *
-from bos import *
+from bospy import bos, utils
 
 simple_output = True
 
 def NameTest(name:str):
-    pt = NameToPoint(name)
+    pt = bos.NameToPoint(name)
     if simple_output:
-        pt = SimplifyPoint(pt)
+        pt = utils.SimplifyPoint(pt)
     print("== point(s) named {} ==".format(name))
     print("\t", pt)
     return pt
     
 def NameTest2(name:str):
-    pts = NameToPoint(name, multiple_matches=True)
+    pts = bos.NameToPoint(name, multiple_matches=True)
     if simple_output:
-        pts = SimplifyPoint(pts)
+        pts = utils.SimplifyPoint(pts)
     print("== point(s) named {} ==".format(name))
     print("\t", pts)
     return pts
 
 def PointNameTest(pt:str):
-    name = PointToName(pt)
+    name = bos.PointToName(pt)
     if simple_output:
-        pt = SimplifyPoint(pt)
+        pt = utils.SimplifyPoint(pt)
     print("== Name of {} ==".format(pt))
     print("\t", name)
     return name
 
 def TypeTest(_type:str):
-    pts = TypeToPoint(_type)
+    pts = bos.TypeToPoint(_type)
     if simple_output:
-        pts = SimplifyPoint(pts)
-        _type = SimplifyBrickType(_type)
+        pts = bos.SimplifyPoint(pts)
+        _type = utils.SimplifyBrickType(_type)
     print("== point(s) typed {} ==".format(_type))
     print("\t", pts)
     return pts
 
 def LocationTest(location:str):
-    pts = LocationToPoint(location)
+    pts = bos.LocationToPoint(location)
     if simple_output:
-        pts = SimplifyPoint(pts)
+        pts = utils.SimplifyPoint(pts)
     print("== point(s) located in '{}' ==".format(location))
     print("\t", " ".join(pts))
     return pts
@@ -49,10 +48,10 @@ def QueryTest(types:str|list[str]=None, locations:str|list[str]=None):
         locations = [locations]
     if type(types) == str:
         types == [types]
-    pts = QueryPoints(types, locations)
+    pts = bos.QueryPoints(types, locations)
     if simple_output:
-        pts = [SimplifyPoint(pt) for pt in pts]
-        types = [SimplifyBrickType(types) for t in types]
+        pts = [utils.SimplifyPoint(pt) for pt in pts]
+        types = [utils.SimplifyBrickType(types) for t in types]
     print("== point(s) located in '{}' with type {} ==".format(locations[0], types[0]))
     print("\t", " ".join(pts))
     return pts
