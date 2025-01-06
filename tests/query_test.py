@@ -29,7 +29,7 @@ def PointNameTest(pt:str):
 def TypeTest(_type:str):
     pts = bos.TypeToPoint(_type)
     if simple_output:
-        pts = bos.SimplifyPoint(pts)
+        pts = utils.SimplifyPoint(pts)
         _type = utils.SimplifyBrickType(_type)
     print("== point(s) typed {} ==".format(_type))
     print("\t", pts)
@@ -42,6 +42,9 @@ def LocationTest(location:str):
     print("== point(s) located in '{}' ==".format(location))
     print("\t", " ".join(pts))
     return pts
+
+def QueryAllTest():
+    bos.QueryPoints()
 
 def QueryTest(types:str|list[str]=None, locations:str|list[str]=None):
     if type(locations) == str:

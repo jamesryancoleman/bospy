@@ -65,11 +65,11 @@ class Dtype(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     BOOL: _ClassVar[Dtype]
     STRING: _ClassVar[Dtype]
     BYTES: _ClassVar[Dtype]
-    POINT_ID: _ClassVar[Dtype]
-    POINT_ID_LIST: _ClassVar[Dtype]
-    DEVICE_ID: _ClassVar[Dtype]
-    DEVICE_ID_LIST: _ClassVar[Dtype]
-    DRIVER_ID: _ClassVar[Dtype]
+    POINT: _ClassVar[Dtype]
+    POINT_LIST: _ClassVar[Dtype]
+    DEVICE: _ClassVar[Dtype]
+    DEVICE_LIST: _ClassVar[Dtype]
+    DRIVER: _ClassVar[Dtype]
     DRIVER_XREF: _ClassVar[Dtype]
 SERVICE_ERROR_NONE: ServiceError
 SERVICE_ERROR_UNSPECIFIED: ServiceError
@@ -116,11 +116,11 @@ SFIXED64: Dtype
 BOOL: Dtype
 STRING: Dtype
 BYTES: Dtype
-POINT_ID: Dtype
-POINT_ID_LIST: Dtype
-DEVICE_ID: Dtype
-DEVICE_ID_LIST: Dtype
-DRIVER_ID: Dtype
+POINT: Dtype
+POINT_LIST: Dtype
+DEVICE: Dtype
+DEVICE_LIST: Dtype
+DRIVER: Dtype
 DRIVER_XREF: Dtype
 
 class Empty(_message.Message):
@@ -128,12 +128,14 @@ class Empty(_message.Message):
     def __init__(self) -> None: ...
 
 class Header(_message.Message):
-    __slots__ = ("Src", "Dst")
+    __slots__ = ("Src", "Dst", "TxId")
     SRC_FIELD_NUMBER: _ClassVar[int]
     DST_FIELD_NUMBER: _ClassVar[int]
+    TXID_FIELD_NUMBER: _ClassVar[int]
     Src: str
     Dst: str
-    def __init__(self, Src: _Optional[str] = ..., Dst: _Optional[str] = ...) -> None: ...
+    TxId: int
+    def __init__(self, Src: _Optional[str] = ..., Dst: _Optional[str] = ..., TxId: _Optional[int] = ...) -> None: ...
 
 class GetPair(_message.Message):
     __slots__ = ("Key", "Value", "Dtype", "Error", "ErrorMsg")
@@ -206,26 +208,28 @@ class SetResponse(_message.Message):
     def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Pairs: _Optional[_Iterable[_Union[SetPair, _Mapping]]] = ..., Error: _Optional[_Union[ServiceError, str]] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...
 
 class PointQueryRequest(_message.Message):
-    __slots__ = ("Header", "Device", "Names", "Types", "Locations", "ConsiderDeviceLoc", "Dtype", "Error", "ErrorMsg")
+    __slots__ = ("Header", "Query", "Device", "Names", "Types", "Locations", "ConsiderDeviceLoc", "Resource", "Error", "ErrorMsg")
     HEADER_FIELD_NUMBER: _ClassVar[int]
+    QUERY_FIELD_NUMBER: _ClassVar[int]
     DEVICE_FIELD_NUMBER: _ClassVar[int]
     NAMES_FIELD_NUMBER: _ClassVar[int]
     TYPES_FIELD_NUMBER: _ClassVar[int]
     LOCATIONS_FIELD_NUMBER: _ClassVar[int]
     CONSIDERDEVICELOC_FIELD_NUMBER: _ClassVar[int]
-    DTYPE_FIELD_NUMBER: _ClassVar[int]
+    RESOURCE_FIELD_NUMBER: _ClassVar[int]
     ERROR_FIELD_NUMBER: _ClassVar[int]
     ERRORMSG_FIELD_NUMBER: _ClassVar[int]
     Header: Header
+    Query: str
     Device: str
     Names: _containers.RepeatedScalarFieldContainer[str]
     Types: _containers.RepeatedScalarFieldContainer[str]
     Locations: _containers.RepeatedScalarFieldContainer[str]
     ConsiderDeviceLoc: bool
-    Dtype: Dtype
+    Resource: Dtype
     Error: QueryError
     ErrorMsg: str
-    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Device: _Optional[str] = ..., Names: _Optional[_Iterable[str]] = ..., Types: _Optional[_Iterable[str]] = ..., Locations: _Optional[_Iterable[str]] = ..., ConsiderDeviceLoc: bool = ..., Dtype: _Optional[_Union[Dtype, str]] = ..., Error: _Optional[_Union[QueryError, str]] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...
+    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Query: _Optional[str] = ..., Device: _Optional[str] = ..., Names: _Optional[_Iterable[str]] = ..., Types: _Optional[_Iterable[str]] = ..., Locations: _Optional[_Iterable[str]] = ..., ConsiderDeviceLoc: bool = ..., Resource: _Optional[_Union[Dtype, str]] = ..., Error: _Optional[_Union[QueryError, str]] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...
 
 class QueryResponse(_message.Message):
     __slots__ = ("Header", "Query", "Values", "Dtype", "Error", "ErrorMsg")

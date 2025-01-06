@@ -11,8 +11,13 @@ from typing import Any
 """ Provides the wrapper functions used to access openBOS points in Python
 """
 
+VERSION = "0.0.4"
+
 SYSMOD_ADDR = os.environ.get('SYSMOD_ADDR')
 DEVCTRL_ADDR = os.environ.get('DEVCTRL_ADDR')
+
+# uri -> name cache
+point_name_cache = {}
 
 # apply defaults
 if SYSMOD_ADDR is None:
@@ -87,11 +92,9 @@ def LocationToPoint(locations:str|list[str], addr:str=SYSMOD_ADDR) -> None | str
                                               response.Error))
     return response.Values
 
-def QueryPoints(types:str|list[str]=None, locations:str|list[str]=None, inherit_device_loc:bool=True, addr:str=SYSMOD_ADDR):
-    if (types is None or len(types) == 0) and (locations is None or len(locations) == 0):
-        print("error: must provide type or location")
-        return
-    
+def QueryPoints(query:str=None, types:str|list[str]=None, locations:str|list[str]=None, inherit_device_loc:bool=True, addr:str=SYSMOD_ADDR):
+    """ if query, types, and locations are all none. This returns all pts in sysmod.
+    """
     if isinstance(types, str):
         types = [types]
     if isinstance(locations, str):
@@ -100,11 +103,16 @@ def QueryPoints(types:str|list[str]=None, locations:str|list[str]=None, inherit_
     response: comms_pb2.QueryResponse
     with grpc.insecure_channel(addr) as channel:
         stub = comms_pb2_grpc.SysmodStub(channel)
-        response = stub.QueryPoints(comms_pb2.PointQueryRequest(
-            Types=types,
-            Locations=locations,
-            ConsiderDeviceLoc=inherit_device_loc,
-        ))
+        if query is None:
+            response = stub.QueryPoints(comms_pb2.PointQueryRequest(
+                Types=types,
+                Locations=locations,
+                ConsiderDeviceLoc=inherit_device_loc,
+            ))
+        else:
+            response = stub.QueryPoints(comms_pb2.PointQueryRequest(
+                Query=query,
+            ))
         if response.Error > 0:
             print("get '{}' error: {}".format(response.Query,
                                               response.Error))
