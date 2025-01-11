@@ -95,7 +95,7 @@ def LocationToPoint(locations:str|list[str], addr:str=SYSMOD_ADDR) -> None | str
 def QueryPoints(query:str=None, types:str|list[str]=None, locations:str|list[str]=None, inherit_device_loc:bool=True, addr:str=SYSMOD_ADDR):
     """ if query, types, and locations are all none. This returns all pts in sysmod.
     """
-    print('The sysmod address is: {}'.format(addr))
+    # print('The sysmod address is: {}'.format(addr))
     if isinstance(types, str):
         types = [types]
     if isinstance(locations, str):
