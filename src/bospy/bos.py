@@ -95,6 +95,7 @@ def LocationToPoint(locations:str|list[str], addr:str=SYSMOD_ADDR) -> None | str
 def QueryPoints(query:str=None, types:str|list[str]=None, locations:str|list[str]=None, inherit_device_loc:bool=True, addr:str=SYSMOD_ADDR):
     """ if query, types, and locations are all none. This returns all pts in sysmod.
     """
+    print('The sysmod address is: {}'.format(addr))
     if isinstance(types, str):
         types = [types]
     if isinstance(locations, str):
@@ -140,34 +141,11 @@ def NewGetValues(resp:comms_pb2.GetResponse) -> list[GetValue]:
     return V
 
 
-# def NewGetMultipleResponse(responses:comms_pb2.GetResponse) -> list[GetValue]:
-#     R:list[GetResponse] = []
-#     for resp in responses.Responses:
-#         r = GetResponse()
-#         if resp.Key is not None:
-#             r.Key = resp.Key
-#         r.ValueStr = resp.Value
-#         r.Value = GetTypedValue(resp)
-#         R.append(r)
-#     return R
-
-
 class SetResponse(object):
     def __init__(self):
         self.Key:str = None
         self.ValueStr:str = None
         self.Ok:bool = False
-
-
-# def NewSetResponse(resp:comms_pb2.SetResponse) -> SetResponse:
-#     r = SetResponse()
-#     print(resp.Key)
-#     if resp.Key is not None:
-#         r.Key = resp.Key
-#     if resp.Value is not None:
-#         r.ValueStr = resp.Value
-#     r.Ok = resp.Ok
-#     return r
 
 
 def NewSetResponse(responses:comms_pb2.SetResponse) -> list[SetResponse]:
