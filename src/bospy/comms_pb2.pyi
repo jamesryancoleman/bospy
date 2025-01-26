@@ -208,7 +208,7 @@ class SetResponse(_message.Message):
     def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Pairs: _Optional[_Iterable[_Union[SetPair, _Mapping]]] = ..., Error: _Optional[_Union[ServiceError, str]] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...
 
 class PointQueryRequest(_message.Message):
-    __slots__ = ("Header", "Query", "Device", "Names", "Types", "Locations", "ConsiderDeviceLoc", "Resource", "Error", "ErrorMsg")
+    __slots__ = ("Header", "Query", "Device", "Names", "Types", "Locations", "ConsiderDeviceLoc", "Resource", "ParentTypes", "Error", "ErrorMsg")
     HEADER_FIELD_NUMBER: _ClassVar[int]
     QUERY_FIELD_NUMBER: _ClassVar[int]
     DEVICE_FIELD_NUMBER: _ClassVar[int]
@@ -217,6 +217,7 @@ class PointQueryRequest(_message.Message):
     LOCATIONS_FIELD_NUMBER: _ClassVar[int]
     CONSIDERDEVICELOC_FIELD_NUMBER: _ClassVar[int]
     RESOURCE_FIELD_NUMBER: _ClassVar[int]
+    PARENTTYPES_FIELD_NUMBER: _ClassVar[int]
     ERROR_FIELD_NUMBER: _ClassVar[int]
     ERRORMSG_FIELD_NUMBER: _ClassVar[int]
     Header: Header
@@ -227,9 +228,10 @@ class PointQueryRequest(_message.Message):
     Locations: _containers.RepeatedScalarFieldContainer[str]
     ConsiderDeviceLoc: bool
     Resource: Dtype
+    ParentTypes: _containers.RepeatedScalarFieldContainer[str]
     Error: QueryError
     ErrorMsg: str
-    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Query: _Optional[str] = ..., Device: _Optional[str] = ..., Names: _Optional[_Iterable[str]] = ..., Types: _Optional[_Iterable[str]] = ..., Locations: _Optional[_Iterable[str]] = ..., ConsiderDeviceLoc: bool = ..., Resource: _Optional[_Union[Dtype, str]] = ..., Error: _Optional[_Union[QueryError, str]] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...
+    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Query: _Optional[str] = ..., Device: _Optional[str] = ..., Names: _Optional[_Iterable[str]] = ..., Types: _Optional[_Iterable[str]] = ..., Locations: _Optional[_Iterable[str]] = ..., ConsiderDeviceLoc: bool = ..., Resource: _Optional[_Union[Dtype, str]] = ..., ParentTypes: _Optional[_Iterable[str]] = ..., Error: _Optional[_Union[QueryError, str]] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...
 
 class QueryResponse(_message.Message):
     __slots__ = ("Header", "Query", "Values", "Dtype", "Error", "ErrorMsg")
@@ -246,3 +248,47 @@ class QueryResponse(_message.Message):
     Error: QueryError
     ErrorMsg: str
     def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Query: _Optional[str] = ..., Values: _Optional[_Iterable[str]] = ..., Dtype: _Optional[_Union[Dtype, str]] = ..., Error: _Optional[_Union[QueryError, str]] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...
+
+class HistoryRequest(_message.Message):
+    __slots__ = ("Start", "End", "Keys", "Limit")
+    START_FIELD_NUMBER: _ClassVar[int]
+    END_FIELD_NUMBER: _ClassVar[int]
+    KEYS_FIELD_NUMBER: _ClassVar[int]
+    LIMIT_FIELD_NUMBER: _ClassVar[int]
+    Start: str
+    End: str
+    Keys: _containers.RepeatedScalarFieldContainer[str]
+    Limit: int
+    def __init__(self, Start: _Optional[str] = ..., End: _Optional[str] = ..., Keys: _Optional[_Iterable[str]] = ..., Limit: _Optional[int] = ...) -> None: ...
+
+class HisRow(_message.Message):
+    __slots__ = ("Timestamp", "Value", "Id")
+    TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
+    VALUE_FIELD_NUMBER: _ClassVar[int]
+    ID_FIELD_NUMBER: _ClassVar[int]
+    Timestamp: str
+    Value: float
+    Id: str
+    def __init__(self, Timestamp: _Optional[str] = ..., Value: _Optional[float] = ..., Id: _Optional[str] = ...) -> None: ...
+
+class HistoryResponse(_message.Message):
+    __slots__ = ("Header", "Rows", "Error")
+    HEADER_FIELD_NUMBER: _ClassVar[int]
+    ROWS_FIELD_NUMBER: _ClassVar[int]
+    ERROR_FIELD_NUMBER: _ClassVar[int]
+    Header: Header
+    Rows: _containers.RepeatedCompositeFieldContainer[HisRow]
+    Error: ServiceError
+    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Rows: _Optional[_Iterable[_Union[HisRow, _Mapping]]] = ..., Error: _Optional[_Union[ServiceError, str]] = ...) -> None: ...
+
+class RefreshRatesRequest(_message.Message):
+    __slots__ = ()
+    def __init__(self) -> None: ...
+
+class RefreshRatesResponse(_message.Message):
+    __slots__ = ("Error", "ErrorMsg")
+    ERROR_FIELD_NUMBER: _ClassVar[int]
+    ERRORMSG_FIELD_NUMBER: _ClassVar[int]
+    Error: ServiceError
+    ErrorMsg: str
+    def __init__(self, Error: _Optional[_Union[ServiceError, str]] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...

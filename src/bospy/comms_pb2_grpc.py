@@ -513,3 +513,166 @@ class HealthCheck(object):
             timeout,
             metadata,
             _registered_method=True)
+
+
+class HistoryStub(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def __init__(self, channel):
+        """Constructor.
+
+        Args:
+            channel: A grpc.Channel.
+        """
+        self.GetHistory = channel.unary_unary(
+                '/bos.History/GetHistory',
+                request_serializer=comms__pb2.HistoryRequest.SerializeToString,
+                response_deserializer=comms__pb2.HistoryResponse.FromString,
+                _registered_method=True)
+        self.SetSampleRate = channel.unary_unary(
+                '/bos.History/SetSampleRate',
+                request_serializer=comms__pb2.SetRequest.SerializeToString,
+                response_deserializer=comms__pb2.SetResponse.FromString,
+                _registered_method=True)
+        self.RefreshRates = channel.unary_unary(
+                '/bos.History/RefreshRates',
+                request_serializer=comms__pb2.RefreshRatesRequest.SerializeToString,
+                response_deserializer=comms__pb2.RefreshRatesResponse.FromString,
+                _registered_method=True)
+
+
+class HistoryServicer(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def GetHistory(self, request, context):
+        """returns rows of history from the historian
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SetSampleRate(self, request, context):
+        """set the sample rate of a given point
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def RefreshRates(self, request, context):
+        """remotely trigger an update of the rates used by the historian.
+        this may be removed in future updates and its functionality triggered
+        by SetSampleRate.
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+
+def add_HistoryServicer_to_server(servicer, server):
+    rpc_method_handlers = {
+            'GetHistory': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetHistory,
+                    request_deserializer=comms__pb2.HistoryRequest.FromString,
+                    response_serializer=comms__pb2.HistoryResponse.SerializeToString,
+            ),
+            'SetSampleRate': grpc.unary_unary_rpc_method_handler(
+                    servicer.SetSampleRate,
+                    request_deserializer=comms__pb2.SetRequest.FromString,
+                    response_serializer=comms__pb2.SetResponse.SerializeToString,
+            ),
+            'RefreshRates': grpc.unary_unary_rpc_method_handler(
+                    servicer.RefreshRates,
+                    request_deserializer=comms__pb2.RefreshRatesRequest.FromString,
+                    response_serializer=comms__pb2.RefreshRatesResponse.SerializeToString,
+            ),
+    }
+    generic_handler = grpc.method_handlers_generic_handler(
+            'bos.History', rpc_method_handlers)
+    server.add_generic_rpc_handlers((generic_handler,))
+    server.add_registered_method_handlers('bos.History', rpc_method_handlers)
+
+
+ # This class is part of an EXPERIMENTAL API.
+class History(object):
+    """Missing associated documentation comment in .proto file."""
+
+    @staticmethod
+    def GetHistory(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bos.History/GetHistory',
+            comms__pb2.HistoryRequest.SerializeToString,
+            comms__pb2.HistoryResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def SetSampleRate(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bos.History/SetSampleRate',
+            comms__pb2.SetRequest.SerializeToString,
+            comms__pb2.SetResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def RefreshRates(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bos.History/RefreshRates',
+            comms__pb2.RefreshRatesRequest.SerializeToString,
+            comms__pb2.RefreshRatesResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
