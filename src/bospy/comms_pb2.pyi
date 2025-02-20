@@ -207,6 +207,22 @@ class SetResponse(_message.Message):
     ErrorMsg: str
     def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Pairs: _Optional[_Iterable[_Union[SetPair, _Mapping]]] = ..., Error: _Optional[_Union[ServiceError, str]] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...
 
+class DeviceQueryRequest(_message.Message):
+    __slots__ = ("Header", "Query", "Names", "Types", "Locations", "ChildTypes")
+    HEADER_FIELD_NUMBER: _ClassVar[int]
+    QUERY_FIELD_NUMBER: _ClassVar[int]
+    NAMES_FIELD_NUMBER: _ClassVar[int]
+    TYPES_FIELD_NUMBER: _ClassVar[int]
+    LOCATIONS_FIELD_NUMBER: _ClassVar[int]
+    CHILDTYPES_FIELD_NUMBER: _ClassVar[int]
+    Header: Header
+    Query: str
+    Names: _containers.RepeatedScalarFieldContainer[str]
+    Types: _containers.RepeatedScalarFieldContainer[str]
+    Locations: _containers.RepeatedScalarFieldContainer[str]
+    ChildTypes: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Query: _Optional[str] = ..., Names: _Optional[_Iterable[str]] = ..., Types: _Optional[_Iterable[str]] = ..., Locations: _Optional[_Iterable[str]] = ..., ChildTypes: _Optional[_Iterable[str]] = ...) -> None: ...
+
 class PointQueryRequest(_message.Message):
     __slots__ = ("Header", "Query", "Device", "Names", "Types", "Locations", "ConsiderDeviceLoc", "Resource", "ParentTypes", "Error", "ErrorMsg")
     HEADER_FIELD_NUMBER: _ClassVar[int]
@@ -248,6 +264,84 @@ class QueryResponse(_message.Message):
     Error: QueryError
     ErrorMsg: str
     def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Query: _Optional[str] = ..., Values: _Optional[_Iterable[str]] = ..., Dtype: _Optional[_Union[Dtype, str]] = ..., Error: _Optional[_Union[QueryError, str]] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...
+
+class Triple(_message.Message):
+    __slots__ = ("Subject", "Predicate", "Object")
+    SUBJECT_FIELD_NUMBER: _ClassVar[int]
+    PREDICATE_FIELD_NUMBER: _ClassVar[int]
+    OBJECT_FIELD_NUMBER: _ClassVar[int]
+    Subject: str
+    Predicate: str
+    Object: str
+    def __init__(self, Subject: _Optional[str] = ..., Predicate: _Optional[str] = ..., Object: _Optional[str] = ...) -> None: ...
+
+class MakeDeviceRequest(_message.Message):
+    __slots__ = ("Name", "Types", "Locations", "Driver", "OtherProperties")
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    TYPES_FIELD_NUMBER: _ClassVar[int]
+    LOCATIONS_FIELD_NUMBER: _ClassVar[int]
+    DRIVER_FIELD_NUMBER: _ClassVar[int]
+    OTHERPROPERTIES_FIELD_NUMBER: _ClassVar[int]
+    Name: str
+    Types: _containers.RepeatedScalarFieldContainer[str]
+    Locations: _containers.RepeatedScalarFieldContainer[str]
+    Driver: str
+    OtherProperties: _containers.RepeatedCompositeFieldContainer[Triple]
+    def __init__(self, Name: _Optional[str] = ..., Types: _Optional[_Iterable[str]] = ..., Locations: _Optional[_Iterable[str]] = ..., Driver: _Optional[str] = ..., OtherProperties: _Optional[_Iterable[_Union[Triple, _Mapping]]] = ...) -> None: ...
+
+class MakePointRequest(_message.Message):
+    __slots__ = ("Device", "Name", "Types", "Locations", "Xref", "OtherProperties")
+    DEVICE_FIELD_NUMBER: _ClassVar[int]
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    TYPES_FIELD_NUMBER: _ClassVar[int]
+    LOCATIONS_FIELD_NUMBER: _ClassVar[int]
+    XREF_FIELD_NUMBER: _ClassVar[int]
+    OTHERPROPERTIES_FIELD_NUMBER: _ClassVar[int]
+    Device: str
+    Name: str
+    Types: _containers.RepeatedScalarFieldContainer[str]
+    Locations: _containers.RepeatedScalarFieldContainer[str]
+    Xref: str
+    OtherProperties: _containers.RepeatedCompositeFieldContainer[Triple]
+    def __init__(self, Device: _Optional[str] = ..., Name: _Optional[str] = ..., Types: _Optional[_Iterable[str]] = ..., Locations: _Optional[_Iterable[str]] = ..., Xref: _Optional[str] = ..., OtherProperties: _Optional[_Iterable[_Union[Triple, _Mapping]]] = ...) -> None: ...
+
+class MakeDriverRequest(_message.Message):
+    __slots__ = ("Name", "Host", "Port", "Image", "Container")
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    HOST_FIELD_NUMBER: _ClassVar[int]
+    PORT_FIELD_NUMBER: _ClassVar[int]
+    IMAGE_FIELD_NUMBER: _ClassVar[int]
+    CONTAINER_FIELD_NUMBER: _ClassVar[int]
+    Name: str
+    Host: str
+    Port: str
+    Image: str
+    Container: str
+    def __init__(self, Name: _Optional[str] = ..., Host: _Optional[str] = ..., Port: _Optional[str] = ..., Image: _Optional[str] = ..., Container: _Optional[str] = ...) -> None: ...
+
+class MakeResponse(_message.Message):
+    __slots__ = ("Url", "ErrorMsg")
+    URL_FIELD_NUMBER: _ClassVar[int]
+    ERRORMSG_FIELD_NUMBER: _ClassVar[int]
+    Url: str
+    ErrorMsg: str
+    def __init__(self, Url: _Optional[str] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...
+
+class DeleteRequest(_message.Message):
+    __slots__ = ("Header", "Query", "Triple")
+    HEADER_FIELD_NUMBER: _ClassVar[int]
+    QUERY_FIELD_NUMBER: _ClassVar[int]
+    TRIPLE_FIELD_NUMBER: _ClassVar[int]
+    Header: Header
+    Query: str
+    Triple: Triple
+    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Query: _Optional[str] = ..., Triple: _Optional[_Union[Triple, _Mapping]] = ...) -> None: ...
+
+class DeleteResponse(_message.Message):
+    __slots__ = ("Urls",)
+    URLS_FIELD_NUMBER: _ClassVar[int]
+    Urls: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(self, Urls: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class HistoryRequest(_message.Message):
     __slots__ = ("Start", "End", "Keys", "Limit")

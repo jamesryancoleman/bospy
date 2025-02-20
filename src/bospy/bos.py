@@ -52,11 +52,11 @@ def NameToPoint(names:str|list[str], multiple_matches:bool=False) -> None | list
     else:
         return None
     
-def PointToName(pt:str) -> None | str:
+def GetName(pt:str) -> None | str:
     response: comms_pb2.QueryResponse
     with grpc.insecure_channel(SYSMOD_ADDR) as channel:
         stub = comms_pb2_grpc.SysmodStub(channel)
-        response = stub.PointToName(comms_pb2.GetRequest(
+        response = stub.GetName(comms_pb2.GetRequest(
             Keys=[pt]
         ))
         if response.Error > 0:
@@ -95,11 +95,14 @@ def LocationToPoint(locations:str|list[str]) -> None | str | list[str]:
                                               response.Error))
     return response.Values
 
-def QueryPoints(query:str=None, types:str|list[str]=None, locations:str|list[str]=None, 
-                inherit_device_loc:bool=True, parent_types:str|list[str]=None):
+def QueryPoints(query:str=None, names:str|list[str]=None, types:str|list[str]=None,
+                locations:str|list[str]=None, inherit_device_loc:bool=True,
+                parent_types:str|list[str]=None):
     """ if query, types, and locations are all none. This returns all pts in sysmod.
     """
-    # print('The sysmod address is: {}'.format(addr))
+
+    if isinstance(names, str):
+        names = [names]
     if isinstance(types, str):
         types = [types]
     if isinstance(locations, str):
@@ -112,6 +115,7 @@ def QueryPoints(query:str=None, types:str|list[str]=None, locations:str|list[str
         stub = comms_pb2_grpc.SysmodStub(channel)
         if query is None:
             response = stub.QueryPoints(comms_pb2.PointQueryRequest(
+                Names=names,
                 Types=types,
                 Locations=locations,
                 ConsiderDeviceLoc=inherit_device_loc,
@@ -123,9 +127,132 @@ def QueryPoints(query:str=None, types:str|list[str]=None, locations:str|list[str
             ))
         if response.Error > 0:
             print("get '{}' error: {}".format(response.Query,
-                                              response.Error))
-    return response.Values
+                                              response.Error))                              
+    return sorted(response.Values)
 
+def QueryDevices(query:str=None, names:str|list[str]=None, types:str|list[str]=None, 
+                locations:str|list[str]=None, child_types:str|list[str]=None) -> list[str]:
+    
+    if isinstance(names, str):
+        names = [names]
+    if isinstance(types, str):
+        types = [types]
+    if isinstance(locations, str):
+        locations = [locations]
+    if isinstance(child_types, str):
+        child_types = [child_types]
+
+    response:comms_pb2.QueryResponse
+    with grpc.insecure_channel(SYSMOD_ADDR) as channel:
+        stub = comms_pb2_grpc.SysmodStub(channel)
+        if query is None:
+            response = stub.QueryDevices(comms_pb2.DeviceQueryRequest(
+                Names=names,
+                Types=types,
+                Locations=locations,
+                ChildTypes=child_types,
+            ))
+        else:
+            response = stub.QueryDevices(comms_pb2.PointQueryRequest(
+                Query=query,
+            ))
+        if response.Error > 0:
+            print("get '{}' error: {}".format(response.Query, response.Error))
+    return sorted(response.Values)
+
+def MakeDevice(name:str, types:str|list[str]=None, locations:str|list[str]=None, 
+               driver:str=None, properties:list[tuple]=None) -> str:
+    """ takes the name, types, locations, driver, and any other properties you 
+        wish to associate with the device.
+        driver is of the format "bos://localhost/drives/[0-9]+".
+        otherProperties is a list of 3-tuples of the format (subject:str, predicate:str, object:str)
+    """
+    if isinstance(types, str):
+        types = [types]
+    if isinstance(locations, str):
+        locations = [locations]
+    if properties:
+        properties = [comms_pb2.Triple(Subject=p[0], Predicate=p[1], Object=p[2]) for p in properties]
+    
+    response:comms_pb2.MakeResponse
+    with grpc.insecure_channel(SYSMOD_ADDR) as channel:
+        stub = comms_pb2_grpc.SysmodStub(channel)
+        response = stub.MakeDevice(comms_pb2.MakeDeviceRequest(
+            Name=name,
+            Types=types,
+            Locations=locations,
+            Driver=driver,
+            OtherProperties=properties,
+        ))
+    if response.ErrorMsg != "":
+        return "error: {}".format(response.Error, response.ErrorMsg)
+    return response.Url
+
+def MakePoint(name:str, device:str, types:str|list[str]=None, locations:str|list[str]=None, 
+              properties:list[tuple]=None) -> str:
+    """ takes the name, types, locations, and any other properties you 
+        wish to associate with the device.
+        otherProperties is a list of 3-tuples of the format (subject:str, predicate:str, object:str)
+    """
+    if isinstance(types, str):
+        types = [types]
+    if isinstance(locations, str):
+        locations = [locations]
+    if properties:
+        properties = [comms_pb2.Triple(Subject=p[0], Predicate=p[1], Object=p[2]) for p in properties]
+    
+    response:comms_pb2.MakeResponse
+    with grpc.insecure_channel(SYSMOD_ADDR) as channel:
+        stub = comms_pb2_grpc.SysmodStub(channel)
+        response = stub.MakePoint(comms_pb2.MakePointRequest(
+            Device=device,
+            Name=name,
+            Types=types,
+            Locations=locations,
+            OtherProperties=properties,
+        ))
+    if response.ErrorMsg != "":
+        return "error: {}".format(response.Error, response.ErrorMsg)
+    return response.Url
+
+def MakeDriver(name:str, host:str, port:int, image:str=None, container:str=None) -> comms_pb2.MakeResponse:
+    """ name    of the driver
+        host    the hostname (preferred) or IP that the service can be found at
+        port    starts at 50061 by convention
+        
+        [optional]
+        image       name of the image to pull if not on system
+        container   name of the container if it doesn't match the hostname
+    """
+    response: comms_pb2.MakeResponse
+    with grpc.insecure_channel(SYSMOD_ADDR) as channel:
+        stub = comms_pb2_grpc.SysmodStub(channel)
+        response = stub.MakeDriver(comms_pb2.MakeDriverRequest(
+            Name=name,
+            Host=host,
+            Port=str(port),
+            Image=image,
+            Container=container,
+        ))
+    if response.ErrorMsg != "":
+        return "error: {}".format(response.Error, response.ErrorMsg)
+    return response.Url
+
+def Delete(sub:str="", pred:str="", obj:str=""):
+    if sub == "" and pred == "" and obj == "":
+        print("must provide at least one of subject, predicate, or object")
+        return
+    response:comms_pb2.DeleteResponse
+    with grpc.insecure_channel(SYSMOD_ADDR) as channel:
+        stub = comms_pb2_grpc.SysmodStub(channel)
+        response = stub.Delete(comms_pb2.DeleteRequest(
+            Triple=comms_pb2.Triple(
+                Subject=sub,
+                Predicate=pred,
+                Object=obj,
+            )
+        ))
+    return
 
 # History rpc calls
 def SetSampleRate(pts:str|list[str], rates:str|list[str]) -> bool:
@@ -213,15 +340,15 @@ def GetHistory(pts:str|list[str], start:str=None, end:str=None, limit:int=14400,
         if resample_to:
             df = df.resample(resample_to).mean()
         if get_names:
-            df.columns = [PointToName(pt) for pt in df.columns]
+            df.columns = [GetName(pt) for pt in df.columns]
         return df
     return R
 
 # devctrl rpc calls
 class GetValue(object):
-    def __init__(self):
-        self.Key:str
-        self.Value:str
+    def __init__(self, key, value):
+        self.Key:str = key
+        self.Value = value
 
 class GetResponse(object):
     def __init__(self):
@@ -230,12 +357,12 @@ class GetResponse(object):
 
 def NewGetValues(resp:comms_pb2.GetResponse) -> list[GetValue]:
     V:list[GetValue] = []
-    for v in resp.Pairs:
-        _v = GetValue()
-        _v.Key = v.Key
-        _v.Value = GetTypedValue(v)
-        V.append(_v)
-        
+    for pair in resp.Pairs:
+        p = GetValue(
+            key=pair.Key,
+            value=GetTypedValue(pair),
+        )
+        V.append(p)
     return V
 
 
@@ -345,7 +472,9 @@ def DecodeValue(s:str, dtype:comms_pb2.Dtype=comms_pb2.UNSPECIFIED):
     if (dtype == comms_pb2.INT32) or (dtype == comms_pb2.INT64) or (dtype == comms_pb2.UINT32) or (dtype == comms_pb2.UINT64):
         return int(s)
     if (dtype == comms_pb2.BOOL):
-        return bool(s)
+        if s.lower() == "true":
+            return True
+        return False
     if (dtype == comms_pb2.STRING):
         return s
     else:

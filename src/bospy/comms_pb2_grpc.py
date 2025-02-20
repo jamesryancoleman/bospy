@@ -158,24 +158,9 @@ class SysmodStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.NameToPoint = channel.unary_unary(
-                '/bos.Sysmod/NameToPoint',
-                request_serializer=comms__pb2.GetRequest.SerializeToString,
-                response_deserializer=comms__pb2.QueryResponse.FromString,
-                _registered_method=True)
-        self.PointToName = channel.unary_unary(
-                '/bos.Sysmod/PointToName',
-                request_serializer=comms__pb2.GetRequest.SerializeToString,
-                response_deserializer=comms__pb2.QueryResponse.FromString,
-                _registered_method=True)
-        self.TypeToPoint = channel.unary_unary(
-                '/bos.Sysmod/TypeToPoint',
-                request_serializer=comms__pb2.GetRequest.SerializeToString,
-                response_deserializer=comms__pb2.QueryResponse.FromString,
-                _registered_method=True)
-        self.LocationToPoint = channel.unary_unary(
-                '/bos.Sysmod/LocationToPoint',
-                request_serializer=comms__pb2.GetRequest.SerializeToString,
+        self.QueryDevices = channel.unary_unary(
+                '/bos.Sysmod/QueryDevices',
+                request_serializer=comms__pb2.DeviceQueryRequest.SerializeToString,
                 response_deserializer=comms__pb2.QueryResponse.FromString,
                 _registered_method=True)
         self.QueryPoints = channel.unary_unary(
@@ -183,10 +168,40 @@ class SysmodStub(object):
                 request_serializer=comms__pb2.PointQueryRequest.SerializeToString,
                 response_deserializer=comms__pb2.QueryResponse.FromString,
                 _registered_method=True)
+        self.GetName = channel.unary_unary(
+                '/bos.Sysmod/GetName',
+                request_serializer=comms__pb2.GetRequest.SerializeToString,
+                response_deserializer=comms__pb2.QueryResponse.FromString,
+                _registered_method=True)
+        self.GetDriver = channel.unary_unary(
+                '/bos.Sysmod/GetDriver',
+                request_serializer=comms__pb2.GetRequest.SerializeToString,
+                response_deserializer=comms__pb2.QueryResponse.FromString,
+                _registered_method=True)
         self.GetDriverXref = channel.unary_unary(
                 '/bos.Sysmod/GetDriverXref',
                 request_serializer=comms__pb2.GetRequest.SerializeToString,
                 response_deserializer=comms__pb2.QueryResponse.FromString,
+                _registered_method=True)
+        self.MakeDevice = channel.unary_unary(
+                '/bos.Sysmod/MakeDevice',
+                request_serializer=comms__pb2.MakeDeviceRequest.SerializeToString,
+                response_deserializer=comms__pb2.MakeResponse.FromString,
+                _registered_method=True)
+        self.MakePoint = channel.unary_unary(
+                '/bos.Sysmod/MakePoint',
+                request_serializer=comms__pb2.MakePointRequest.SerializeToString,
+                response_deserializer=comms__pb2.MakeResponse.FromString,
+                _registered_method=True)
+        self.MakeDriver = channel.unary_unary(
+                '/bos.Sysmod/MakeDriver',
+                request_serializer=comms__pb2.MakeDriverRequest.SerializeToString,
+                response_deserializer=comms__pb2.MakeResponse.FromString,
+                _registered_method=True)
+        self.Delete = channel.unary_unary(
+                '/bos.Sysmod/Delete',
+                request_serializer=comms__pb2.DeleteRequest.SerializeToString,
+                response_deserializer=comms__pb2.DeleteResponse.FromString,
                 _registered_method=True)
 
 
@@ -194,43 +209,59 @@ class SysmodServicer(object):
     """the PointId (pid) service takes classes, names, or regexes
     """
 
-    def NameToPoint(self, request, context):
-        """Key are the point names. Response is POINT_ID or POINT_ID_LIST
-        """
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def PointToName(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def TypeToPoint(self, request, context):
-        """Key are the class. Response is POINT_ID or POINT_ID_LIST
-        """
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def LocationToPoint(self, request, context):
-        """Key is the location. Response is POINT_ID or POINT_ID_LIST
+    def QueryDevices(self, request, context):
+        """sysmod querying rpcs
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def QueryPoints(self, request, context):
-        """Takes a set of query params. Response is POINT_ID or POINT_ID_LIST
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetName(self, request, context):
+        """rpc NameToPoint(GetRequest) returns (QueryResponse);
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def GetDriver(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def GetDriverXref(self, request, context):
-        """Takes a bos:Point. Returns the bos:xref of the corresponding driver 
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def MakeDevice(self, request, context):
+        """sysmod populating rpcs
         """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def MakePoint(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def MakeDriver(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def Delete(self, request, context):
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -238,24 +269,9 @@ class SysmodServicer(object):
 
 def add_SysmodServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'NameToPoint': grpc.unary_unary_rpc_method_handler(
-                    servicer.NameToPoint,
-                    request_deserializer=comms__pb2.GetRequest.FromString,
-                    response_serializer=comms__pb2.QueryResponse.SerializeToString,
-            ),
-            'PointToName': grpc.unary_unary_rpc_method_handler(
-                    servicer.PointToName,
-                    request_deserializer=comms__pb2.GetRequest.FromString,
-                    response_serializer=comms__pb2.QueryResponse.SerializeToString,
-            ),
-            'TypeToPoint': grpc.unary_unary_rpc_method_handler(
-                    servicer.TypeToPoint,
-                    request_deserializer=comms__pb2.GetRequest.FromString,
-                    response_serializer=comms__pb2.QueryResponse.SerializeToString,
-            ),
-            'LocationToPoint': grpc.unary_unary_rpc_method_handler(
-                    servicer.LocationToPoint,
-                    request_deserializer=comms__pb2.GetRequest.FromString,
+            'QueryDevices': grpc.unary_unary_rpc_method_handler(
+                    servicer.QueryDevices,
+                    request_deserializer=comms__pb2.DeviceQueryRequest.FromString,
                     response_serializer=comms__pb2.QueryResponse.SerializeToString,
             ),
             'QueryPoints': grpc.unary_unary_rpc_method_handler(
@@ -263,10 +279,40 @@ def add_SysmodServicer_to_server(servicer, server):
                     request_deserializer=comms__pb2.PointQueryRequest.FromString,
                     response_serializer=comms__pb2.QueryResponse.SerializeToString,
             ),
+            'GetName': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetName,
+                    request_deserializer=comms__pb2.GetRequest.FromString,
+                    response_serializer=comms__pb2.QueryResponse.SerializeToString,
+            ),
+            'GetDriver': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetDriver,
+                    request_deserializer=comms__pb2.GetRequest.FromString,
+                    response_serializer=comms__pb2.QueryResponse.SerializeToString,
+            ),
             'GetDriverXref': grpc.unary_unary_rpc_method_handler(
                     servicer.GetDriverXref,
                     request_deserializer=comms__pb2.GetRequest.FromString,
                     response_serializer=comms__pb2.QueryResponse.SerializeToString,
+            ),
+            'MakeDevice': grpc.unary_unary_rpc_method_handler(
+                    servicer.MakeDevice,
+                    request_deserializer=comms__pb2.MakeDeviceRequest.FromString,
+                    response_serializer=comms__pb2.MakeResponse.SerializeToString,
+            ),
+            'MakePoint': grpc.unary_unary_rpc_method_handler(
+                    servicer.MakePoint,
+                    request_deserializer=comms__pb2.MakePointRequest.FromString,
+                    response_serializer=comms__pb2.MakeResponse.SerializeToString,
+            ),
+            'MakeDriver': grpc.unary_unary_rpc_method_handler(
+                    servicer.MakeDriver,
+                    request_deserializer=comms__pb2.MakeDriverRequest.FromString,
+                    response_serializer=comms__pb2.MakeResponse.SerializeToString,
+            ),
+            'Delete': grpc.unary_unary_rpc_method_handler(
+                    servicer.Delete,
+                    request_deserializer=comms__pb2.DeleteRequest.FromString,
+                    response_serializer=comms__pb2.DeleteResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -281,7 +327,7 @@ class Sysmod(object):
     """
 
     @staticmethod
-    def NameToPoint(request,
+    def QueryDevices(request,
             target,
             options=(),
             channel_credentials=None,
@@ -294,89 +340,8 @@ class Sysmod(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/bos.Sysmod/NameToPoint',
-            comms__pb2.GetRequest.SerializeToString,
-            comms__pb2.QueryResponse.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
-
-    @staticmethod
-    def PointToName(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            '/bos.Sysmod/PointToName',
-            comms__pb2.GetRequest.SerializeToString,
-            comms__pb2.QueryResponse.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
-
-    @staticmethod
-    def TypeToPoint(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            '/bos.Sysmod/TypeToPoint',
-            comms__pb2.GetRequest.SerializeToString,
-            comms__pb2.QueryResponse.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
-
-    @staticmethod
-    def LocationToPoint(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            '/bos.Sysmod/LocationToPoint',
-            comms__pb2.GetRequest.SerializeToString,
+            '/bos.Sysmod/QueryDevices',
+            comms__pb2.DeviceQueryRequest.SerializeToString,
             comms__pb2.QueryResponse.FromString,
             options,
             channel_credentials,
@@ -416,6 +381,60 @@ class Sysmod(object):
             _registered_method=True)
 
     @staticmethod
+    def GetName(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bos.Sysmod/GetName',
+            comms__pb2.GetRequest.SerializeToString,
+            comms__pb2.QueryResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetDriver(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bos.Sysmod/GetDriver',
+            comms__pb2.GetRequest.SerializeToString,
+            comms__pb2.QueryResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
     def GetDriverXref(request,
             target,
             options=(),
@@ -432,6 +451,114 @@ class Sysmod(object):
             '/bos.Sysmod/GetDriverXref',
             comms__pb2.GetRequest.SerializeToString,
             comms__pb2.QueryResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def MakeDevice(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bos.Sysmod/MakeDevice',
+            comms__pb2.MakeDeviceRequest.SerializeToString,
+            comms__pb2.MakeResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def MakePoint(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bos.Sysmod/MakePoint',
+            comms__pb2.MakePointRequest.SerializeToString,
+            comms__pb2.MakeResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def MakeDriver(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bos.Sysmod/MakeDriver',
+            comms__pb2.MakeDriverRequest.SerializeToString,
+            comms__pb2.MakeResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def Delete(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bos.Sysmod/Delete',
+            comms__pb2.DeleteRequest.SerializeToString,
+            comms__pb2.DeleteResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -529,6 +656,11 @@ class HistoryStub(object):
                 request_serializer=comms__pb2.HistoryRequest.SerializeToString,
                 response_deserializer=comms__pb2.HistoryResponse.FromString,
                 _registered_method=True)
+        self.GetSampleRate = channel.unary_unary(
+                '/bos.History/GetSampleRate',
+                request_serializer=comms__pb2.SetRequest.SerializeToString,
+                response_deserializer=comms__pb2.SetResponse.FromString,
+                _registered_method=True)
         self.SetSampleRate = channel.unary_unary(
                 '/bos.History/SetSampleRate',
                 request_serializer=comms__pb2.SetRequest.SerializeToString,
@@ -546,6 +678,13 @@ class HistoryServicer(object):
 
     def GetHistory(self, request, context):
         """returns rows of history from the historian
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetSampleRate(self, request, context):
+        """set the sample rate of a given point
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -574,6 +713,11 @@ def add_HistoryServicer_to_server(servicer, server):
                     servicer.GetHistory,
                     request_deserializer=comms__pb2.HistoryRequest.FromString,
                     response_serializer=comms__pb2.HistoryResponse.SerializeToString,
+            ),
+            'GetSampleRate': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetSampleRate,
+                    request_deserializer=comms__pb2.SetRequest.FromString,
+                    response_serializer=comms__pb2.SetResponse.SerializeToString,
             ),
             'SetSampleRate': grpc.unary_unary_rpc_method_handler(
                     servicer.SetSampleRate,
@@ -613,6 +757,33 @@ class History(object):
             '/bos.History/GetHistory',
             comms__pb2.HistoryRequest.SerializeToString,
             comms__pb2.HistoryResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetSampleRate(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bos.History/GetSampleRate',
+            comms__pb2.SetRequest.SerializeToString,
+            comms__pb2.SetResponse.FromString,
             options,
             channel_credentials,
             insecure,
