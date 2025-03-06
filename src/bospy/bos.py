@@ -11,7 +11,7 @@ from typing import Any
 """ Provides the wrapper functions used to access openBOS points in Python
 """
 
-VERSION = "0.0.4"
+VERSION = "0.0.9"
 
 SYSMOD_ADDR = os.environ.get('SYSMOD_ADDR')
 DEVCTRL_ADDR = os.environ.get('DEVCTRL_ADDR')
@@ -189,7 +189,7 @@ def MakeDevice(name:str, types:str|list[str]=None, locations:str|list[str]=None,
     return response.Url
 
 def MakePoint(name:str, device:str, types:str|list[str]=None, locations:str|list[str]=None, 
-              properties:list[tuple]=None) -> str:
+              xref:str=None, properties:list[tuple]=None, ) -> str:
     """ takes the name, types, locations, and any other properties you 
         wish to associate with the device.
         otherProperties is a list of 3-tuples of the format (subject:str, predicate:str, object:str)
@@ -209,6 +209,7 @@ def MakePoint(name:str, device:str, types:str|list[str]=None, locations:str|list
             Name=name,
             Types=types,
             Locations=locations,
+            Xref=xref,
             OtherProperties=properties,
         ))
     if response.ErrorMsg != "":

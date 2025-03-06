@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-from . import comms_pb2 as comms__pb2
+from . import common_pb2 as common__pb2
 
 GRPC_GENERATED_VERSION = '1.66.0'
 GRPC_VERSION = grpc.__version__
@@ -18,7 +18,7 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in comms_pb2_grpc.py depends on'
+        + f' but the generated code in common_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
@@ -38,13 +38,13 @@ class GetSetRunStub(object):
         """
         self.Get = channel.unary_unary(
                 '/bos.GetSetRun/Get',
-                request_serializer=comms__pb2.GetRequest.SerializeToString,
-                response_deserializer=comms__pb2.GetResponse.FromString,
+                request_serializer=common__pb2.GetRequest.SerializeToString,
+                response_deserializer=common__pb2.GetResponse.FromString,
                 _registered_method=True)
         self.Set = channel.unary_unary(
                 '/bos.GetSetRun/Set',
-                request_serializer=comms__pb2.SetRequest.SerializeToString,
-                response_deserializer=comms__pb2.SetResponse.FromString,
+                request_serializer=common__pb2.SetRequest.SerializeToString,
+                response_deserializer=common__pb2.SetResponse.FromString,
                 _registered_method=True)
 
 
@@ -72,13 +72,13 @@ def add_GetSetRunServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'Get': grpc.unary_unary_rpc_method_handler(
                     servicer.Get,
-                    request_deserializer=comms__pb2.GetRequest.FromString,
-                    response_serializer=comms__pb2.GetResponse.SerializeToString,
+                    request_deserializer=common__pb2.GetRequest.FromString,
+                    response_serializer=common__pb2.GetResponse.SerializeToString,
             ),
             'Set': grpc.unary_unary_rpc_method_handler(
                     servicer.Set,
-                    request_deserializer=comms__pb2.SetRequest.FromString,
-                    response_serializer=comms__pb2.SetResponse.SerializeToString,
+                    request_deserializer=common__pb2.SetRequest.FromString,
+                    response_serializer=common__pb2.SetResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -108,8 +108,8 @@ class GetSetRun(object):
             request,
             target,
             '/bos.GetSetRun/Get',
-            comms__pb2.GetRequest.SerializeToString,
-            comms__pb2.GetResponse.FromString,
+            common__pb2.GetRequest.SerializeToString,
+            common__pb2.GetResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -135,8 +135,8 @@ class GetSetRun(object):
             request,
             target,
             '/bos.GetSetRun/Set',
-            comms__pb2.SetRequest.SerializeToString,
-            comms__pb2.SetResponse.FromString,
+            common__pb2.SetRequest.SerializeToString,
+            common__pb2.SetResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -160,48 +160,48 @@ class SysmodStub(object):
         """
         self.QueryDevices = channel.unary_unary(
                 '/bos.Sysmod/QueryDevices',
-                request_serializer=comms__pb2.DeviceQueryRequest.SerializeToString,
-                response_deserializer=comms__pb2.QueryResponse.FromString,
+                request_serializer=common__pb2.DeviceQueryRequest.SerializeToString,
+                response_deserializer=common__pb2.QueryResponse.FromString,
                 _registered_method=True)
         self.QueryPoints = channel.unary_unary(
                 '/bos.Sysmod/QueryPoints',
-                request_serializer=comms__pb2.PointQueryRequest.SerializeToString,
-                response_deserializer=comms__pb2.QueryResponse.FromString,
+                request_serializer=common__pb2.PointQueryRequest.SerializeToString,
+                response_deserializer=common__pb2.QueryResponse.FromString,
                 _registered_method=True)
         self.GetName = channel.unary_unary(
                 '/bos.Sysmod/GetName',
-                request_serializer=comms__pb2.GetRequest.SerializeToString,
-                response_deserializer=comms__pb2.QueryResponse.FromString,
+                request_serializer=common__pb2.GetRequest.SerializeToString,
+                response_deserializer=common__pb2.QueryResponse.FromString,
                 _registered_method=True)
         self.GetDriver = channel.unary_unary(
                 '/bos.Sysmod/GetDriver',
-                request_serializer=comms__pb2.GetRequest.SerializeToString,
-                response_deserializer=comms__pb2.QueryResponse.FromString,
+                request_serializer=common__pb2.GetRequest.SerializeToString,
+                response_deserializer=common__pb2.QueryResponse.FromString,
                 _registered_method=True)
         self.GetDriverXref = channel.unary_unary(
                 '/bos.Sysmod/GetDriverXref',
-                request_serializer=comms__pb2.GetRequest.SerializeToString,
-                response_deserializer=comms__pb2.QueryResponse.FromString,
+                request_serializer=common__pb2.GetRequest.SerializeToString,
+                response_deserializer=common__pb2.QueryResponse.FromString,
                 _registered_method=True)
         self.MakeDevice = channel.unary_unary(
                 '/bos.Sysmod/MakeDevice',
-                request_serializer=comms__pb2.MakeDeviceRequest.SerializeToString,
-                response_deserializer=comms__pb2.MakeResponse.FromString,
+                request_serializer=common__pb2.MakeDeviceRequest.SerializeToString,
+                response_deserializer=common__pb2.MakeResponse.FromString,
                 _registered_method=True)
         self.MakePoint = channel.unary_unary(
                 '/bos.Sysmod/MakePoint',
-                request_serializer=comms__pb2.MakePointRequest.SerializeToString,
-                response_deserializer=comms__pb2.MakeResponse.FromString,
+                request_serializer=common__pb2.MakePointRequest.SerializeToString,
+                response_deserializer=common__pb2.MakeResponse.FromString,
                 _registered_method=True)
         self.MakeDriver = channel.unary_unary(
                 '/bos.Sysmod/MakeDriver',
-                request_serializer=comms__pb2.MakeDriverRequest.SerializeToString,
-                response_deserializer=comms__pb2.MakeResponse.FromString,
+                request_serializer=common__pb2.MakeDriverRequest.SerializeToString,
+                response_deserializer=common__pb2.MakeResponse.FromString,
                 _registered_method=True)
         self.Delete = channel.unary_unary(
                 '/bos.Sysmod/Delete',
-                request_serializer=comms__pb2.DeleteRequest.SerializeToString,
-                response_deserializer=comms__pb2.DeleteResponse.FromString,
+                request_serializer=common__pb2.DeleteRequest.SerializeToString,
+                response_deserializer=common__pb2.DeleteResponse.FromString,
                 _registered_method=True)
 
 
@@ -271,48 +271,48 @@ def add_SysmodServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'QueryDevices': grpc.unary_unary_rpc_method_handler(
                     servicer.QueryDevices,
-                    request_deserializer=comms__pb2.DeviceQueryRequest.FromString,
-                    response_serializer=comms__pb2.QueryResponse.SerializeToString,
+                    request_deserializer=common__pb2.DeviceQueryRequest.FromString,
+                    response_serializer=common__pb2.QueryResponse.SerializeToString,
             ),
             'QueryPoints': grpc.unary_unary_rpc_method_handler(
                     servicer.QueryPoints,
-                    request_deserializer=comms__pb2.PointQueryRequest.FromString,
-                    response_serializer=comms__pb2.QueryResponse.SerializeToString,
+                    request_deserializer=common__pb2.PointQueryRequest.FromString,
+                    response_serializer=common__pb2.QueryResponse.SerializeToString,
             ),
             'GetName': grpc.unary_unary_rpc_method_handler(
                     servicer.GetName,
-                    request_deserializer=comms__pb2.GetRequest.FromString,
-                    response_serializer=comms__pb2.QueryResponse.SerializeToString,
+                    request_deserializer=common__pb2.GetRequest.FromString,
+                    response_serializer=common__pb2.QueryResponse.SerializeToString,
             ),
             'GetDriver': grpc.unary_unary_rpc_method_handler(
                     servicer.GetDriver,
-                    request_deserializer=comms__pb2.GetRequest.FromString,
-                    response_serializer=comms__pb2.QueryResponse.SerializeToString,
+                    request_deserializer=common__pb2.GetRequest.FromString,
+                    response_serializer=common__pb2.QueryResponse.SerializeToString,
             ),
             'GetDriverXref': grpc.unary_unary_rpc_method_handler(
                     servicer.GetDriverXref,
-                    request_deserializer=comms__pb2.GetRequest.FromString,
-                    response_serializer=comms__pb2.QueryResponse.SerializeToString,
+                    request_deserializer=common__pb2.GetRequest.FromString,
+                    response_serializer=common__pb2.QueryResponse.SerializeToString,
             ),
             'MakeDevice': grpc.unary_unary_rpc_method_handler(
                     servicer.MakeDevice,
-                    request_deserializer=comms__pb2.MakeDeviceRequest.FromString,
-                    response_serializer=comms__pb2.MakeResponse.SerializeToString,
+                    request_deserializer=common__pb2.MakeDeviceRequest.FromString,
+                    response_serializer=common__pb2.MakeResponse.SerializeToString,
             ),
             'MakePoint': grpc.unary_unary_rpc_method_handler(
                     servicer.MakePoint,
-                    request_deserializer=comms__pb2.MakePointRequest.FromString,
-                    response_serializer=comms__pb2.MakeResponse.SerializeToString,
+                    request_deserializer=common__pb2.MakePointRequest.FromString,
+                    response_serializer=common__pb2.MakeResponse.SerializeToString,
             ),
             'MakeDriver': grpc.unary_unary_rpc_method_handler(
                     servicer.MakeDriver,
-                    request_deserializer=comms__pb2.MakeDriverRequest.FromString,
-                    response_serializer=comms__pb2.MakeResponse.SerializeToString,
+                    request_deserializer=common__pb2.MakeDriverRequest.FromString,
+                    response_serializer=common__pb2.MakeResponse.SerializeToString,
             ),
             'Delete': grpc.unary_unary_rpc_method_handler(
                     servicer.Delete,
-                    request_deserializer=comms__pb2.DeleteRequest.FromString,
-                    response_serializer=comms__pb2.DeleteResponse.SerializeToString,
+                    request_deserializer=common__pb2.DeleteRequest.FromString,
+                    response_serializer=common__pb2.DeleteResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -341,8 +341,8 @@ class Sysmod(object):
             request,
             target,
             '/bos.Sysmod/QueryDevices',
-            comms__pb2.DeviceQueryRequest.SerializeToString,
-            comms__pb2.QueryResponse.FromString,
+            common__pb2.DeviceQueryRequest.SerializeToString,
+            common__pb2.QueryResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -368,8 +368,8 @@ class Sysmod(object):
             request,
             target,
             '/bos.Sysmod/QueryPoints',
-            comms__pb2.PointQueryRequest.SerializeToString,
-            comms__pb2.QueryResponse.FromString,
+            common__pb2.PointQueryRequest.SerializeToString,
+            common__pb2.QueryResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -395,8 +395,8 @@ class Sysmod(object):
             request,
             target,
             '/bos.Sysmod/GetName',
-            comms__pb2.GetRequest.SerializeToString,
-            comms__pb2.QueryResponse.FromString,
+            common__pb2.GetRequest.SerializeToString,
+            common__pb2.QueryResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -422,8 +422,8 @@ class Sysmod(object):
             request,
             target,
             '/bos.Sysmod/GetDriver',
-            comms__pb2.GetRequest.SerializeToString,
-            comms__pb2.QueryResponse.FromString,
+            common__pb2.GetRequest.SerializeToString,
+            common__pb2.QueryResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -449,8 +449,8 @@ class Sysmod(object):
             request,
             target,
             '/bos.Sysmod/GetDriverXref',
-            comms__pb2.GetRequest.SerializeToString,
-            comms__pb2.QueryResponse.FromString,
+            common__pb2.GetRequest.SerializeToString,
+            common__pb2.QueryResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -476,8 +476,8 @@ class Sysmod(object):
             request,
             target,
             '/bos.Sysmod/MakeDevice',
-            comms__pb2.MakeDeviceRequest.SerializeToString,
-            comms__pb2.MakeResponse.FromString,
+            common__pb2.MakeDeviceRequest.SerializeToString,
+            common__pb2.MakeResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -503,8 +503,8 @@ class Sysmod(object):
             request,
             target,
             '/bos.Sysmod/MakePoint',
-            comms__pb2.MakePointRequest.SerializeToString,
-            comms__pb2.MakeResponse.FromString,
+            common__pb2.MakePointRequest.SerializeToString,
+            common__pb2.MakeResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -530,8 +530,8 @@ class Sysmod(object):
             request,
             target,
             '/bos.Sysmod/MakeDriver',
-            comms__pb2.MakeDriverRequest.SerializeToString,
-            comms__pb2.MakeResponse.FromString,
+            common__pb2.MakeDriverRequest.SerializeToString,
+            common__pb2.MakeResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -557,8 +557,8 @@ class Sysmod(object):
             request,
             target,
             '/bos.Sysmod/Delete',
-            comms__pb2.DeleteRequest.SerializeToString,
-            comms__pb2.DeleteResponse.FromString,
+            common__pb2.DeleteRequest.SerializeToString,
+            common__pb2.DeleteResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -581,8 +581,8 @@ class HealthCheckStub(object):
         """
         self.Ping = channel.unary_unary(
                 '/bos.HealthCheck/Ping',
-                request_serializer=comms__pb2.Empty.SerializeToString,
-                response_deserializer=comms__pb2.Empty.FromString,
+                request_serializer=common__pb2.Empty.SerializeToString,
+                response_deserializer=common__pb2.Empty.FromString,
                 _registered_method=True)
 
 
@@ -600,8 +600,8 @@ def add_HealthCheckServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'Ping': grpc.unary_unary_rpc_method_handler(
                     servicer.Ping,
-                    request_deserializer=comms__pb2.Empty.FromString,
-                    response_serializer=comms__pb2.Empty.SerializeToString,
+                    request_deserializer=common__pb2.Empty.FromString,
+                    response_serializer=common__pb2.Empty.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -629,8 +629,8 @@ class HealthCheck(object):
             request,
             target,
             '/bos.HealthCheck/Ping',
-            comms__pb2.Empty.SerializeToString,
-            comms__pb2.Empty.FromString,
+            common__pb2.Empty.SerializeToString,
+            common__pb2.Empty.FromString,
             options,
             channel_credentials,
             insecure,
@@ -653,23 +653,23 @@ class HistoryStub(object):
         """
         self.GetHistory = channel.unary_unary(
                 '/bos.History/GetHistory',
-                request_serializer=comms__pb2.HistoryRequest.SerializeToString,
-                response_deserializer=comms__pb2.HistoryResponse.FromString,
+                request_serializer=common__pb2.HistoryRequest.SerializeToString,
+                response_deserializer=common__pb2.HistoryResponse.FromString,
                 _registered_method=True)
         self.GetSampleRate = channel.unary_unary(
                 '/bos.History/GetSampleRate',
-                request_serializer=comms__pb2.SetRequest.SerializeToString,
-                response_deserializer=comms__pb2.SetResponse.FromString,
+                request_serializer=common__pb2.SetRequest.SerializeToString,
+                response_deserializer=common__pb2.SetResponse.FromString,
                 _registered_method=True)
         self.SetSampleRate = channel.unary_unary(
                 '/bos.History/SetSampleRate',
-                request_serializer=comms__pb2.SetRequest.SerializeToString,
-                response_deserializer=comms__pb2.SetResponse.FromString,
+                request_serializer=common__pb2.SetRequest.SerializeToString,
+                response_deserializer=common__pb2.SetResponse.FromString,
                 _registered_method=True)
         self.RefreshRates = channel.unary_unary(
                 '/bos.History/RefreshRates',
-                request_serializer=comms__pb2.RefreshRatesRequest.SerializeToString,
-                response_deserializer=comms__pb2.RefreshRatesResponse.FromString,
+                request_serializer=common__pb2.RefreshRatesRequest.SerializeToString,
+                response_deserializer=common__pb2.RefreshRatesResponse.FromString,
                 _registered_method=True)
 
 
@@ -711,23 +711,23 @@ def add_HistoryServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'GetHistory': grpc.unary_unary_rpc_method_handler(
                     servicer.GetHistory,
-                    request_deserializer=comms__pb2.HistoryRequest.FromString,
-                    response_serializer=comms__pb2.HistoryResponse.SerializeToString,
+                    request_deserializer=common__pb2.HistoryRequest.FromString,
+                    response_serializer=common__pb2.HistoryResponse.SerializeToString,
             ),
             'GetSampleRate': grpc.unary_unary_rpc_method_handler(
                     servicer.GetSampleRate,
-                    request_deserializer=comms__pb2.SetRequest.FromString,
-                    response_serializer=comms__pb2.SetResponse.SerializeToString,
+                    request_deserializer=common__pb2.SetRequest.FromString,
+                    response_serializer=common__pb2.SetResponse.SerializeToString,
             ),
             'SetSampleRate': grpc.unary_unary_rpc_method_handler(
                     servicer.SetSampleRate,
-                    request_deserializer=comms__pb2.SetRequest.FromString,
-                    response_serializer=comms__pb2.SetResponse.SerializeToString,
+                    request_deserializer=common__pb2.SetRequest.FromString,
+                    response_serializer=common__pb2.SetResponse.SerializeToString,
             ),
             'RefreshRates': grpc.unary_unary_rpc_method_handler(
                     servicer.RefreshRates,
-                    request_deserializer=comms__pb2.RefreshRatesRequest.FromString,
-                    response_serializer=comms__pb2.RefreshRatesResponse.SerializeToString,
+                    request_deserializer=common__pb2.RefreshRatesRequest.FromString,
+                    response_serializer=common__pb2.RefreshRatesResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -755,8 +755,8 @@ class History(object):
             request,
             target,
             '/bos.History/GetHistory',
-            comms__pb2.HistoryRequest.SerializeToString,
-            comms__pb2.HistoryResponse.FromString,
+            common__pb2.HistoryRequest.SerializeToString,
+            common__pb2.HistoryResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -782,8 +782,8 @@ class History(object):
             request,
             target,
             '/bos.History/GetSampleRate',
-            comms__pb2.SetRequest.SerializeToString,
-            comms__pb2.SetResponse.FromString,
+            common__pb2.SetRequest.SerializeToString,
+            common__pb2.SetResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -809,8 +809,8 @@ class History(object):
             request,
             target,
             '/bos.History/SetSampleRate',
-            comms__pb2.SetRequest.SerializeToString,
-            comms__pb2.SetResponse.FromString,
+            common__pb2.SetRequest.SerializeToString,
+            common__pb2.SetResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -836,8 +836,125 @@ class History(object):
             request,
             target,
             '/bos.History/RefreshRates',
-            comms__pb2.RefreshRatesRequest.SerializeToString,
-            comms__pb2.RefreshRatesResponse.FromString,
+            common__pb2.RefreshRatesRequest.SerializeToString,
+            common__pb2.RefreshRatesResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+
+class ScheduleStub(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def __init__(self, channel):
+        """Constructor.
+
+        Args:
+            channel: A grpc.Channel.
+        """
+        self.Run = channel.unary_unary(
+                '/bos.Schedule/Run',
+                request_serializer=common__pb2.RunRequest.SerializeToString,
+                response_deserializer=common__pb2.RunResponse.FromString,
+                _registered_method=True)
+        self.ScheduleInterval = channel.unary_unary(
+                '/bos.Schedule/ScheduleInterval',
+                request_serializer=common__pb2.ScheduleIntervalRequest.SerializeToString,
+                response_deserializer=common__pb2.ScheduleIntervalReponse.FromString,
+                _registered_method=True)
+
+
+class ScheduleServicer(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def Run(self, request, context):
+        """run an image 1 time
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def ScheduleInterval(self, request, context):
+        """scheule an rpc to run periodicially
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+
+def add_ScheduleServicer_to_server(servicer, server):
+    rpc_method_handlers = {
+            'Run': grpc.unary_unary_rpc_method_handler(
+                    servicer.Run,
+                    request_deserializer=common__pb2.RunRequest.FromString,
+                    response_serializer=common__pb2.RunResponse.SerializeToString,
+            ),
+            'ScheduleInterval': grpc.unary_unary_rpc_method_handler(
+                    servicer.ScheduleInterval,
+                    request_deserializer=common__pb2.ScheduleIntervalRequest.FromString,
+                    response_serializer=common__pb2.ScheduleIntervalReponse.SerializeToString,
+            ),
+    }
+    generic_handler = grpc.method_handlers_generic_handler(
+            'bos.Schedule', rpc_method_handlers)
+    server.add_generic_rpc_handlers((generic_handler,))
+    server.add_registered_method_handlers('bos.Schedule', rpc_method_handlers)
+
+
+ # This class is part of an EXPERIMENTAL API.
+class Schedule(object):
+    """Missing associated documentation comment in .proto file."""
+
+    @staticmethod
+    def Run(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bos.Schedule/Run',
+            common__pb2.RunRequest.SerializeToString,
+            common__pb2.RunResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def ScheduleInterval(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bos.Schedule/ScheduleInterval',
+            common__pb2.ScheduleIntervalRequest.SerializeToString,
+            common__pb2.ScheduleIntervalReponse.FromString,
             options,
             channel_credentials,
             insecure,

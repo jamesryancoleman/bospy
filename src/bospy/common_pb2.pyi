@@ -386,3 +386,69 @@ class RefreshRatesResponse(_message.Message):
     Error: ServiceError
     ErrorMsg: str
     def __init__(self, Error: _Optional[_Union[ServiceError, str]] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...
+
+class RunRequest(_message.Message):
+    __slots__ = ("Header", "Image", "Container", "Args", "Kwargs", "EnvVars")
+    class KwargsEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: str
+        value: str
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
+    class EnvVarsEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: str
+        value: str
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
+    HEADER_FIELD_NUMBER: _ClassVar[int]
+    IMAGE_FIELD_NUMBER: _ClassVar[int]
+    CONTAINER_FIELD_NUMBER: _ClassVar[int]
+    ARGS_FIELD_NUMBER: _ClassVar[int]
+    KWARGS_FIELD_NUMBER: _ClassVar[int]
+    ENVVARS_FIELD_NUMBER: _ClassVar[int]
+    Header: Header
+    Image: str
+    Container: str
+    Args: _containers.RepeatedScalarFieldContainer[str]
+    Kwargs: _containers.ScalarMap[str, str]
+    EnvVars: _containers.ScalarMap[str, str]
+    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Image: _Optional[str] = ..., Container: _Optional[str] = ..., Args: _Optional[_Iterable[str]] = ..., Kwargs: _Optional[_Mapping[str, str]] = ..., EnvVars: _Optional[_Mapping[str, str]] = ...) -> None: ...
+
+class RunResponse(_message.Message):
+    __slots__ = ("Header", "ExitCode", "StdOut", "ErrorMsg", "ReturnValues")
+    HEADER_FIELD_NUMBER: _ClassVar[int]
+    EXITCODE_FIELD_NUMBER: _ClassVar[int]
+    STDOUT_FIELD_NUMBER: _ClassVar[int]
+    ERRORMSG_FIELD_NUMBER: _ClassVar[int]
+    RETURNVALUES_FIELD_NUMBER: _ClassVar[int]
+    Header: Header
+    ExitCode: int
+    StdOut: str
+    ErrorMsg: str
+    ReturnValues: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., ExitCode: _Optional[int] = ..., StdOut: _Optional[str] = ..., ErrorMsg: _Optional[str] = ..., ReturnValues: _Optional[_Iterable[str]] = ...) -> None: ...
+
+class ScheduleIntervalRequest(_message.Message):
+    __slots__ = ("Header", "Interval", "Requests", "RunNow")
+    HEADER_FIELD_NUMBER: _ClassVar[int]
+    INTERVAL_FIELD_NUMBER: _ClassVar[int]
+    REQUESTS_FIELD_NUMBER: _ClassVar[int]
+    RUNNOW_FIELD_NUMBER: _ClassVar[int]
+    Header: Header
+    Interval: int
+    Requests: _containers.RepeatedCompositeFieldContainer[RunRequest]
+    RunNow: bool
+    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Interval: _Optional[int] = ..., Requests: _Optional[_Iterable[_Union[RunRequest, _Mapping]]] = ..., RunNow: bool = ...) -> None: ...
+
+class ScheduleIntervalReponse(_message.Message):
+    __slots__ = ("Header", "IntervalId", "ContainerIds")
+    HEADER_FIELD_NUMBER: _ClassVar[int]
+    INTERVALID_FIELD_NUMBER: _ClassVar[int]
+    CONTAINERIDS_FIELD_NUMBER: _ClassVar[int]
+    Header: Header
+    IntervalId: int
+    ContainerIds: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., IntervalId: _Optional[int] = ..., ContainerIds: _Optional[_Iterable[str]] = ...) -> None: ...
