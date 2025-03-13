@@ -1,5 +1,5 @@
-from . import comms_pb2_grpc
-from . import comms_pb2
+from bospy import common_pb2_grpc
+from bospy import common_pb2
 import grpc
 
 import datetime as dt
@@ -35,10 +35,10 @@ def NameToPoint(names:str|list[str], multiple_matches:bool=False) -> None | list
     else:
         multiple_matches = True
 
-    response: comms_pb2.QueryResponse
+    response: common_pb2.QueryResponse
     with grpc.insecure_channel(SYSMOD_ADDR) as channel:
-        stub = comms_pb2_grpc.SysmodStub(channel)
-        response = stub.NameToPoint(comms_pb2.GetRequest(
+        stub = common_pb2_grpc.SysmodStub(channel)
+        response = stub.NameToPoint(common_pb2.GetRequest(
             Keys=names
         ))
         if response.Error > 0:
@@ -53,10 +53,10 @@ def NameToPoint(names:str|list[str], multiple_matches:bool=False) -> None | list
         return None
     
 def GetName(pt:str) -> None | str:
-    response: comms_pb2.QueryResponse
+    response: common_pb2.QueryResponse
     with grpc.insecure_channel(SYSMOD_ADDR) as channel:
-        stub = comms_pb2_grpc.SysmodStub(channel)
-        response = stub.GetName(comms_pb2.GetRequest(
+        stub = common_pb2_grpc.SysmodStub(channel)
+        response = stub.GetName(common_pb2.GetRequest(
             Keys=[pt]
         ))
         if response.Error > 0:
@@ -70,10 +70,10 @@ def GetName(pt:str) -> None | str:
 def TypeToPoint(types:str|list[str]) -> None | str | list[str]:
     if isinstance(types, str):
         types = [types]
-    response: comms_pb2.QueryResponse
+    response: common_pb2.QueryResponse
     with grpc.insecure_channel(SYSMOD_ADDR) as channel:
-        stub = comms_pb2_grpc.SysmodStub(channel)
-        response = stub.TypeToPoint(comms_pb2.GetRequest(
+        stub = common_pb2_grpc.SysmodStub(channel)
+        response = stub.TypeToPoint(common_pb2.GetRequest(
             Keys=types))
         if response.Error > 0:
             print("get '{}' error: {}".format(response.Query,
@@ -85,10 +85,10 @@ def LocationToPoint(locations:str|list[str]) -> None | str | list[str]:
     print(locations, type(locations))
     if isinstance(locations, str):
         locations = [locations]
-    response: comms_pb2.QueryResponse
+    response: common_pb2.QueryResponse
     with grpc.insecure_channel(SYSMOD_ADDR) as channel:
-        stub = comms_pb2_grpc.SysmodStub(channel)
-        response = stub.LocationToPoint(comms_pb2.GetRequest(
+        stub = common_pb2_grpc.SysmodStub(channel)
+        response = stub.LocationToPoint(common_pb2.GetRequest(
             Keys=locations))
         if response.Error > 0:
             print("get '{}' error: {}".format(response.Query,
@@ -110,11 +110,11 @@ def QueryPoints(query:str=None, names:str|list[str]=None, types:str|list[str]=No
     if isinstance(parent_types, str):
         parent_types = [parent_types]
 
-    response: comms_pb2.QueryResponse
+    response: common_pb2.QueryResponse
     with grpc.insecure_channel(SYSMOD_ADDR) as channel:
-        stub = comms_pb2_grpc.SysmodStub(channel)
+        stub = common_pb2_grpc.SysmodStub(channel)
         if query is None:
-            response = stub.QueryPoints(comms_pb2.PointQueryRequest(
+            response = stub.QueryPoints(common_pb2.PointQueryRequest(
                 Names=names,
                 Types=types,
                 Locations=locations,
@@ -122,7 +122,7 @@ def QueryPoints(query:str=None, names:str|list[str]=None, types:str|list[str]=No
                 ParentTypes=parent_types,
             ))
         else:
-            response = stub.QueryPoints(comms_pb2.PointQueryRequest(
+            response = stub.QueryPoints(common_pb2.PointQueryRequest(
                 Query=query,
             ))
         if response.Error > 0:
@@ -142,18 +142,18 @@ def QueryDevices(query:str=None, names:str|list[str]=None, types:str|list[str]=N
     if isinstance(child_types, str):
         child_types = [child_types]
 
-    response:comms_pb2.QueryResponse
+    response:common_pb2.QueryResponse
     with grpc.insecure_channel(SYSMOD_ADDR) as channel:
-        stub = comms_pb2_grpc.SysmodStub(channel)
+        stub = common_pb2_grpc.SysmodStub(channel)
         if query is None:
-            response = stub.QueryDevices(comms_pb2.DeviceQueryRequest(
+            response = stub.QueryDevices(common_pb2.DeviceQueryRequest(
                 Names=names,
                 Types=types,
                 Locations=locations,
                 ChildTypes=child_types,
             ))
         else:
-            response = stub.QueryDevices(comms_pb2.PointQueryRequest(
+            response = stub.QueryDevices(common_pb2.PointQueryRequest(
                 Query=query,
             ))
         if response.Error > 0:
@@ -172,12 +172,12 @@ def MakeDevice(name:str, types:str|list[str]=None, locations:str|list[str]=None,
     if isinstance(locations, str):
         locations = [locations]
     if properties:
-        properties = [comms_pb2.Triple(Subject=p[0], Predicate=p[1], Object=p[2]) for p in properties]
+        properties = [common_pb2.Triple(Subject=p[0], Predicate=p[1], Object=p[2]) for p in properties]
     
-    response:comms_pb2.MakeResponse
+    response:common_pb2.MakeResponse
     with grpc.insecure_channel(SYSMOD_ADDR) as channel:
-        stub = comms_pb2_grpc.SysmodStub(channel)
-        response = stub.MakeDevice(comms_pb2.MakeDeviceRequest(
+        stub = common_pb2_grpc.SysmodStub(channel)
+        response = stub.MakeDevice(common_pb2.MakeDeviceRequest(
             Name=name,
             Types=types,
             Locations=locations,
@@ -199,12 +199,12 @@ def MakePoint(name:str, device:str, types:str|list[str]=None, locations:str|list
     if isinstance(locations, str):
         locations = [locations]
     if properties:
-        properties = [comms_pb2.Triple(Subject=p[0], Predicate=p[1], Object=p[2]) for p in properties]
+        properties = [common_pb2.Triple(Subject=p[0], Predicate=p[1], Object=p[2]) for p in properties]
     
-    response:comms_pb2.MakeResponse
+    response:common_pb2.MakeResponse
     with grpc.insecure_channel(SYSMOD_ADDR) as channel:
-        stub = comms_pb2_grpc.SysmodStub(channel)
-        response = stub.MakePoint(comms_pb2.MakePointRequest(
+        stub = common_pb2_grpc.SysmodStub(channel)
+        response = stub.MakePoint(common_pb2.MakePointRequest(
             Device=device,
             Name=name,
             Types=types,
@@ -216,7 +216,7 @@ def MakePoint(name:str, device:str, types:str|list[str]=None, locations:str|list
         return "error: {}".format(response.Error, response.ErrorMsg)
     return response.Url
 
-def MakeDriver(name:str, host:str, port:int, image:str=None, container:str=None) -> comms_pb2.MakeResponse:
+def MakeDriver(name:str, host:str, port:int, image:str=None, container:str=None) -> common_pb2.MakeResponse:
     """ name    of the driver
         host    the hostname (preferred) or IP that the service can be found at
         port    starts at 50061 by convention
@@ -225,10 +225,10 @@ def MakeDriver(name:str, host:str, port:int, image:str=None, container:str=None)
         image       name of the image to pull if not on system
         container   name of the container if it doesn't match the hostname
     """
-    response: comms_pb2.MakeResponse
+    response: common_pb2.MakeResponse
     with grpc.insecure_channel(SYSMOD_ADDR) as channel:
-        stub = comms_pb2_grpc.SysmodStub(channel)
-        response = stub.MakeDriver(comms_pb2.MakeDriverRequest(
+        stub = common_pb2_grpc.SysmodStub(channel)
+        response = stub.MakeDriver(common_pb2.MakeDriverRequest(
             Name=name,
             Host=host,
             Port=str(port),
@@ -243,11 +243,11 @@ def Delete(sub:str="", pred:str="", obj:str=""):
     if sub == "" and pred == "" and obj == "":
         print("must provide at least one of subject, predicate, or object")
         return
-    response:comms_pb2.DeleteResponse
+    response:common_pb2.DeleteResponse
     with grpc.insecure_channel(SYSMOD_ADDR) as channel:
-        stub = comms_pb2_grpc.SysmodStub(channel)
-        response = stub.Delete(comms_pb2.DeleteRequest(
-            Triple=comms_pb2.Triple(
+        stub = common_pb2_grpc.SysmodStub(channel)
+        response = stub.Delete(common_pb2.DeleteRequest(
+            Triple=common_pb2.Triple(
                 Subject=sub,
                 Predicate=pred,
                 Object=obj,
@@ -264,17 +264,17 @@ def SetSampleRate(pts:str|list[str], rates:str|list[str]) -> bool:
 
     pairs = []
     if len(pts) == len(rates):
-        pairs = [comms_pb2.SetPair(Key=k, Value=rates[i]) for i, k in enumerate(pts)]
+        pairs = [common_pb2.SetPair(Key=k, Value=rates[i]) for i, k in enumerate(pts)]
     elif len(rates) == 1:
-        pairs = [comms_pb2.SetPair(Key=k, Value=rates[0]) for k in pts]
+        pairs = [common_pb2.SetPair(Key=k, Value=rates[0]) for k in pts]
     else:
         print("unable invalid combination of pts ({}) and rates {}".format(len(pts), len(rates)))
         return False
     
-    response: comms_pb2.SetResponse
+    response: common_pb2.SetResponse
     with grpc.insecure_channel(HISTORY_ADDR) as channel:
-        stub = comms_pb2_grpc.HistoryStub(channel)
-        response = stub.SetSampleRate(comms_pb2.SetRequest(
+        stub = common_pb2_grpc.HistoryStub(channel)
+        response = stub.SetSampleRate(common_pb2.SetRequest(
             Pairs=pairs
         ))
         if response.Error > 0:
@@ -285,10 +285,10 @@ def SetSampleRate(pts:str|list[str], rates:str|list[str]) -> bool:
     return True
 
 def RefreshRates():
-    response: comms_pb2.RefreshRatesResponse
+    response: common_pb2.RefreshRatesResponse
     with grpc.insecure_channel(HISTORY_ADDR) as channel:
-        stub = comms_pb2_grpc.HistoryStub(channel)
-        response = stub.RefreshRates(comms_pb2.RefreshRatesRequest())
+        stub = common_pb2_grpc.HistoryStub(channel)
+        response = stub.RefreshRates(common_pb2.RefreshRatesRequest())
         if response.Error > 0:
             print("RefreshRates: error code {}".format(response.Error))
             return False
@@ -296,17 +296,17 @@ def RefreshRates():
 
 def GetHistory(pts:str|list[str], start:str=None, end:str=None, limit:int=14400, 
                pandas:bool=False, tz:str=None, group_by_id:bool=True, 
-               get_names:bool=False, resample_to:str=None) -> list[comms_pb2.HisRow] | None:
+               get_names:bool=False, resample_to:str=None) -> list[common_pb2.HisRow] | None:
     if isinstance(pts, str):
         pts = [pts]
     if start is None:
         start = ""
     if end is None:
         end = ""
-    response: comms_pb2.HistoryResponse
+    response: common_pb2.HistoryResponse
     with grpc.insecure_channel(HISTORY_ADDR) as channel:
-        stub = comms_pb2_grpc.HistoryStub(channel)
-        response = stub.GetHistory(comms_pb2.HistoryRequest(
+        stub = common_pb2_grpc.HistoryStub(channel)
+        response = stub.GetHistory(common_pb2.HistoryRequest(
             Start=start, 
             End=end,
             Keys=pts,
@@ -356,7 +356,7 @@ class GetResponse(object):
         self.Values:list[GetValue] = []
 
 
-def NewGetValues(resp:comms_pb2.GetResponse) -> list[GetValue]:
+def NewGetValues(resp:common_pb2.GetResponse) -> list[GetValue]:
     V:list[GetValue] = []
     for pair in resp.Pairs:
         p = GetValue(
@@ -374,7 +374,7 @@ class SetResponse(object):
         self.Ok:bool = False
 
 
-def NewSetResponse(responses:comms_pb2.SetResponse) -> list[SetResponse]:
+def NewSetResponse(responses:common_pb2.SetResponse) -> list[SetResponse]:
     R:list[SetResponse] = []
     for p in responses.Pairs:
         r = SetResponse()
@@ -388,10 +388,10 @@ def NewSetResponse(responses:comms_pb2.SetResponse) -> list[SetResponse]:
 
 
 def Ping(addr:str) -> bool:
-    response: comms_pb2.Empty
+    response: common_pb2.Empty
     with grpc.insecure_channel(addr) as channel:
-        stub = comms_pb2_grpc.HealthCheckStub(channel)
-        response = stub.Ping(comms_pb2.Empty())
+        stub = common_pb2_grpc.HealthCheckStub(channel)
+        response = stub.Ping(common_pb2.Empty())
     if response is not None:
         return True
     else:
@@ -418,10 +418,10 @@ def Get(keys:str|list[str], full_response=False) -> list[GetResponse] | dict[str
     if type(keys) == str:
         keys = [keys]
 
-    response: comms_pb2.GetResponse
+    response: common_pb2.GetResponse
     with grpc.insecure_channel(DEVCTRL_ADDR) as channel:
-        stub = comms_pb2_grpc.GetSetRunStub(channel)
-        response = stub.Get(comms_pb2.GetRequest(Keys=keys))
+        stub = common_pb2_grpc.GetSetRunStub(channel)
+        response = stub.Get(common_pb2.GetRequest(Keys=keys))
     R = NewGetValues(response)
     if full_response:
         return R
@@ -446,12 +446,12 @@ def Set(keys:str|list[str], values:str|list[str], full_response=False) -> SetRes
             return False
 
     # by now now we must have an equal number of keys and values, format them
-    pairs = [comms_pb2.SetPair(Key=k, Value=str(values[i])) for i, k in enumerate(keys)]
+    pairs = [common_pb2.SetPair(Key=k, Value=str(values[i])) for i, k in enumerate(keys)]
 
-    response: comms_pb2.SetResponse
+    response: common_pb2.SetResponse
     with grpc.insecure_channel(DEVCTRL_ADDR) as channel:
-        stub = comms_pb2_grpc.GetSetRunStub(channel)
-        response = stub.Set(comms_pb2.SetRequest(Pairs=pairs))
+        stub = common_pb2_grpc.GetSetRunStub(channel)
+        response = stub.Set(common_pb2.SetRequest(Pairs=pairs))
         if response.Error > 0:
             print("SET_ERROR_{}: {}".format(response.Error, response.ErrorMsg))
             return False
@@ -460,23 +460,23 @@ def Set(keys:str|list[str], values:str|list[str], full_response=False) -> SetRes
         return r
     return True
 
-def GetTypedValue(v:comms_pb2.GetPair|comms_pb2.SetPair):
-    """ a helper function that uses the appropriate fields from a comms_pb2.GetReponse
+def GetTypedValue(v:common_pb2.GetPair|common_pb2.SetPair):
+    """ a helper function that uses the appropriate fields from a common_pb2.GetReponse
     to return a typed value.
     """
     return DecodeValue(v.Value, v.Dtype)
 
 
-def DecodeValue(s:str, dtype:comms_pb2.Dtype=comms_pb2.UNSPECIFIED):
-    if (dtype == comms_pb2.DOUBLE) or (dtype == comms_pb2.FLOAT):
+def DecodeValue(s:str, dtype:common_pb2.Dtype=common_pb2.UNSPECIFIED):
+    if (dtype == common_pb2.DOUBLE) or (dtype == common_pb2.FLOAT):
         return float(s)
-    if (dtype == comms_pb2.INT32) or (dtype == comms_pb2.INT64) or (dtype == comms_pb2.UINT32) or (dtype == comms_pb2.UINT64):
+    if (dtype == common_pb2.INT32) or (dtype == common_pb2.INT64) or (dtype == common_pb2.UINT32) or (dtype == common_pb2.UINT64):
         return int(s)
-    if (dtype == comms_pb2.BOOL):
+    if (dtype == common_pb2.BOOL):
         if s.lower() == "true":
             return True
         return False
-    if (dtype == comms_pb2.STRING):
+    if (dtype == common_pb2.STRING):
         return s
     else:
         return UntypedString(s)

@@ -128,14 +128,16 @@ class Empty(_message.Message):
     def __init__(self) -> None: ...
 
 class Header(_message.Message):
-    __slots__ = ("Src", "Dst", "TxId")
+    __slots__ = ("Src", "Dst", "TxnId", "SessionToken")
     SRC_FIELD_NUMBER: _ClassVar[int]
     DST_FIELD_NUMBER: _ClassVar[int]
-    TXID_FIELD_NUMBER: _ClassVar[int]
+    TXNID_FIELD_NUMBER: _ClassVar[int]
+    SESSIONTOKEN_FIELD_NUMBER: _ClassVar[int]
     Src: str
     Dst: str
-    TxId: int
-    def __init__(self, Src: _Optional[str] = ..., Dst: _Optional[str] = ..., TxId: _Optional[int] = ...) -> None: ...
+    TxnId: int
+    SessionToken: str
+    def __init__(self, Src: _Optional[str] = ..., Dst: _Optional[str] = ..., TxnId: _Optional[int] = ..., SessionToken: _Optional[str] = ...) -> None: ...
 
 class GetPair(_message.Message):
     __slots__ = ("Key", "Value", "Dtype", "Error", "ErrorMsg")
@@ -431,7 +433,7 @@ class RunResponse(_message.Message):
     ReturnValues: _containers.RepeatedScalarFieldContainer[str]
     def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., ExitCode: _Optional[int] = ..., StdOut: _Optional[str] = ..., ErrorMsg: _Optional[str] = ..., ReturnValues: _Optional[_Iterable[str]] = ...) -> None: ...
 
-class ScheduleIntervalRequest(_message.Message):
+class RegisterIntervalRequest(_message.Message):
     __slots__ = ("Header", "Interval", "Requests", "RunNow")
     HEADER_FIELD_NUMBER: _ClassVar[int]
     INTERVAL_FIELD_NUMBER: _ClassVar[int]
@@ -443,7 +445,7 @@ class ScheduleIntervalRequest(_message.Message):
     RunNow: bool
     def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Interval: _Optional[int] = ..., Requests: _Optional[_Iterable[_Union[RunRequest, _Mapping]]] = ..., RunNow: bool = ...) -> None: ...
 
-class ScheduleIntervalReponse(_message.Message):
+class RegisterIntervalReponse(_message.Message):
     __slots__ = ("Header", "IntervalId", "ContainerIds")
     HEADER_FIELD_NUMBER: _ClassVar[int]
     INTERVALID_FIELD_NUMBER: _ClassVar[int]

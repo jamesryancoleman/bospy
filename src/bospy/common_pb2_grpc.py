@@ -863,10 +863,20 @@ class ScheduleStub(object):
                 request_serializer=common__pb2.RunRequest.SerializeToString,
                 response_deserializer=common__pb2.RunResponse.FromString,
                 _registered_method=True)
-        self.ScheduleInterval = channel.unary_unary(
-                '/bos.Schedule/ScheduleInterval',
-                request_serializer=common__pb2.ScheduleIntervalRequest.SerializeToString,
-                response_deserializer=common__pb2.ScheduleIntervalReponse.FromString,
+        self.RegisterInterval = channel.unary_unary(
+                '/bos.Schedule/RegisterInterval',
+                request_serializer=common__pb2.RegisterIntervalRequest.SerializeToString,
+                response_deserializer=common__pb2.RegisterIntervalReponse.FromString,
+                _registered_method=True)
+        self.Get = channel.unary_unary(
+                '/bos.Schedule/Get',
+                request_serializer=common__pb2.GetRequest.SerializeToString,
+                response_deserializer=common__pb2.GetResponse.FromString,
+                _registered_method=True)
+        self.Set = channel.unary_unary(
+                '/bos.Schedule/Set',
+                request_serializer=common__pb2.SetRequest.SerializeToString,
+                response_deserializer=common__pb2.SetResponse.FromString,
                 _registered_method=True)
 
 
@@ -880,8 +890,22 @@ class ScheduleServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def ScheduleInterval(self, request, context):
+    def RegisterInterval(self, request, context):
         """scheule an rpc to run periodicially
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def Get(self, request, context):
+        """when called against the Schedule service writes to Redis
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def Set(self, request, context):
+        """when called against the Schedule service writes to Redis
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -895,10 +919,20 @@ def add_ScheduleServicer_to_server(servicer, server):
                     request_deserializer=common__pb2.RunRequest.FromString,
                     response_serializer=common__pb2.RunResponse.SerializeToString,
             ),
-            'ScheduleInterval': grpc.unary_unary_rpc_method_handler(
-                    servicer.ScheduleInterval,
-                    request_deserializer=common__pb2.ScheduleIntervalRequest.FromString,
-                    response_serializer=common__pb2.ScheduleIntervalReponse.SerializeToString,
+            'RegisterInterval': grpc.unary_unary_rpc_method_handler(
+                    servicer.RegisterInterval,
+                    request_deserializer=common__pb2.RegisterIntervalRequest.FromString,
+                    response_serializer=common__pb2.RegisterIntervalReponse.SerializeToString,
+            ),
+            'Get': grpc.unary_unary_rpc_method_handler(
+                    servicer.Get,
+                    request_deserializer=common__pb2.GetRequest.FromString,
+                    response_serializer=common__pb2.GetResponse.SerializeToString,
+            ),
+            'Set': grpc.unary_unary_rpc_method_handler(
+                    servicer.Set,
+                    request_deserializer=common__pb2.SetRequest.FromString,
+                    response_serializer=common__pb2.SetResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -939,7 +973,7 @@ class Schedule(object):
             _registered_method=True)
 
     @staticmethod
-    def ScheduleInterval(request,
+    def RegisterInterval(request,
             target,
             options=(),
             channel_credentials=None,
@@ -952,9 +986,63 @@ class Schedule(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/bos.Schedule/ScheduleInterval',
-            common__pb2.ScheduleIntervalRequest.SerializeToString,
-            common__pb2.ScheduleIntervalReponse.FromString,
+            '/bos.Schedule/RegisterInterval',
+            common__pb2.RegisterIntervalRequest.SerializeToString,
+            common__pb2.RegisterIntervalReponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def Get(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bos.Schedule/Get',
+            common__pb2.GetRequest.SerializeToString,
+            common__pb2.GetResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def Set(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bos.Schedule/Set',
+            common__pb2.SetRequest.SerializeToString,
+            common__pb2.SetResponse.FromString,
             options,
             channel_credentials,
             insecure,
