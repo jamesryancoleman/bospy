@@ -868,6 +868,11 @@ class ScheduleStub(object):
                 request_serializer=common__pb2.RegisterIntervalRequest.SerializeToString,
                 response_deserializer=common__pb2.RegisterIntervalReponse.FromString,
                 _registered_method=True)
+        self.RegisterCron = channel.unary_unary(
+                '/bos.Schedule/RegisterCron',
+                request_serializer=common__pb2.CronRequest.SerializeToString,
+                response_deserializer=common__pb2.CronResponse.FromString,
+                _registered_method=True)
         self.Get = channel.unary_unary(
                 '/bos.Schedule/Get',
                 request_serializer=common__pb2.GetRequest.SerializeToString,
@@ -892,6 +897,13 @@ class ScheduleServicer(object):
 
     def RegisterInterval(self, request, context):
         """scheule an rpc to run periodicially
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def RegisterCron(self, request, context):
+        """schedule a cron job
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -923,6 +935,11 @@ def add_ScheduleServicer_to_server(servicer, server):
                     servicer.RegisterInterval,
                     request_deserializer=common__pb2.RegisterIntervalRequest.FromString,
                     response_serializer=common__pb2.RegisterIntervalReponse.SerializeToString,
+            ),
+            'RegisterCron': grpc.unary_unary_rpc_method_handler(
+                    servicer.RegisterCron,
+                    request_deserializer=common__pb2.CronRequest.FromString,
+                    response_serializer=common__pb2.CronResponse.SerializeToString,
             ),
             'Get': grpc.unary_unary_rpc_method_handler(
                     servicer.Get,
@@ -989,6 +1006,33 @@ class Schedule(object):
             '/bos.Schedule/RegisterInterval',
             common__pb2.RegisterIntervalRequest.SerializeToString,
             common__pb2.RegisterIntervalReponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def RegisterCron(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bos.Schedule/RegisterCron',
+            common__pb2.CronRequest.SerializeToString,
+            common__pb2.CronResponse.FromString,
             options,
             channel_credentials,
             insecure,

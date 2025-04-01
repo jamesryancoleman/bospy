@@ -454,3 +454,23 @@ class RegisterIntervalReponse(_message.Message):
     IntervalId: int
     ContainerIds: _containers.RepeatedScalarFieldContainer[str]
     def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., IntervalId: _Optional[int] = ..., ContainerIds: _Optional[_Iterable[str]] = ...) -> None: ...
+
+class CronRequest(_message.Message):
+    __slots__ = ("Header", "CronStr", "Requests", "OnStart")
+    HEADER_FIELD_NUMBER: _ClassVar[int]
+    CRONSTR_FIELD_NUMBER: _ClassVar[int]
+    REQUESTS_FIELD_NUMBER: _ClassVar[int]
+    ONSTART_FIELD_NUMBER: _ClassVar[int]
+    Header: Header
+    CronStr: str
+    Requests: _containers.RepeatedCompositeFieldContainer[RunRequest]
+    OnStart: bool
+    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., CronStr: _Optional[str] = ..., Requests: _Optional[_Iterable[_Union[RunRequest, _Mapping]]] = ..., OnStart: bool = ...) -> None: ...
+
+class CronResponse(_message.Message):
+    __slots__ = ("Header", "Ok")
+    HEADER_FIELD_NUMBER: _ClassVar[int]
+    OK_FIELD_NUMBER: _ClassVar[int]
+    Header: Header
+    Ok: bool
+    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Ok: bool = ...) -> None: ...

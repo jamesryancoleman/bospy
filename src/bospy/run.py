@@ -26,7 +26,9 @@ def Run(image:str, *args, envVars:dict[str, str]=None, **kwargs) -> common_pb2.R
 
 def Return(*_args, **_kwargs) -> common_pb2.SetResponse:
     pairs:list[common_pb2.SetPair] = []
-    pairs.append(common_pb2.SetPair(Key="__key__", Value='output'))
+    hash_key = _kwargs.get("__key__")
+    if hash_key is not None:
+        pairs.append(common_pb2.SetPair(Key="__key__", Value='output'))
     for i, _ in enumerate(_args):
         pairs.append(common_pb2.SetPair(Key="${}".format(i+1), Value=str(_args[i])))
         i+=1
@@ -56,6 +58,58 @@ def Return(*_args, **_kwargs) -> common_pb2.SetResponse:
         ))
     print("error:", response.Error, ", errMsg:",response.ErrorMsg)
     return response
+
+
+def LoadInput(previous_session_token:str|list[str]) -> dict[str,str]:
+    """ Load results is used to get the output of a previous container execution.
+        A session token is uniquely defined for a given transaction, flow, and node.
+        
+        If a new transaction wants to load results from a previous call to the
+        same flow the Scheduler must have retained the session details and passed 
+        them to the next invocation of that flow.
+
+        What the current node needs is a "pointer" to the the flow and node the 
+        current node wanted to load the output of. The session token is accepted
+        in lieu of the transaction id.
+
+        The pointer will look like '<TXN>.<FLOW>.<NODE>:<KEY>[/<FIELD>]'. The 
+        scheduler will only confirm that there exists a valid session token 
+        matching the flow and node.        
+    """
+    
+    
+
+def InferType(s:str) -> (int|float|bool|str):
+    """ InferType takes a str typed value and converts to an int, float, bool,
+        or falls back on str.
+    """
+    try:
+        typed = int(s)
+        return typed
+    except ValueError:
+        pass
+    try:
+        typed = float(s)
+        return typed
+    except ValueError:
+        pass
+
+    if s.lower() == "true":
+        typed = True
+        return typed
+    elif s.lower() == "false":
+        typed = False
+        return typed
+
+    return s
+
+
+
+def GetGlobal(key:str, infer_type=True) -> (int|float|bool|str):
+    """ returns a typed version of the global variable with the provided key.
+    """
+    
+
 
 
 # container management functions 
