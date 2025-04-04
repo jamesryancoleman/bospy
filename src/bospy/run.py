@@ -88,8 +88,8 @@ def Return(*_args, **_kwargs) -> common_pb2.SetResponse:
         pairs.append(common_pb2.SetPair(Key=k, Value=str(v)))
     
     # the default txn_id of 0 and token of 000000000000 will succeed
-    txn_id = int(kwargs.get('txn_id', 0))
-    session_token = kwargs.get('session_token', "000000000000")
+    txn_id = int(kwargs.get('TXN_ID', 0))
+    session_token = kwargs.get('WRITE_TOKEN', DEFAULT_TOKEN)
     print("Return - txn: {}, session_id: {}".format(txn_id, session_token))
     header = common_pb2.Header(
                 TxnId=txn_id,
@@ -124,9 +124,9 @@ def LoadInput(last_call:bool=False, node:int=-1) -> dict[str,str]:
         In the future we'll add support for other FLOW
     """
     call:str="THIS" # for debug
-    session_token:str=CURRENT_TOKEN
+    session_token:str=WRITE_TOKEN
     if last_call:
-        session_token = FLOW_TOKEN
+        session_token=READ_TOKEN    
         call = "LAST"        
 
     if node < 0:
@@ -186,6 +186,7 @@ def GetGlobal(key:str, infer_type=True) -> (int|float|bool|str):
     
 
 def LoadInput(values:dict[str,str]=None) -> tuple[list[str], dict[str,str]]|None:
+    if values is None
     # otherwise clear out any default values and populate from the provided dict
     positional_dict:dict[int, str] = {}
     remaining_kwargs = values.copy()
