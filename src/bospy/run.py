@@ -1,5 +1,5 @@
 from bospy import common_pb2_grpc, common_pb2
-from typing import Any
+from typing import Any, Iterable
 import grpc
 import os
 import re
@@ -11,10 +11,10 @@ kwargs:dict[str, str] = {}
 SCHEDULER_ADDR = os.environ.get('SCHEDULER_ADDR', "localhost:2824")
 
 # values will be set by the Scheduler and are constant for lifetime of a container
+NS:str = os.environ.get('NS', "flows")
 TXN = os.environ.get('TXN_ID', 0)
 FLOW = os.environ.get('FLOW_ID', 0)
 NODE = os.environ.get('NODE_ID', 0)
-
 DEFAULT_TOKEN = "000000000000"
 
 # used write output from this transaction
@@ -23,7 +23,87 @@ WRITE_TOKEN = os.environ.get('WRITE_TOKEN', DEFAULT_TOKEN)
 # used to load output from the previous instantiations of this FLOW
 READ_TOKEN = os.environ.get('READ_TOKEN', DEFAULT_TOKEN)
 
-positionRe = re.compile('^\\$(?P<position>[0-9]+)$')
+OUTPUT_HASH = "OUTPUT"
+
+keyRe = re.compile(r"^(?:(?P<ns>[a-zA-Z0-9\/\-\/.]+):)?(?:(?P<scope>[^:]*):)?(?:(?P<txn>[0-9]+):)?(?P<key>[^\/\n\r]+)(\/)?(?:(\$)?(?P<field>[^\/\n\r]+))?")
+scopeRe = re.compile(r"^(?P<flow>[0-9]+)(?:\.(?P<node>[0-9]+))?")
+positionRe = re.compile(r'^\\$(?P<position>[0-9]+)$')
+
+def CreateDefaultRWSession():
+    kwargs["FLOW_ID"] = 9
+    kwargs["NODE_ID"] = 8
+    kwargs["TXN_ID"] = 7
+    kwargs["WRITE_TOKEN"] = "1234567890ab"
+    kwargs["READ_TOKEN"] = kwargs["WRITE_TOKEN"]
+    print(kwargs)
+
+class Key:
+    def __init__(self, key:str, field:str|None=None, isHash:bool=False, ns:str=NS):
+        self.ns = ns
+        self.flow = kwargs["FLOW_ID"]
+        self.node = kwargs["NODE_ID"]
+        self.txn = kwargs["TXN_ID"]
+
+        self.key:str = key
+        self.field = None
+        self.isHash = isHash
+        self.isPositional = False
+
+        if field is not None:
+            self.field = field
+            self.isHash = True
+
+    def StrFmt(self, scope:bool=True, txn:bool=False, field:bool=False) -> str:
+        s:str = self.ns + ":"
+        if self.ns == NS and scope:
+            s += "{}.{}:".format(self.flow, self.node) 
+        if txn and self.txn != 0:
+            s += "{}:".format(self.txn)
+        s += self.key
+        if self.isHash:
+            s += "/"
+            if self.field is not None:
+                s += self.field
+        return s
+    
+    def __str__(self):
+        return self.StrFmt()
+    
+def ParseKey(s:str) -> Key|None:
+    match = keyRe.match(s)
+    if match:
+        m = match.groups()
+        if m[3]:
+            k=Key(m[3])
+            if m[0]:
+                k.ns = m[0]
+            if m[1]:
+                scope = m[1]
+                match_scope = scopeRe.match(scope)
+                if match_scope:
+                    ms = match_scope.groups()
+                    k.flow = int(ms[0])
+                    if ms[1]:
+                        k.node = int(ms[1])
+                if m[4]:
+                    k.isHash = True
+                if m[5]:
+                    k.isPositional = True
+                    if m[6]:
+                        k.field = m[5]+m[6]
+                elif m[6]:
+                    k.field = m[6]     
+            return k              
+        else:
+            return None
+    return None
+        
+
+                
+            
+
+            
+
 
 # client calls
 def Get(keys:list[str], infer_type=True, token:str=None) -> dict[str,Any]:
@@ -81,11 +161,12 @@ def Return(*_args, **_kwargs) -> common_pb2.SetResponse:
     if hash_key is not None:
         pairs.append(common_pb2.SetPair(Key="__key__", Value='output'))
     for i, _ in enumerate(_args):
-        pairs.append(common_pb2.SetPair(Key="${}".format(i+1), Value=str(_args[i])))
+        pairs.append(common_pb2.SetPair(Key="{}/${}".format(OUTPUT_HASH, i+1), 
+                                        Value=str(_args[i])))
         i+=1
     
     for k, v in _kwargs.items():
-        pairs.append(common_pb2.SetPair(Key=k, Value=str(v)))
+        pairs.append(common_pb2.SetPair(Key="{}/{}".format(OUTPUT_HASH, k), Value=str(v)))
     
     # the default txn_id of 0 and token of 000000000000 will succeed
     txn_id = int(kwargs.get('TXN_ID', 0))
@@ -112,31 +193,28 @@ def Return(*_args, **_kwargs) -> common_pb2.SetResponse:
     return response
 
 
-def LoadInput(last_call:bool=False, node:int=-1) -> dict[str,str]:
+def LoadInput(*keys:str, flow:int=None, node:int=None, token:str=None, txn:int=None) -> tuple[list[str], dict[str,Any]]:
     """ Load results is used to get the output of a previous container execution.
-        
-        If node <= -1, the target node if assumed to be the current NODE
-        from the last transaction through this FLOW.
 
-        If last_call is True, LoadInput() attempts to access the last output of 
-        the from_node of this FLOW.
-
-        In the future we'll add support for other FLOW
+        If flow is not passed, flow is assumed to be THIS flow.
+        If node is not passed, node is assumed to be THIS node.
     """
-    call:str="THIS" # for debug
-    session_token:str=WRITE_TOKEN
-    if last_call:
-        session_token=READ_TOKEN    
-        call = "LAST"        
+    if flow is None:
+        flow = kwargs["FLOW_ID"]
+    if node is None:
+        node = kwargs["NODE_ID"]
+    if token is None:
+        token = kwargs["READ_TOKEN"]
+    if txn is None:
+        txn = kwargs["TXN_ID"]
+    if len(keys) == 0:
+        keys = [Key("OUTPUT", isHash=True).__str__()]
 
-    if node < 0:
-        node = NODE
+    print("requesting output of flow {} node {} with read token '{}'".format(
+        flow, node, token))
+    print(keys)
 
-    print("requesting output of node {} from {} call of flow {} with session token '{}'".format(
-        NODE, call, FLOW, session_token))
-
-    header = common_pb2.Header(Src="python_client", Dst=SCHEDULER_ADDR,
-                                SessionToken=session_token)
+    header = common_pb2.Header(SessionToken=token, Src="python_client", Dst=SCHEDULER_ADDR)
 
     # call the Get method of the Scheduler services
     response:common_pb2.SetResponse
@@ -145,13 +223,33 @@ def LoadInput(last_call:bool=False, node:int=-1) -> dict[str,str]:
         stub = common_pb2_grpc.ScheduleStub(channel)
         response = stub.Get(common_pb2.GetRequest(
             Header=header,
+            Keys=keys,
         ))
         print("error:", response.Error, ", errMsg:",response.ErrorMsg)
         if response.Error != common_pb2.ServiceError.SERVICE_ERROR_NONE:
             return {}
-        
-        # parse values and add to run.args and run.kwargs\
-    
+
+        print(response.Pairs)
+        if len(response.Pairs) > 0:
+            _args_dict = {}
+            _kwargs = {}
+            for p in response.Pairs:
+                m = positionRe.match(p.Key)
+                if m is None:
+                    # found a kwarg
+                    _kwargs[p.Key] = p.Value
+                else:
+                    # found a positional int
+                    i = int(m.group("position"))
+                    _args_dict[i] = p.Value
+            
+            _args = [None] * len(_args_dict)
+            for i, v in _args_dict.items():
+                _args[i] = v
+            return _args, _kwargs
+                    
+
+
 
 def InferType(s:str) -> (int|float|bool|str):
     """ InferType takes a str typed value and converts to an int, float, bool,
@@ -185,23 +283,27 @@ def GetGlobal(key:str, infer_type=True) -> (int|float|bool|str):
     """
     
 
-def LoadInput(values:dict[str,str]=None) -> tuple[list[str], dict[str,str]]|None:
-    if values is None
-    # otherwise clear out any default values and populate from the provided dict
-    positional_dict:dict[int, str] = {}
-    remaining_kwargs = values.copy()
-    for k, v in values.items():
-        m = positionRe.match(k)
-        if m is not None:
-            positional_dict[int(m.group('position'))] = v
-            remaining_kwargs.pop(k)
-        # else:
-        #     print("'{}' did not match the positional argument pattern".format(k))
+# def LoadInput(values:dict[str,str]=None) -> tuple[list[str], dict[str,str]]|None:
+#     if values is None:
+#         # load from shared memory
+#         # request the latest output from the same FLOW
+#         Get("latest{}")
+
+#     # otherwise clear out any default values and populate from the provided dict
+#     positional_dict:dict[int, str] = {}
+#     remaining_kwargs = values.copy()
+#     for k, v in values.items():
+#         m = positionRe.match(k)
+#         if m is not None:
+#             positional_dict[int(m.group('position'))] = v
+#             remaining_kwargs.pop(k)
+#         # else:
+#         #     print("'{}' did not match the positional argument pattern".format(k))
     
-    args = [None] * len(positional_dict)
-    for i, v in positional_dict.items():
-        args[i-1] = v
-    return args, remaining_kwargs
+#     args = [None] * len(positional_dict)
+#     for i, v in positional_dict.items():
+#         args[i-1] = v
+#     return args, remaining_kwargs
 
 # container management functions 
 def LoadArgs(values:dict[str,str]=None) -> list[str]|None:

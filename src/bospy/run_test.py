@@ -1,3 +1,5 @@
+# import bospy.run as run
+from bospy.run import Key
 import bospy.run as run
 
 test_token = "000000000000"
@@ -30,14 +32,7 @@ def TestReturnValues():
 def TestLoadInput():
     """ demonstrates how to load output from a previous node or instance of a flow.
     """
-    test_cases = {
-        "$3": "baz",
-        "$2": "bar",
-        "$1": "foo",
-        "alice": "bob",
-    }
-
-    args, kwargs = run.LoadInput(test_cases)
+    args, kwargs = run.LoadInput()
     print("args:  ", args)
     print("kwargs:", kwargs)
 
@@ -75,18 +70,63 @@ def TestGet():
     for k, v in results.items():
         print(k, v)
 
+def TestFormatKeyStr():
+    unformattedKeys = [
+        Key("OUTPUT", "$1"),
+        Key("a_runtime_var"),
+        Key("occupied", ns="global"),
+    ]
+
+    answers = [
+        "flows:0.0:OUTPUT/$1",
+        "flows:0.0:a_runtime_var",
+        "global:occupied"
+    ]
+
+    for i, k in enumerate(unformattedKeys):
+        print("{}: {} == {} ({})".format(i, k, answers[i], answers[i] == k.__str__()))
+
+def TestDefaultSession():
+    """ checks if the server has the default session active by calling run.Return with no values.
+    The flow, node, txn, and token are manually coordinated with the server source code.
+    """
+    resp = run.Return()
+    print(resp)
+
+def TestReturn():
+    resp = run.Return("bos://localhost/dev/1","bos://localhost/dev/2","bos://localhost/dev/3",
+                      User="James")
+    print(resp)
+
+def TestParseKey():
+    cases = [
+        "flows:9.8:100:OUTPUT/count",
+        "flows:9.8:OUTPUT/$1",
+        "global:occupied",
+    ]
+    for c in cases:
+        k = run.ParseKey(c)
+        print(k)
+
 if __name__ == "__main__":
+    run.CreateDefaultRWSession()
     # bospy.run.Run("random-get", "other-arg", envVars={"ENVVAR": "hello"}, anotherVar="hello again")
     # bospy.run.kwargs['txn_id'] = 0
     # bospy.run.kwargs['session_token'] = '000000000000'
     # print( bospy.run.kwargs.get('txn_id'), bospy.run.kwargs.get('session_token'))
     # resp = bospy.run.Return("hello", True, 10, 100.1, name="James", age=30)
     # print(resp.ErrorMsg, resp.Error)
-    TestInferType()
-    TestMatchPositional()
-    TestReturnValues()
-    TestLoadInput()
-    TestGet()
+    # TestInferType()
+    # TestMatchPositional()
+    # TestReturnValues()
+
+    # TestGet()
+    # TestFormatKeyStr()
+
+    # TestDefaultSession()
+    # TestReturn()
+    # TestLoadInput()
+    TestParseKey()
 
 
 
