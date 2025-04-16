@@ -59,16 +59,45 @@ def TestMatchPositional():
     
     print("the ordered positional arguments are: {}".format(args))
 
+def TestSet():
+    pairs = {
+        "global:occupied": True,
+        "OUTPUT/count": 1,
+        "tmp/process_value": ">9000",
+    }
+    resp = run.Set(pairs)
+    if resp.Error > 0:
+        print(resp.Error, resp.ErrorMsg)
+
 def TestGet():
     keys = ["global:occupied",
-            "global:weekday_occupied_start",
-            "global:weekday_occupied_end",
-            "OUTPUT/times_accessed",
+            "OUTPUT/count",
             "an_invalid_token",
             ]
     results = run.Get(keys)
     for k, v in results.items():
         print(k, v)
+
+
+def TestIncrementAndNegate():
+    keys = ["global:occupied",
+        "OUTPUT/count",
+        "an_invalid_token",
+        ]
+    results = run.Get(keys)
+    returnVals = {}
+    for k, v in results.items():
+        print(k, v)
+        if isinstance(v, bool):
+            v = bool(not v)
+            returnVals[k] = v
+        elif isinstance(v, int):
+            v += 1
+            returnVals[k] = v
+        elif v is None:
+            continue
+        print(k, v)
+    run.Return(**returnVals)
 
 def TestFormatKeyStr():
     unformattedKeys = [
@@ -126,7 +155,11 @@ if __name__ == "__main__":
     # TestDefaultSession()
     # TestReturn()
     # TestLoadInput()
-    TestParseKey()
+    # TestParseKey()
+    # TestGet()
+    TestSet()
+    for i in range(3):
+        TestIncrementAndNegate()
 
 
 

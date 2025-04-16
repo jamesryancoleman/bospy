@@ -1,5 +1,5 @@
 from bospy import common_pb2_grpc, common_pb2
-from typing import Any, Iterable
+from typing import Any
 import grpc
 import os
 import re
@@ -85,34 +85,33 @@ def ParseKey(s:str) -> Key|None:
                     k.flow = int(ms[0])
                     if ms[1]:
                         k.node = int(ms[1])
-                if m[4]:
-                    k.isHash = True
-                if m[5]:
-                    k.isPositional = True
-                    if m[6]:
-                        k.field = m[5]+m[6]
-                elif m[6]:
-                    k.field = m[6]     
-            return k              
+            if m[4]:
+                k.isHash = True
+            if m[5]:
+                k.isPositional = True
+                if m[6]:
+                    k.field = m[5]+m[6]
+            elif m[6]:
+                k.field = m[6] 
+            return k          
         else:
             return None
-    return None
-        
-
-                
-            
-
-            
+    return None        
 
 
 # client calls
 def Get(keys:list[str], infer_type=True, token:str=None) -> dict[str,Any]:
     if token is None:
-        token = WRITE_TOKEN
+        token = kwargs["READ_TOKEN"]
+
+    for i, key in enumerate(keys):
+        k = ParseKey(key)
+        keys[i] = k.__str__()
 
     response: common_pb2.GetResponse
     with grpc.insecure_channel(SCHEDULER_ADDR) as channel:
-        header = common_pb2.Header(Src="python_client", Dst=SCHEDULER_ADDR, SessionToken=token)
+        header = common_pb2.Header(Src="python_client", Dst=SCHEDULER_ADDR, 
+                                   SessionToken=token)
         stub = common_pb2_grpc.ScheduleStub(channel)
         response = stub.Get(common_pb2.GetRequest(
             Header=header,
@@ -123,7 +122,7 @@ def Get(keys:list[str], infer_type=True, token:str=None) -> dict[str,Any]:
 
     values:dict={}
     for p in response.Pairs:
-        v:int|float|bool|str
+        v:int|float|bool|str|None
         if infer_type:
             v = InferType(p.Value)
         values[p.Key] = v
@@ -146,6 +145,29 @@ def Run(image:str, *args, envVars:dict[str, str]=None, **kwargs) -> common_pb2.R
     
     return response
 
+def Set(pairs:dict[str,Any]) -> common_pb2.SetResponse:
+    """ Set writes the a dictionary of keys and values to the subnamespace
+        allocated to this flow.
+    """
+    txn = int(kwargs.get('TXN_ID', 0))
+    token = kwargs.get('WRITE_TOKEN', DEFAULT_TOKEN)
+
+    setPairs:list[common_pb2.SetPair] = [None] * len(pairs)
+    for i, k in enumerate(pairs):
+        v = pairs[k]
+        setPairs[i] = common_pb2.SetPair(Key=k, Value=str(v))
+
+    response:common_pb2.SetResponse
+    with grpc.insecure_channel(SCHEDULER_ADDR) as channel:
+        stub = common_pb2_grpc.ScheduleStub(channel)
+        header = common_pb2.Header(TxnId=txn, SessionToken=token)
+        response = stub.Set(common_pb2.SetRequest(
+            Header=header,
+            Pairs=setPairs,
+        ))
+    print("error:", response.Error, ", errMsg:",response.ErrorMsg)
+    return response
+
 def Return(*_args, **_kwargs) -> common_pb2.SetResponse:
     """ Return exposes all positional and keywork arguments provided to shared
         memory in the BOS.
@@ -161,12 +183,13 @@ def Return(*_args, **_kwargs) -> common_pb2.SetResponse:
     if hash_key is not None:
         pairs.append(common_pb2.SetPair(Key="__key__", Value='output'))
     for i, _ in enumerate(_args):
-        pairs.append(common_pb2.SetPair(Key="{}/${}".format(OUTPUT_HASH, i+1), 
-                                        Value=str(_args[i])))
+        key = ParseKey("{}/${}".format(OUTPUT_HASH, i+1))
+        pairs.append(common_pb2.SetPair(Key=key.__str__(), Value=str(_args[i])))
         i+=1
     
     for k, v in _kwargs.items():
-        pairs.append(common_pb2.SetPair(Key="{}/{}".format(OUTPUT_HASH, k), Value=str(v)))
+        key = ParseKey(k)
+        pairs.append(common_pb2.SetPair(Key=key.__str__(), Value=str(v)))
     
     # the default txn_id of 0 and token of 000000000000 will succeed
     txn_id = int(kwargs.get('TXN_ID', 0))
@@ -180,7 +203,7 @@ def Return(*_args, **_kwargs) -> common_pb2.SetResponse:
     print("txn id: {}, token: '{}'".format(header.TxnId, header.SessionToken))
     print("pairs:")
     for p in pairs:
-        print(p.Key, "->", p.Value)
+        print(" ",p.Key, "->", p.Value)
     
     response:common_pb2.SetResponse
     with grpc.insecure_channel(SCHEDULER_ADDR) as channel:
@@ -247,8 +270,6 @@ def LoadInput(*keys:str, flow:int=None, node:int=None, token:str=None, txn:int=N
             for i, v in _args_dict.items():
                 _args[i] = v
             return _args, _kwargs
-                    
-
 
 
 def InferType(s:str) -> (int|float|bool|str):
@@ -272,38 +293,17 @@ def InferType(s:str) -> (int|float|bool|str):
     elif s.lower() == "false":
         typed = False
         return typed
+    
+    if s == "":
+        return None
 
     return s
 
-
-
-def GetGlobal(key:str, infer_type=True) -> (int|float|bool|str):
-    """ returns the global variable with the key provided, if it exists.
-        By default GetGlobal returns a typed version of the value.
-    """
+# def GetGlobal(key:str, infer_type=True) -> (int|float|bool|str):
+#     """ returns the global variable with the key provided, if it exists.
+#         By default GetGlobal returns a typed version of the value.
+#     """
     
-
-# def LoadInput(values:dict[str,str]=None) -> tuple[list[str], dict[str,str]]|None:
-#     if values is None:
-#         # load from shared memory
-#         # request the latest output from the same FLOW
-#         Get("latest{}")
-
-#     # otherwise clear out any default values and populate from the provided dict
-#     positional_dict:dict[int, str] = {}
-#     remaining_kwargs = values.copy()
-#     for k, v in values.items():
-#         m = positionRe.match(k)
-#         if m is not None:
-#             positional_dict[int(m.group('position'))] = v
-#             remaining_kwargs.pop(k)
-#         # else:
-#         #     print("'{}' did not match the positional argument pattern".format(k))
-    
-#     args = [None] * len(positional_dict)
-#     for i, v in positional_dict.items():
-#         args[i-1] = v
-#     return args, remaining_kwargs
 
 # container management functions 
 def LoadArgs(values:dict[str,str]=None) -> list[str]|None:
