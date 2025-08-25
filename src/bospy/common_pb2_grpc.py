@@ -5,7 +5,7 @@ import warnings
 
 from . import common_pb2 as common__pb2
 
-GRPC_GENERATED_VERSION = '1.66.0'
+GRPC_GENERATED_VERSION = '1.74.0'
 GRPC_VERSION = grpc.__version__
 _version_not_supported = False
 
@@ -849,7 +849,7 @@ class History(object):
             _registered_method=True)
 
 
-class ScheduleStub(object):
+class SchedulerStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -859,33 +859,43 @@ class ScheduleStub(object):
             channel: A grpc.Channel.
         """
         self.Run = channel.unary_unary(
-                '/bos.Schedule/Run',
+                '/bos.Scheduler/Run',
                 request_serializer=common__pb2.RunRequest.SerializeToString,
                 response_deserializer=common__pb2.RunResponse.FromString,
                 _registered_method=True)
         self.RegisterInterval = channel.unary_unary(
-                '/bos.Schedule/RegisterInterval',
+                '/bos.Scheduler/RegisterInterval',
                 request_serializer=common__pb2.RegisterIntervalRequest.SerializeToString,
                 response_deserializer=common__pb2.RegisterIntervalReponse.FromString,
                 _registered_method=True)
         self.RegisterCron = channel.unary_unary(
-                '/bos.Schedule/RegisterCron',
+                '/bos.Scheduler/RegisterCron',
                 request_serializer=common__pb2.CronRequest.SerializeToString,
                 response_deserializer=common__pb2.CronResponse.FromString,
                 _registered_method=True)
+        self.RegisterHandler = channel.unary_unary(
+                '/bos.Scheduler/RegisterHandler',
+                request_serializer=common__pb2.RegisterHandlerRequest.SerializeToString,
+                response_deserializer=common__pb2.RegisterHandlerResponse.FromString,
+                _registered_method=True)
+        self.UnregisterHandler = channel.unary_unary(
+                '/bos.Scheduler/UnregisterHandler',
+                request_serializer=common__pb2.UnregisterHandlerRequest.SerializeToString,
+                response_deserializer=common__pb2.UnregisterHandlerResponse.FromString,
+                _registered_method=True)
         self.Get = channel.unary_unary(
-                '/bos.Schedule/Get',
+                '/bos.Scheduler/Get',
                 request_serializer=common__pb2.GetRequest.SerializeToString,
                 response_deserializer=common__pb2.GetResponse.FromString,
                 _registered_method=True)
         self.Set = channel.unary_unary(
-                '/bos.Schedule/Set',
+                '/bos.Scheduler/Set',
                 request_serializer=common__pb2.SetRequest.SerializeToString,
                 response_deserializer=common__pb2.SetResponse.FromString,
                 _registered_method=True)
 
 
-class ScheduleServicer(object):
+class SchedulerServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def Run(self, request, context):
@@ -909,6 +919,19 @@ class ScheduleServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def RegisterHandler(self, request, context):
+        """bind the container that will be called when an event occurs
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def UnregisterHandler(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def Get(self, request, context):
         """when called against the Schedule service writes to Redis
         """
@@ -924,7 +947,7 @@ class ScheduleServicer(object):
         raise NotImplementedError('Method not implemented!')
 
 
-def add_ScheduleServicer_to_server(servicer, server):
+def add_SchedulerServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'Run': grpc.unary_unary_rpc_method_handler(
                     servicer.Run,
@@ -941,6 +964,16 @@ def add_ScheduleServicer_to_server(servicer, server):
                     request_deserializer=common__pb2.CronRequest.FromString,
                     response_serializer=common__pb2.CronResponse.SerializeToString,
             ),
+            'RegisterHandler': grpc.unary_unary_rpc_method_handler(
+                    servicer.RegisterHandler,
+                    request_deserializer=common__pb2.RegisterHandlerRequest.FromString,
+                    response_serializer=common__pb2.RegisterHandlerResponse.SerializeToString,
+            ),
+            'UnregisterHandler': grpc.unary_unary_rpc_method_handler(
+                    servicer.UnregisterHandler,
+                    request_deserializer=common__pb2.UnregisterHandlerRequest.FromString,
+                    response_serializer=common__pb2.UnregisterHandlerResponse.SerializeToString,
+            ),
             'Get': grpc.unary_unary_rpc_method_handler(
                     servicer.Get,
                     request_deserializer=common__pb2.GetRequest.FromString,
@@ -953,13 +986,13 @@ def add_ScheduleServicer_to_server(servicer, server):
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'bos.Schedule', rpc_method_handlers)
+            'bos.Scheduler', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('bos.Schedule', rpc_method_handlers)
+    server.add_registered_method_handlers('bos.Scheduler', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
-class Schedule(object):
+class Scheduler(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
@@ -976,7 +1009,7 @@ class Schedule(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/bos.Schedule/Run',
+            '/bos.Scheduler/Run',
             common__pb2.RunRequest.SerializeToString,
             common__pb2.RunResponse.FromString,
             options,
@@ -1003,7 +1036,7 @@ class Schedule(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/bos.Schedule/RegisterInterval',
+            '/bos.Scheduler/RegisterInterval',
             common__pb2.RegisterIntervalRequest.SerializeToString,
             common__pb2.RegisterIntervalReponse.FromString,
             options,
@@ -1030,9 +1063,63 @@ class Schedule(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/bos.Schedule/RegisterCron',
+            '/bos.Scheduler/RegisterCron',
             common__pb2.CronRequest.SerializeToString,
             common__pb2.CronResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def RegisterHandler(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bos.Scheduler/RegisterHandler',
+            common__pb2.RegisterHandlerRequest.SerializeToString,
+            common__pb2.RegisterHandlerResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def UnregisterHandler(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bos.Scheduler/UnregisterHandler',
+            common__pb2.UnregisterHandlerRequest.SerializeToString,
+            common__pb2.UnregisterHandlerResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -1057,7 +1144,7 @@ class Schedule(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/bos.Schedule/Get',
+            '/bos.Scheduler/Get',
             common__pb2.GetRequest.SerializeToString,
             common__pb2.GetResponse.FromString,
             options,
@@ -1084,7 +1171,80 @@ class Schedule(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/bos.Schedule/Set',
+            '/bos.Scheduler/Set',
+            common__pb2.SetRequest.SerializeToString,
+            common__pb2.SetResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+
+class EventsStub(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def __init__(self, channel):
+        """Constructor.
+
+        Args:
+            channel: A grpc.Channel.
+        """
+        self.Set = channel.unary_unary(
+                '/bos.Events/Set',
+                request_serializer=common__pb2.SetRequest.SerializeToString,
+                response_deserializer=common__pb2.SetResponse.FromString,
+                _registered_method=True)
+
+
+class EventsServicer(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def Set(self, request, context):
+        """the SetRequests are TOPIC: MSG
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+
+def add_EventsServicer_to_server(servicer, server):
+    rpc_method_handlers = {
+            'Set': grpc.unary_unary_rpc_method_handler(
+                    servicer.Set,
+                    request_deserializer=common__pb2.SetRequest.FromString,
+                    response_serializer=common__pb2.SetResponse.SerializeToString,
+            ),
+    }
+    generic_handler = grpc.method_handlers_generic_handler(
+            'bos.Events', rpc_method_handlers)
+    server.add_generic_rpc_handlers((generic_handler,))
+    server.add_registered_method_handlers('bos.Events', rpc_method_handlers)
+
+
+ # This class is part of an EXPERIMENTAL API.
+class Events(object):
+    """Missing associated documentation comment in .proto file."""
+
+    @staticmethod
+    def Set(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bos.Events/Set',
             common__pb2.SetRequest.SerializeToString,
             common__pb2.SetResponse.FromString,
             options,

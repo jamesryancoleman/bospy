@@ -100,7 +100,9 @@ def ParseKey(s:str) -> Key|None:
 
 
 # client calls
-def Get(keys:list[str], infer_type=True, token:str=None) -> dict[str,Any]:
+def Get(keys:str|list[str], infer_type=True, token:str=None) -> dict[str,Any]:
+    if isinstance(keys, str):
+        keys = [keys]
     if token is None:
         token = kwargs["READ_TOKEN"]
 
@@ -145,10 +147,15 @@ def Run(image:str, *args, envVars:dict[str, str]=None, **kwargs) -> common_pb2.R
     
     return response
 
-def Set(pairs:dict[str,Any]) -> common_pb2.SetResponse:
+def Set(pairs:str|dict[str,Any], value:Any|None=None) -> common_pb2.SetResponse:
     """ Set writes the a dictionary of keys and values to the subnamespace
         allocated to this flow.
     """
+    if isinstance(pairs, str) and value is not None:
+        pairs = {pairs: value}
+    if not isinstance(pairs, dict):
+        print(f"set error: pairs not a str or dict (type={type(pairs)})")
+        return None
     txn = int(kwargs.get('TXN_ID', 0))
     token = kwargs.get('WRITE_TOKEN', DEFAULT_TOKEN)
 
@@ -165,7 +172,8 @@ def Set(pairs:dict[str,Any]) -> common_pb2.SetResponse:
             Header=header,
             Pairs=setPairs,
         ))
-    print("error:", response.Error, ", errMsg:",response.ErrorMsg)
+    if response.Error > 0:
+        print("error:", response.Error, ", errMsg:",response.ErrorMsg)
     return response
 
 def Return(*_args, **_kwargs) -> common_pb2.SetResponse:
@@ -178,42 +186,12 @@ def Return(*_args, **_kwargs) -> common_pb2.SetResponse:
             kwarg['txn_id'] = TXN_ID
             kwarg['session_token'] = SESSION_TOKEN
     """
-    pairs:list[common_pb2.SetPair] = []
-    hash_key = _kwargs.get("__key__")
-    if hash_key is not None:
-        pairs.append(common_pb2.SetPair(Key="__key__", Value='output'))
-    for i, _ in enumerate(_args):
-        key = ParseKey("{}/${}".format(OUTPUT_HASH, i+1))
-        pairs.append(common_pb2.SetPair(Key=key.__str__(), Value=str(_args[i])))
-        i+=1
-    
-    for k, v in _kwargs.items():
-        key = ParseKey(k)
-        pairs.append(common_pb2.SetPair(Key=key.__str__(), Value=str(v)))
-    
-    # the default txn_id of 0 and token of 000000000000 will succeed
-    txn_id = int(kwargs.get('TXN_ID', 0))
-    session_token = kwargs.get('WRITE_TOKEN', DEFAULT_TOKEN)
-    print("Return - txn: {}, session_id: {}".format(txn_id, session_token))
-    header = common_pb2.Header(
-                TxnId=txn_id,
-                SessionToken=session_token
-            )
-    print("trying to write return values to scheduler at {}".format(SCHEDULER_ADDR))
-    print("txn id: {}, token: '{}'".format(header.TxnId, header.SessionToken))
-    print("pairs:")
-    for p in pairs:
-        print(" ",p.Key, "->", p.Value)
-    
-    response:common_pb2.SetResponse
-    with grpc.insecure_channel(SCHEDULER_ADDR) as channel:
-        stub = common_pb2_grpc.ScheduleStub(channel)
-        response = stub.Set(common_pb2.SetRequest(
-            Header=header,
-            Pairs=pairs,
-        ))
-    print("error:", response.Error, ", errMsg:",response.ErrorMsg)
-    return response
+    _kwargs = {f"{OUTPUT_HASH}/{k}":v for k,v in _kwargs.items()}
+    for i, arg in enumerate(_args):
+        # key = ParseKey("{}/${}".format(OUTPUT_HASH, i+1))
+        # pairs.append(common_pb2.SetPair(Key=key.__str__(), Value=str(_args[i])))
+        _kwargs[f"{OUTPUT_HASH}/${i+1}"] = arg
+    return Set(_kwargs)
 
 
 def LoadInput(*keys:str, flow:int=None, node:int=None, token:str=None, txn:int=None) -> tuple[list[str], dict[str,Any]]:
@@ -326,26 +304,22 @@ def LoadKwargs(values:dict[str,str]=None):
         if "kwarg:" in k:
             kwargs[k[6:]] = os.environ.pop(k)
 
-def LoadEnv():
-    try:
-        TXN = os.environ.pop("TXN_ID")
-        TXN = int(TXN)
-    except KeyError:
-        TXN = 0
-        
-    try:
-        FLOW = os.environ.pop("FLOW_ID")
-        FLOW = int(FLOW)
-    except KeyError:
-        FLOW = 0
+def LoadEnv():      
+    FLOW = int(os.environ.pop("FLOW_ID", 0))
+    kwargs["FLOW_ID"] = FLOW
 
-    try:
-        NODE = os.environ.pop("NODE_ID")
-        NODE = int(NODE)
-    except KeyError:
-        NODE = 0        
-            
+    NODE = int(os.environ.pop("NODE_ID", 0))
+    kwargs["NODE_ID"] = NODE
+
+    TXN = int(os.environ.pop("TXN_ID", 0))
+    kwargs["TXN_ID"] = TXN
+    
+    WRITE_TOKEN = os.environ.pop('WRITE_TOKEN', DEFAULT_TOKEN)
+    READ_TOKEN = os.environ.pop('READ_TOKEN', DEFAULT_TOKEN)
+    kwargs["WRITE_TOKEN"] = WRITE_TOKEN
+    kwargs["READ_TOKEN"] = READ_TOKEN
     LoadArgs()
     LoadKwargs()
 
 LoadEnv()
+print(kwargs)
