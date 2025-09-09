@@ -2,6 +2,8 @@ from bospy import common_pb2_grpc
 from bospy import common_pb2
 import grpc
 
+from rdflib import Graph, URIRef, parser
+
 import datetime as dt
 import sys
 import os
@@ -480,7 +482,25 @@ def DecodeValue(s:str, dtype:common_pb2.Dtype=common_pb2.UNSPECIFIED):
         return s
     else:
         return UntypedString(s)
+
+def BasicQuery(query:str) -> Graph:
+    # call the BasicQuery endpoint
+    resp: common_pb2.BasicQueryResponse
+    with grpc.insecure_channel(SYSMOD_ADDR) as channel:
+        stub = common_pb2_grpc.SysmodStub(channel)
+        resp = stub.BasicQuery(common_pb2.BasicQueryRequest(
+            Query=query
+        ))
+        if resp.Error > 0:
+            print("QUERY_ERROR_{}: {}".format(resp.Error, resp.ErrorMsg))
+            return False
     
+    # translate the results 
+    g = Graph()
+    for t in resp.Results:
+        g.parse(data=f"{t.Subject} {t.Predicate} {t.Object} .", format="turtle")
+    return g
+
 
 class UntypedString(str):
     """ Used to show that a value received by Get or GetMultiple was cast to a 

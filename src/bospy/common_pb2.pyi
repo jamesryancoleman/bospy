@@ -210,6 +210,28 @@ class SetResponse(_message.Message):
     ErrorMsg: str
     def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Pairs: _Optional[_Iterable[_Union[SetPair, _Mapping]]] = ..., Error: _Optional[_Union[ServiceError, str]] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...
 
+class BasicQueryRequest(_message.Message):
+    __slots__ = ("Header", "Query")
+    HEADER_FIELD_NUMBER: _ClassVar[int]
+    QUERY_FIELD_NUMBER: _ClassVar[int]
+    Header: Header
+    Query: str
+    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Query: _Optional[str] = ...) -> None: ...
+
+class BasicQueryResponse(_message.Message):
+    __slots__ = ("Header", "Query", "Results", "Error", "ErrorMsg")
+    HEADER_FIELD_NUMBER: _ClassVar[int]
+    QUERY_FIELD_NUMBER: _ClassVar[int]
+    RESULTS_FIELD_NUMBER: _ClassVar[int]
+    ERROR_FIELD_NUMBER: _ClassVar[int]
+    ERRORMSG_FIELD_NUMBER: _ClassVar[int]
+    Header: Header
+    Query: str
+    Results: _containers.RepeatedCompositeFieldContainer[Triple]
+    Error: QueryError
+    ErrorMsg: str
+    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Query: _Optional[str] = ..., Results: _Optional[_Iterable[_Union[Triple, _Mapping]]] = ..., Error: _Optional[_Union[QueryError, str]] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...
+
 class DeviceQueryRequest(_message.Message):
     __slots__ = ("Header", "Query", "Names", "Types", "Locations", "ChildTypes")
     HEADER_FIELD_NUMBER: _ClassVar[int]
