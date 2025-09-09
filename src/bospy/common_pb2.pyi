@@ -2,7 +2,8 @@ from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
+from collections.abc import Iterable as _Iterable, Mapping as _Mapping
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -209,6 +210,28 @@ class SetResponse(_message.Message):
     ErrorMsg: str
     def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Pairs: _Optional[_Iterable[_Union[SetPair, _Mapping]]] = ..., Error: _Optional[_Union[ServiceError, str]] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...
 
+class BasicQueryRequest(_message.Message):
+    __slots__ = ("Header", "Query")
+    HEADER_FIELD_NUMBER: _ClassVar[int]
+    QUERY_FIELD_NUMBER: _ClassVar[int]
+    Header: Header
+    Query: str
+    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Query: _Optional[str] = ...) -> None: ...
+
+class BasicQueryResponse(_message.Message):
+    __slots__ = ("Header", "Query", "Results", "Error", "ErrorMsg")
+    HEADER_FIELD_NUMBER: _ClassVar[int]
+    QUERY_FIELD_NUMBER: _ClassVar[int]
+    RESULTS_FIELD_NUMBER: _ClassVar[int]
+    ERROR_FIELD_NUMBER: _ClassVar[int]
+    ERRORMSG_FIELD_NUMBER: _ClassVar[int]
+    Header: Header
+    Query: str
+    Results: _containers.RepeatedCompositeFieldContainer[Triple]
+    Error: QueryError
+    ErrorMsg: str
+    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Query: _Optional[str] = ..., Results: _Optional[_Iterable[_Union[Triple, _Mapping]]] = ..., Error: _Optional[_Union[QueryError, str]] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...
+
 class DeviceQueryRequest(_message.Message):
     __slots__ = ("Header", "Query", "Names", "Types", "Locations", "ChildTypes")
     HEADER_FIELD_NUMBER: _ClassVar[int]
@@ -390,7 +413,7 @@ class RefreshRatesResponse(_message.Message):
     def __init__(self, Error: _Optional[_Union[ServiceError, str]] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...
 
 class RunRequest(_message.Message):
-    __slots__ = ("Header", "Image", "Container", "Args", "Kwargs", "EnvVars")
+    __slots__ = ("Header", "Image", "Container", "Args", "Kwargs", "EnvVars", "Timeout")
     class KwargsEntry(_message.Message):
         __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
@@ -411,13 +434,15 @@ class RunRequest(_message.Message):
     ARGS_FIELD_NUMBER: _ClassVar[int]
     KWARGS_FIELD_NUMBER: _ClassVar[int]
     ENVVARS_FIELD_NUMBER: _ClassVar[int]
+    TIMEOUT_FIELD_NUMBER: _ClassVar[int]
     Header: Header
     Image: str
     Container: str
     Args: _containers.RepeatedScalarFieldContainer[str]
     Kwargs: _containers.ScalarMap[str, str]
     EnvVars: _containers.ScalarMap[str, str]
-    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Image: _Optional[str] = ..., Container: _Optional[str] = ..., Args: _Optional[_Iterable[str]] = ..., Kwargs: _Optional[_Mapping[str, str]] = ..., EnvVars: _Optional[_Mapping[str, str]] = ...) -> None: ...
+    Timeout: int
+    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Image: _Optional[str] = ..., Container: _Optional[str] = ..., Args: _Optional[_Iterable[str]] = ..., Kwargs: _Optional[_Mapping[str, str]] = ..., EnvVars: _Optional[_Mapping[str, str]] = ..., Timeout: _Optional[int] = ...) -> None: ...
 
 class RunResponse(_message.Message):
     __slots__ = ("Header", "ExitCode", "StdOut", "ErrorMsg", "ReturnValues")
@@ -468,6 +493,42 @@ class CronRequest(_message.Message):
     def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., CronStr: _Optional[str] = ..., Requests: _Optional[_Iterable[_Union[RunRequest, _Mapping]]] = ..., OnStart: bool = ...) -> None: ...
 
 class CronResponse(_message.Message):
+    __slots__ = ("Header", "Ok")
+    HEADER_FIELD_NUMBER: _ClassVar[int]
+    OK_FIELD_NUMBER: _ClassVar[int]
+    Header: Header
+    Ok: bool
+    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Ok: bool = ...) -> None: ...
+
+class RegisterHandlerRequest(_message.Message):
+    __slots__ = ("Header", "Event", "Requests")
+    HEADER_FIELD_NUMBER: _ClassVar[int]
+    EVENT_FIELD_NUMBER: _ClassVar[int]
+    REQUESTS_FIELD_NUMBER: _ClassVar[int]
+    Header: Header
+    Event: str
+    Requests: _containers.RepeatedCompositeFieldContainer[RunRequest]
+    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Event: _Optional[str] = ..., Requests: _Optional[_Iterable[_Union[RunRequest, _Mapping]]] = ...) -> None: ...
+
+class RegisterHandlerResponse(_message.Message):
+    __slots__ = ("Header", "Ok")
+    HEADER_FIELD_NUMBER: _ClassVar[int]
+    OK_FIELD_NUMBER: _ClassVar[int]
+    Header: Header
+    Ok: bool
+    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Ok: bool = ...) -> None: ...
+
+class UnregisterHandlerRequest(_message.Message):
+    __slots__ = ("Header", "Event", "Requests")
+    HEADER_FIELD_NUMBER: _ClassVar[int]
+    EVENT_FIELD_NUMBER: _ClassVar[int]
+    REQUESTS_FIELD_NUMBER: _ClassVar[int]
+    Header: Header
+    Event: str
+    Requests: _containers.RepeatedCompositeFieldContainer[RunRequest]
+    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Event: _Optional[str] = ..., Requests: _Optional[_Iterable[_Union[RunRequest, _Mapping]]] = ...) -> None: ...
+
+class UnregisterHandlerResponse(_message.Message):
     __slots__ = ("Header", "Ok")
     HEADER_FIELD_NUMBER: _ClassVar[int]
     OK_FIELD_NUMBER: _ClassVar[int]
