@@ -20,7 +20,7 @@ point_name_cache = {}
 
 SYSMOD_ADDR = "localhost:2821"
 DEVCTRL_ADDR = "localhost:2822"
-HISTORY_ADDR = "localhost:2833"
+HISTORY_ADDR = "localhost:2823"
 
 # apply defaults
 def LoadEnv():
