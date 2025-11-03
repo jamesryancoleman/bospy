@@ -1,6 +1,42 @@
 from bospy import bos
+import unittest
+import time
 
 from typing import Any
+
+class TestSet(unittest.TestCase):
+    def setUp(self):
+        """ This test currently requires the boptest driver to be running
+        """
+        self.flow = "bos://localhost/dev/12/pts/6" # air flow (actual)
+        self.flowStPt =  "bos://localhost/dev/12/pts/15" # air flow setpoint
+        self.flowOverride = "bos://localhost/dev/12/pts/14" # air flow override
+
+    def test_override(self):
+        print()
+        # confirm starting fan speed
+        flow = bos.Get(self.flow)
+        print(f"starting fan flow is: {flow}")
+
+        # override the fan
+        results = bos.Set(
+            [self.flowOverride, self.flowStPt], # keys
+            [1, 0.75])                          # values
+        print(results)
+        
+        # wait for override to apply
+        time.sleep(16)
+
+        # confirm new fan speed
+        flow = bos.Get(self.flow)
+        print(f"new fan flow is: {flow}")
+
+        # return to original state
+        # override the fan
+        results = bos.Set(
+            [self.flowOverride, self.flowStPt], # keys
+            [0, 0.5])                           # values
+        print(results)
 
 def SetTest(bosPtUri:str, value:str):
     ok = bos.Set(bosPtUri, value)

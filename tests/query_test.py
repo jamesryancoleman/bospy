@@ -1,7 +1,33 @@
 from bospy import bos, utils
+import unittest
 
 simple_output = True
 
+class TestQuery(unittest.TestCase):
+    def setUp(self):
+        """ This test currently requires the boptest driver to be running
+        """
+        self.parent_device_type = "brick:Fan_Coil_Unit"
+        self.test_pts = []
+
+    def test_get_env(self):
+        print(f"sysmod_addr: {bos.SYSMOD_ADDR}")
+        print(f"devctrl_addr: {bos.DEVCTRL_ADDR}")
+        print(f"history_addr: {bos.HISTORY_ADDR}")
+
+    def test_query_by_parent_type(self):
+        print()
+        self.test_pts = bos.QueryPoints(parent_types=self.parent_device_type)[1:8]
+        for p in self.test_pts:
+            print(p)
+    
+    def test_get_pts(self):
+        print()
+        self.test_pts = bos.QueryPoints(parent_types=self.parent_device_type)
+        results = bos.Get(self.test_pts)
+        for k, v in results.items():
+            print(k, " --> ",v)
+    
 def NameTest(name:str):
     pt = bos.NameToPoint(name)
     if simple_output:

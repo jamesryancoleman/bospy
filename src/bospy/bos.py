@@ -13,22 +13,25 @@ from typing import Any
 """ Provides the wrapper functions used to access openBOS points in Python
 """
 
-VERSION = "0.0.9"
-
-SYSMOD_ADDR = os.environ.get('SYSMOD_ADDR')
-DEVCTRL_ADDR = os.environ.get('DEVCTRL_ADDR')
-HISTORY_ADDR = os.environ.get('HISTORY_ADDR')
+VERSION = "0.0.10"
 
 # uri -> name cache
 point_name_cache = {}
 
+SYSMOD_ADDR = "localhost:2821"
+DEVCTRL_ADDR = "localhost:2822"
+HISTORY_ADDR = "localhost:2833"
+
 # apply defaults
-if SYSMOD_ADDR is None:
-    SYSMOD_ADDR = "localhost:2821"
-if DEVCTRL_ADDR is None:
-    DEVCTRL_ADDR = "localhost:2822"
-if HISTORY_ADDR is None:
-    HISTORY_ADDR = "localhost:2833"
+def LoadEnv():
+    """ Called to load/reload the env vars. Does nothing if env vars not set
+    """
+    global SYSMOD_ADDR, DEVCTRL_ADDR, HISTORY_ADDR
+    SYSMOD_ADDR = os.environ.get('SYSMOD_ADDR', SYSMOD_ADDR)
+    DEVCTRL_ADDR = os.environ.get('DEVCTRL_ADDR', DEVCTRL_ADDR)
+    HISTORY_ADDR = os.environ.get('HISTORY_ADDR', HISTORY_ADDR)
+
+LoadEnv()
 
 # client calls for the sysmod rpc calls
 def NameToPoint(names:str|list[str], multiple_matches:bool=False) -> None | list[str]:
@@ -422,7 +425,7 @@ def Get(keys:str|list[str], full_response=False) -> list[GetResponse] | dict[str
 
     response: common_pb2.GetResponse
     with grpc.insecure_channel(DEVCTRL_ADDR) as channel:
-        stub = common_pb2_grpc.GetSetRunStub(channel)
+        stub = common_pb2_grpc.DeviceControlStub(channel)
         response = stub.Get(common_pb2.GetRequest(Keys=keys))
     R = NewGetValues(response)
     if full_response:
@@ -452,7 +455,7 @@ def Set(keys:str|list[str], values:str|list[str], full_response=False) -> SetRes
 
     response: common_pb2.SetResponse
     with grpc.insecure_channel(DEVCTRL_ADDR) as channel:
-        stub = common_pb2_grpc.GetSetRunStub(channel)
+        stub = common_pb2_grpc.DeviceControlStub(channel)
         response = stub.Set(common_pb2.SetRequest(Pairs=pairs))
         if response.Error > 0:
             print("SET_ERROR_{}: {}".format(response.Error, response.ErrorMsg))
