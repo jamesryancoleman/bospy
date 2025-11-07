@@ -333,13 +333,15 @@ def GetHistory(pts:str|list[str], start:str=None, end:str=None, limit:int=14400,
             xf = pd.DataFrame()
             G = df.groupby('id')
             columns = ['time']
-            for i, g in enumerate(G.groups):
-                if i == 0:
-                    xf = G.get_group(g)[['time', 'value']]
-                    columns.append(G.get_group(g).iloc[0]['id'])
+            count = 0 
+            for _id, g in G:
+                if len(xf) == 0:
+                    xf = g[['time', 'value']]
                 else:
-                    xf = pd.merge_ordered(xf, G.get_group(g)[['time', 'value']], on='time')
-                    columns.append(G.get_group(g).iloc[0]['id'])
+                    xf = pd.merge_ordered(xf, g[['time', 'value']], 
+                                        on='time', fill_method='ffill', suffixes=('', f'_df{count+1}'))
+                columns.append(_id)
+                count+=1
             xf.columns = columns
             df = xf
         df.set_index('time', inplace=True)
