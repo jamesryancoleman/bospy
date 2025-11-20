@@ -1,8 +1,13 @@
 # import bospy.run as run
 from bospy.run import Key
 import bospy.run as run
+import unittest
 
 test_token = "000000000000"
+
+class TestRun(unittest.TestCase):
+    def test_set(self):
+        TestSet()
 
 def TestInferType():
     cases = ["123", "0.0", "FALSE", "google.com"]

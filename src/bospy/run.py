@@ -114,7 +114,7 @@ def Get(keys:str|list[str], infer_type=True, token:str=None) -> dict[str,Any]:
     with grpc.insecure_channel(SCHEDULER_ADDR) as channel:
         header = common_pb2.Header(Src="python_client", Dst=SCHEDULER_ADDR, 
                                    SessionToken=token)
-        stub = common_pb2_grpc.ScheduleStub(channel)
+        stub = common_pb2_grpc.SchedulerStub(channel)
         response = stub.Get(common_pb2.GetRequest(
             Header=header,
             Keys=keys,
@@ -135,7 +135,7 @@ def Get(keys:str|list[str], infer_type=True, token:str=None) -> dict[str,Any]:
 def Run(image:str, *args, envVars:dict[str, str]=None, **kwargs) -> common_pb2.RunResponse:
     response: common_pb2.RunResponse
     with grpc.insecure_channel(SCHEDULER_ADDR) as channel:
-        stub = common_pb2_grpc.ScheduleStub(channel)
+        stub = common_pb2_grpc.SchedulerStub(channel)
         response = stub.Run(common_pb2.RunRequest(
             Image=image, 
             EnvVars=envVars,
@@ -151,6 +151,9 @@ def Set(pairs:str|dict[str,Any], value:Any|None=None) -> common_pb2.SetResponse:
     """ Set writes the a dictionary of keys and values to the subnamespace
         allocated to this flow.
     """
+    # TODO: decide how to make a Set request use the global name space. Cannot 
+    # use the global kwarg because it is protected in python. Should users have
+    # to prepend this explicitly? This already is supported as of 11/20/2025. 
     if isinstance(pairs, str) and value is not None:
         pairs = {pairs: value}
     if not isinstance(pairs, dict):
@@ -166,7 +169,7 @@ def Set(pairs:str|dict[str,Any], value:Any|None=None) -> common_pb2.SetResponse:
 
     response:common_pb2.SetResponse
     with grpc.insecure_channel(SCHEDULER_ADDR) as channel:
-        stub = common_pb2_grpc.ScheduleStub(channel)
+        stub = common_pb2_grpc.SchedulerStub(channel)
         header = common_pb2.Header(TxnId=txn, SessionToken=token)
         response = stub.Set(common_pb2.SetRequest(
             Header=header,
@@ -221,7 +224,7 @@ def LoadInput(*keys:str, flow:int=None, node:int=None, token:str=None, txn:int=N
     response:common_pb2.SetResponse
     with grpc.insecure_channel(SCHEDULER_ADDR) as channel:
         # When no Pairs are set all variables are returned if the token is valid
-        stub = common_pb2_grpc.ScheduleStub(channel)
+        stub = common_pb2_grpc.SchedulerStub(channel)
         response = stub.Get(common_pb2.GetRequest(
             Header=header,
             Keys=keys,
