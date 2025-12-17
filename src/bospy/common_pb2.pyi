@@ -1,3 +1,7 @@
+import datetime
+
+from google.protobuf import timestamp_pb2 as _timestamp_pb2
+from google.protobuf import struct_pb2 as _struct_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
@@ -129,30 +133,34 @@ class Empty(_message.Message):
     def __init__(self) -> None: ...
 
 class Header(_message.Message):
-    __slots__ = ("Src", "Dst", "TxnId", "SessionToken")
+    __slots__ = ("Src", "Dst", "TxnId", "SessionToken", "Time")
     SRC_FIELD_NUMBER: _ClassVar[int]
     DST_FIELD_NUMBER: _ClassVar[int]
     TXNID_FIELD_NUMBER: _ClassVar[int]
     SESSIONTOKEN_FIELD_NUMBER: _ClassVar[int]
+    TIME_FIELD_NUMBER: _ClassVar[int]
     Src: str
     Dst: str
     TxnId: int
     SessionToken: str
-    def __init__(self, Src: _Optional[str] = ..., Dst: _Optional[str] = ..., TxnId: _Optional[int] = ..., SessionToken: _Optional[str] = ...) -> None: ...
+    Time: _timestamp_pb2.Timestamp
+    def __init__(self, Src: _Optional[str] = ..., Dst: _Optional[str] = ..., TxnId: _Optional[int] = ..., SessionToken: _Optional[str] = ..., Time: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ...) -> None: ...
 
 class GetPair(_message.Message):
-    __slots__ = ("Key", "Value", "Dtype", "Error", "ErrorMsg")
+    __slots__ = ("Key", "Value", "Dtype", "time", "Error", "ErrorMsg")
     KEY_FIELD_NUMBER: _ClassVar[int]
     VALUE_FIELD_NUMBER: _ClassVar[int]
     DTYPE_FIELD_NUMBER: _ClassVar[int]
+    TIME_FIELD_NUMBER: _ClassVar[int]
     ERROR_FIELD_NUMBER: _ClassVar[int]
     ERRORMSG_FIELD_NUMBER: _ClassVar[int]
     Key: str
     Value: str
     Dtype: Dtype
+    time: _timestamp_pb2.Timestamp
     Error: GetError
     ErrorMsg: str
-    def __init__(self, Key: _Optional[str] = ..., Value: _Optional[str] = ..., Dtype: _Optional[_Union[Dtype, str]] = ..., Error: _Optional[_Union[GetError, str]] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...
+    def __init__(self, Key: _Optional[str] = ..., Value: _Optional[str] = ..., Dtype: _Optional[_Union[Dtype, str]] = ..., time: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., Error: _Optional[_Union[GetError, str]] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...
 
 class SetPair(_message.Message):
     __slots__ = ("Key", "Value", "Dtype", "Ok", "Error", "ErrorMsg")
@@ -411,6 +419,74 @@ class RefreshRatesResponse(_message.Message):
     Error: ServiceError
     ErrorMsg: str
     def __init__(self, Error: _Optional[_Union[ServiceError, str]] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...
+
+class SetForecastRequest(_message.Message):
+    __slots__ = ("header", "forecast")
+    HEADER_FIELD_NUMBER: _ClassVar[int]
+    FORECAST_FIELD_NUMBER: _ClassVar[int]
+    header: Header
+    forecast: ForecastEntry
+    def __init__(self, header: _Optional[_Union[Header, _Mapping]] = ..., forecast: _Optional[_Union[ForecastEntry, _Mapping]] = ...) -> None: ...
+
+class SetForecastResponse(_message.Message):
+    __slots__ = ("header", "id")
+    HEADER_FIELD_NUMBER: _ClassVar[int]
+    ID_FIELD_NUMBER: _ClassVar[int]
+    header: Header
+    id: str
+    def __init__(self, header: _Optional[_Union[Header, _Mapping]] = ..., id: _Optional[str] = ...) -> None: ...
+
+class GetForecastRequest(_message.Message):
+    __slots__ = ("header", "forecast_id", "points_uri")
+    HEADER_FIELD_NUMBER: _ClassVar[int]
+    FORECAST_ID_FIELD_NUMBER: _ClassVar[int]
+    POINTS_URI_FIELD_NUMBER: _ClassVar[int]
+    header: Header
+    forecast_id: str
+    points_uri: str
+    def __init__(self, header: _Optional[_Union[Header, _Mapping]] = ..., forecast_id: _Optional[str] = ..., points_uri: _Optional[str] = ...) -> None: ...
+
+class GetForecastResponse(_message.Message):
+    __slots__ = ("header", "forecast")
+    HEADER_FIELD_NUMBER: _ClassVar[int]
+    FORECAST_FIELD_NUMBER: _ClassVar[int]
+    header: Header
+    forecast: ForecastEntry
+    def __init__(self, header: _Optional[_Union[Header, _Mapping]] = ..., forecast: _Optional[_Union[ForecastEntry, _Mapping]] = ...) -> None: ...
+
+class ForecastEntry(_message.Message):
+    __slots__ = ("forecast_id", "created_at", "point_uri", "forecast_type", "model", "model_version", "metadata", "values")
+    FORECAST_ID_FIELD_NUMBER: _ClassVar[int]
+    CREATED_AT_FIELD_NUMBER: _ClassVar[int]
+    POINT_URI_FIELD_NUMBER: _ClassVar[int]
+    FORECAST_TYPE_FIELD_NUMBER: _ClassVar[int]
+    MODEL_FIELD_NUMBER: _ClassVar[int]
+    MODEL_VERSION_FIELD_NUMBER: _ClassVar[int]
+    METADATA_FIELD_NUMBER: _ClassVar[int]
+    VALUES_FIELD_NUMBER: _ClassVar[int]
+    forecast_id: str
+    created_at: _timestamp_pb2.Timestamp
+    point_uri: str
+    forecast_type: str
+    model: str
+    model_version: str
+    metadata: _struct_pb2.Struct
+    values: _containers.RepeatedCompositeFieldContainer[ForecastValue]
+    def __init__(self, forecast_id: _Optional[str] = ..., created_at: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., point_uri: _Optional[str] = ..., forecast_type: _Optional[str] = ..., model: _Optional[str] = ..., model_version: _Optional[str] = ..., metadata: _Optional[_Union[_struct_pb2.Struct, _Mapping]] = ..., values: _Optional[_Iterable[_Union[ForecastValue, _Mapping]]] = ...) -> None: ...
+
+class ForecastValue(_message.Message):
+    __slots__ = ("forecast_id", "created_at", "target_time", "scenario", "value")
+    FORECAST_ID_FIELD_NUMBER: _ClassVar[int]
+    CREATED_AT_FIELD_NUMBER: _ClassVar[int]
+    TARGET_TIME_FIELD_NUMBER: _ClassVar[int]
+    SCENARIO_FIELD_NUMBER: _ClassVar[int]
+    VALUE_FIELD_NUMBER: _ClassVar[int]
+    forecast_id: str
+    created_at: _timestamp_pb2.Timestamp
+    target_time: _timestamp_pb2.Timestamp
+    scenario: str
+    value: float
+    def __init__(self, forecast_id: _Optional[str] = ..., created_at: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., target_time: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., scenario: _Optional[str] = ..., value: _Optional[float] = ...) -> None: ...
 
 class RunRequest(_message.Message):
     __slots__ = ("Header", "Image", "Container", "Args", "Kwargs", "EnvVars", "Timeout")

@@ -1,3 +1,4 @@
+from google.protobuf.timestamp_pb2 import Timestamp
 from bospy import common_pb2_grpc
 from bospy import common_pb2
 import grpc
@@ -8,7 +9,7 @@ import datetime as dt
 import sys
 import os
 
-from typing import Any
+from typing import Any, Optional
 
 """ Provides the wrapper functions used to access openBOS points in Python
 """
@@ -21,15 +22,18 @@ point_name_cache = {}
 SYSMOD_ADDR = "localhost:2821"
 DEVCTRL_ADDR = "localhost:2822"
 HISTORY_ADDR = "localhost:2823"
+# SCHEDULER_ADDR = "localhost:2824"
+FORECAST_ADDR = "localhost:2925"
 
 # apply defaults
 def LoadEnv():
     """ Called to load/reload the env vars. Does nothing if env vars not set
     """
-    global SYSMOD_ADDR, DEVCTRL_ADDR, HISTORY_ADDR
+    global SYSMOD_ADDR, DEVCTRL_ADDR, HISTORY_ADDR, FORECAST_ADDR
     SYSMOD_ADDR = os.environ.get('SYSMOD_ADDR', SYSMOD_ADDR)
     DEVCTRL_ADDR = os.environ.get('DEVCTRL_ADDR', DEVCTRL_ADDR)
     HISTORY_ADDR = os.environ.get('HISTORY_ADDR', HISTORY_ADDR)
+    FORECAST_ADDR = os.environ.get('FORECAST_ADDR', FORECAST_ADDR)
 
 LoadEnv()
 
@@ -505,6 +509,89 @@ def BasicQuery(query:str) -> Graph:
     for t in resp.Results:
         g.parse(data=f"{t.Subject} {t.Predicate} {t.Object} .", format="turtle")
     return g
+
+def GetForecast(point:str="", forecast_id:str="", pandas=True, tz="") -> None | common_pb2.GetForecastResponse:
+    """
+    GetForecast returns a forecast if the id is known. If the point is provided 
+    newest forecast is returned. For now, this only accepts 1 point. TODO add 
+    support for N points.
+    
+    :param point: Description
+    :type point: str
+    :param forecast_id: Description
+    :type forecast_id: str
+    :return: Description
+    :rtype: GetForecastResponse | None
+    """
+    if not (point or forecast_id):
+        print("error, must provide point or forecast_id")
+        return None
+    resp: common_pb2.GetForecastResponse
+    with grpc.insecure_channel(FORECAST_ADDR) as channel:
+        stub = common_pb2_grpc.ForecastStub(channel)
+        resp = stub.Get(common_pb2.GetForecastRequest(
+            header=common_pb2.Header(
+                Src="python-client",
+                Dst=FORECAST_ADDR),
+            forecast_id=forecast_id,
+            points_uri=point))
+        
+    if pandas:
+        import pandas as pd
+        df = pd.DataFrame({
+            'time': [pair.target_time.ToDatetime() for pair in resp.forecast.values],
+            'value': [pair.value for pair in resp.forecast.values],
+        })
+        df.time = df.time.dt.tz_localize('UTC')
+        if tz != "":
+            df.time = df.time.dt.tz_localize(tz)
+        df.set_index('time', inplace=True)
+        return df
+    
+    return resp
+
+def SetForecast(point:str, values:list[tuple[dt.datetime, float]], model:str="", 
+                model_version:str="") -> Optional[str]:
+    """
+    Docstring for SetForecast
+    
+    :param point: Description
+    :type point: str
+    :param values: Description
+    :type values: list[tuple[dt.datetime, float]]
+    :param model: Conventionally, container/app that was used to make this forecast.
+    :type model: str
+    :param model_version: Conventially, the git commit for this container/model.
+    :type model_version: str
+    :return: The uuid assigned to this forecast.
+    :rtype: str
+    """
+    if len(values) < 1:
+        # TODO: add exception
+        return None
+    
+    V: list[common_pb2.ForecastValue] = []
+    for pair in values:
+        target_time = Timestamp()
+        target_time.FromDatetime(pair[0])
+        V.append(common_pb2.ForecastValue(
+            target_time=target_time,
+            value=pair[1]))
+    req = common_pb2.SetForecastRequest(
+        header=common_pb2.Header(
+            Src="bospy.client",
+            Dst="forecast.local"),
+        forecast=common_pb2.ForecastEntry(
+            point_uri=point,
+            model=model,
+            model_version=model_version,
+            values=V))
+    resp: common_pb2.SetForecastResponse
+    with grpc.insecure_channel(FORECAST_ADDR) as channel:
+        stub = common_pb2_grpc.ForecastStub(channel)
+        resp = stub.Set(req)
+
+    return resp.id
 
 
 class UntypedString(str):

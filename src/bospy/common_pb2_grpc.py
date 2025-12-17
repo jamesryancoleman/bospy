@@ -892,6 +892,122 @@ class History(object):
             _registered_method=True)
 
 
+class ForecastStub(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def __init__(self, channel):
+        """Constructor.
+
+        Args:
+            channel: A grpc.Channel.
+        """
+        self.Get = channel.unary_unary(
+                '/bos.Forecast/Get',
+                request_serializer=common__pb2.GetForecastRequest.SerializeToString,
+                response_deserializer=common__pb2.GetForecastResponse.FromString,
+                _registered_method=True)
+        self.Set = channel.unary_unary(
+                '/bos.Forecast/Set',
+                request_serializer=common__pb2.SetForecastRequest.SerializeToString,
+                response_deserializer=common__pb2.SetForecastResponse.FromString,
+                _registered_method=True)
+
+
+class ForecastServicer(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def Get(self, request, context):
+        """returns 
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def Set(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+
+def add_ForecastServicer_to_server(servicer, server):
+    rpc_method_handlers = {
+            'Get': grpc.unary_unary_rpc_method_handler(
+                    servicer.Get,
+                    request_deserializer=common__pb2.GetForecastRequest.FromString,
+                    response_serializer=common__pb2.GetForecastResponse.SerializeToString,
+            ),
+            'Set': grpc.unary_unary_rpc_method_handler(
+                    servicer.Set,
+                    request_deserializer=common__pb2.SetForecastRequest.FromString,
+                    response_serializer=common__pb2.SetForecastResponse.SerializeToString,
+            ),
+    }
+    generic_handler = grpc.method_handlers_generic_handler(
+            'bos.Forecast', rpc_method_handlers)
+    server.add_generic_rpc_handlers((generic_handler,))
+    server.add_registered_method_handlers('bos.Forecast', rpc_method_handlers)
+
+
+ # This class is part of an EXPERIMENTAL API.
+class Forecast(object):
+    """Missing associated documentation comment in .proto file."""
+
+    @staticmethod
+    def Get(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bos.Forecast/Get',
+            common__pb2.GetForecastRequest.SerializeToString,
+            common__pb2.GetForecastResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def Set(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bos.Forecast/Set',
+            common__pb2.SetForecastRequest.SerializeToString,
+            common__pb2.SetForecastResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+
 class SchedulerStub(object):
     """Missing associated documentation comment in .proto file."""
 
