@@ -437,22 +437,26 @@ class SetForecastResponse(_message.Message):
     def __init__(self, header: _Optional[_Union[Header, _Mapping]] = ..., id: _Optional[str] = ...) -> None: ...
 
 class GetForecastRequest(_message.Message):
-    __slots__ = ("header", "forecast_id", "points_uri")
+    __slots__ = ("header", "forecast_id", "point_uri", "start", "end")
     HEADER_FIELD_NUMBER: _ClassVar[int]
     FORECAST_ID_FIELD_NUMBER: _ClassVar[int]
-    POINTS_URI_FIELD_NUMBER: _ClassVar[int]
+    POINT_URI_FIELD_NUMBER: _ClassVar[int]
+    START_FIELD_NUMBER: _ClassVar[int]
+    END_FIELD_NUMBER: _ClassVar[int]
     header: Header
     forecast_id: str
-    points_uri: str
-    def __init__(self, header: _Optional[_Union[Header, _Mapping]] = ..., forecast_id: _Optional[str] = ..., points_uri: _Optional[str] = ...) -> None: ...
+    point_uri: str
+    start: _timestamp_pb2.Timestamp
+    end: _timestamp_pb2.Timestamp
+    def __init__(self, header: _Optional[_Union[Header, _Mapping]] = ..., forecast_id: _Optional[str] = ..., point_uri: _Optional[str] = ..., start: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., end: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ...) -> None: ...
 
 class GetForecastResponse(_message.Message):
-    __slots__ = ("header", "forecast")
+    __slots__ = ("header", "forecasts")
     HEADER_FIELD_NUMBER: _ClassVar[int]
-    FORECAST_FIELD_NUMBER: _ClassVar[int]
+    FORECASTS_FIELD_NUMBER: _ClassVar[int]
     header: Header
-    forecast: ForecastEntry
-    def __init__(self, header: _Optional[_Union[Header, _Mapping]] = ..., forecast: _Optional[_Union[ForecastEntry, _Mapping]] = ...) -> None: ...
+    forecasts: _containers.RepeatedCompositeFieldContainer[ForecastEntry]
+    def __init__(self, header: _Optional[_Union[Header, _Mapping]] = ..., forecasts: _Optional[_Iterable[_Union[ForecastEntry, _Mapping]]] = ...) -> None: ...
 
 class ForecastEntry(_message.Message):
     __slots__ = ("forecast_id", "created_at", "point_uri", "forecast_type", "model", "model_version", "metadata", "values")

@@ -6,6 +6,7 @@ import grpc
 from rdflib import Graph, URIRef, parser
 
 import datetime as dt
+import pandas as pd
 import sys
 import os
 
@@ -353,7 +354,7 @@ def GetHistory(pts:str|list[str], start:str=None, end:str=None, limit:int=14400,
             df = df.resample(resample_to).mean()
         if get_names:
             df.columns = [GetName(pt) for pt in df.columns]
-        return df
+        return df.sort_index()
     return R
 
 # devctrl rpc calls
@@ -510,7 +511,10 @@ def BasicQuery(query:str) -> Graph:
         g.parse(data=f"{t.Subject} {t.Predicate} {t.Object} .", format="turtle")
     return g
 
-def GetForecast(point:str="", forecast_id:str="", pandas=True, tz="") -> None | common_pb2.GetForecastResponse:
+def GetForecast(point:str="", forecast_id:str="", 
+                start:dt.datetime=None, 
+                end: dt.datetime=None,
+                pandas=True, tz="") -> None | common_pb2.GetForecastResponse | list[pd.DataFrame]:
     """
     GetForecast returns a forecast if the id is known. If the point is provided 
     newest forecast is returned. For now, this only accepts 1 point. TODO add 
@@ -534,20 +538,25 @@ def GetForecast(point:str="", forecast_id:str="", pandas=True, tz="") -> None | 
                 Src="python-client",
                 Dst=FORECAST_ADDR),
             forecast_id=forecast_id,
-            points_uri=point))
+            point_uri=point,
+            start=start,
+            end=end,
+            ))
         
     if pandas:
-        import pandas as pd
-        df = pd.DataFrame({
-            'time': [pair.target_time.ToDatetime() for pair in resp.forecast.values],
-            'value': [pair.value for pair in resp.forecast.values],
-        })
-        df.time = df.time.dt.tz_localize('UTC')
-        if tz != "":
-            df.time = df.time.dt.tz_localize(tz)
-        df.set_index('time', inplace=True)
-        return df
-    
+        frames = []
+        for f in resp.forecasts:
+            _df = pd.DataFrame({
+                    'time': [pair.target_time.ToDatetime() for pair in f.values],
+                    'value': [pair.value for pair in f.values],
+                })
+            _df.time = _df.time.dt.tz_localize('UTC')
+            if tz != "":
+                _df.time = _df.time.dt.tz_convert(tz)
+            _df.set_index('time', inplace=True)
+            frames.append(_df)
+        return frames
+
     return resp
 
 def SetForecast(point:str, values:list[tuple[dt.datetime, float]], model:str="", 
