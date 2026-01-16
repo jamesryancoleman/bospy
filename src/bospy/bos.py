@@ -511,6 +511,19 @@ def BasicQuery(query:str) -> Graph:
         g.parse(data=f"{t.Subject} {t.Predicate} {t.Object} .", format="turtle")
     return g
 
+def GetAllLocation() -> set[str]:
+    query = """
+        SELECT DISTINCT ?sub ?pred ?obj WHERE {
+                ?sub ?pred ?obj .
+                VALUES ?pred { <https://openbos.org/schema/bos#Location> }
+        } ORDER BY (?obj)
+        """
+    results = set()
+    g = BasicQuery(query)
+    for s, p, o in g:
+        results.add(str(o))
+    return results
+
 def GetForecast(point: str="", forecast_id: str="", 
                 start: str|dt.datetime=None, 
                 end: str|dt.datetime=None,
