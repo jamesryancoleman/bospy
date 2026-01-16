@@ -48,8 +48,8 @@ def NameToPoint(names:str|list[str], multiple_matches:bool=False) -> None | list
     response: common_pb2.QueryResponse
     with grpc.insecure_channel(SYSMOD_ADDR) as channel:
         stub = common_pb2_grpc.SysmodStub(channel)
-        response = stub.NameToPoint(common_pb2.GetRequest(
-            Keys=names
+        response = stub.QueryPoints(common_pb2.PointQueryRequest(
+            Names=names
         ))
         if response.Error > 0:
             print("get '{}' error: {}".format(response.Query,
@@ -511,9 +511,9 @@ def BasicQuery(query:str) -> Graph:
         g.parse(data=f"{t.Subject} {t.Predicate} {t.Object} .", format="turtle")
     return g
 
-def GetForecast(point:str="", forecast_id:str="", 
-                start:dt.datetime=None, 
-                end: dt.datetime=None,
+def GetForecast(point: str="", forecast_id: str="", 
+                start: str|dt.datetime=None, 
+                end: str|dt.datetime=None,
                 pandas=True, tz="") -> None | common_pb2.GetForecastResponse | list[pd.DataFrame]:
     """
     GetForecast returns a forecast if the id is known. If the point is provided 
@@ -530,6 +530,11 @@ def GetForecast(point:str="", forecast_id:str="",
     if not (point or forecast_id):
         print("error, must provide point or forecast_id")
         return None
+    if isinstance(start, str):
+        start = dt.datetime.fromisoformat(start)
+    if isinstance(end, str):
+        end = dt.datetime.fromisoformat(end)
+
     resp: common_pb2.GetForecastResponse
     with grpc.insecure_channel(FORECAST_ADDR) as channel:
         stub = common_pb2_grpc.ForecastStub(channel)

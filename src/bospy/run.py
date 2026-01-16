@@ -132,7 +132,20 @@ def Get(keys:str|list[str], infer_type=True, token:str=None) -> dict[str,Any]:
     return values
 
 
-def Run(image:str, *args, envVars:dict[str, str]=None, **kwargs) -> common_pb2.RunResponse:
+def Run(image:str, *args, envVars:dict[str, str]=None, timeout=0, **kwargs) -> common_pb2.RunResponse:
+    """
+    Docstring for Run
+    
+    :param image: Description
+    :type image: str
+    :param args: Description
+    :param envVars: Description
+    :type envVars: dict[str, str]
+    :param timeout: -1 = return immediately, 0 = wait forever, >= 1 wait timeout seconds
+    :param kwargs: Description
+    :return: Description
+    :rtype: RunResponse
+    """
     response: common_pb2.RunResponse
     with grpc.insecure_channel(SCHEDULER_ADDR) as channel:
         stub = common_pb2_grpc.SchedulerStub(channel)
@@ -141,6 +154,7 @@ def Run(image:str, *args, envVars:dict[str, str]=None, **kwargs) -> common_pb2.R
             EnvVars=envVars,
             Args=args,
             Kwargs=kwargs,
+            Timeout=timeout,
         ))
         if response.ExitCode > 0:
             print("scheduler.Run error:", response.ErrorMsg)
@@ -325,4 +339,4 @@ def LoadEnv():
     LoadKwargs()
 
 LoadEnv()
-print(kwargs)
+# print(kwargs)
