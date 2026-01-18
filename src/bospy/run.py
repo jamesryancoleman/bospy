@@ -100,11 +100,27 @@ def ParseKey(s:str) -> Key|None:
 
 
 # client calls
-def Get(keys:str|list[str], infer_type=True, token:str=None) -> dict[str,Any]:
+def Get(keys:str|list[str], infer_type=True, token:str=None, txn:int=0) -> dict[str,Any]:
+    """
+    Passing no namespace implies flows. Keys returned from the server have their 
+    scopes and txns removed so the returned keys are NS:KEY.
+    
+    :param keys: Description
+    :type keys: str | list[str]
+    :param infer_type: Description
+    :param token: Description
+    :type token: str
+    :param txn: Description
+    :type txn: int
+    :return: Description
+    :rtype: dict[str, Any]
+    """
     if isinstance(keys, str):
         keys = [keys]
     if token is None:
         token = kwargs["READ_TOKEN"]
+    if txn==0:
+        txn = int(kwargs.get('TXN_ID', 0))
 
     for i, key in enumerate(keys):
         k = ParseKey(key)
@@ -112,8 +128,10 @@ def Get(keys:str|list[str], infer_type=True, token:str=None) -> dict[str,Any]:
 
     response: common_pb2.GetResponse
     with grpc.insecure_channel(SCHEDULER_ADDR) as channel:
-        header = common_pb2.Header(Src="python_client", Dst=SCHEDULER_ADDR, 
-                                   SessionToken=token)
+        header = common_pb2.Header(Src="python_client",
+                                   Dst=SCHEDULER_ADDR, 
+                                   SessionToken=token,
+                                   TxnId=txn)
         stub = common_pb2_grpc.SchedulerStub(channel)
         response = stub.Get(common_pb2.GetRequest(
             Header=header,
@@ -124,6 +142,11 @@ def Get(keys:str|list[str], infer_type=True, token:str=None) -> dict[str,Any]:
 
     values:dict={}
     for p in response.Pairs:
+        key = ParseKey(p.Key)
+        if key.ns == "flows":
+            p.Key = f'{key.key}'
+            if key.field is not None:
+                p.Key += f'/{k.field}'
         v:int|float|bool|str|None
         if infer_type:
             v = InferType(p.Value)

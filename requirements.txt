@@ -1,3 +1,6 @@
+grpcio
+protobuf
+grpcio-tools
 build==1.2.2.post1
 certifi==2025.1.31
 # cffi==1.17.1
