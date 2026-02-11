@@ -1032,6 +1032,16 @@ class SchedulerStub(object):
                 request_serializer=common__pb2.RunRequest.SerializeToString,
                 response_deserializer=common__pb2.RunResponse.FromString,
                 _registered_method=True)
+        self.RunningJobs = channel.unary_unary(
+                '/bos.Scheduler/RunningJobs',
+                request_serializer=common__pb2.RunningJobsRequest.SerializeToString,
+                response_deserializer=common__pb2.RunningJobsResponse.FromString,
+                _registered_method=True)
+        self.Stop = channel.unary_unary(
+                '/bos.Scheduler/Stop',
+                request_serializer=common__pb2.StopRequest.SerializeToString,
+                response_deserializer=common__pb2.StopResponse.FromString,
+                _registered_method=True)
         self.RegisterInterval = channel.unary_unary(
                 '/bos.Scheduler/RegisterInterval',
                 request_serializer=common__pb2.RegisterIntervalRequest.SerializeToString,
@@ -1074,6 +1084,18 @@ class SchedulerServicer(object):
     def Run(self, request, context):
         """run an image 1 time
         """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def RunningJobs(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def Stop(self, request, context):
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -1122,6 +1144,16 @@ def add_SchedulerServicer_to_server(servicer, server):
                     servicer.Run,
                     request_deserializer=common__pb2.RunRequest.FromString,
                     response_serializer=common__pb2.RunResponse.SerializeToString,
+            ),
+            'RunningJobs': grpc.unary_unary_rpc_method_handler(
+                    servicer.RunningJobs,
+                    request_deserializer=common__pb2.RunningJobsRequest.FromString,
+                    response_serializer=common__pb2.RunningJobsResponse.SerializeToString,
+            ),
+            'Stop': grpc.unary_unary_rpc_method_handler(
+                    servicer.Stop,
+                    request_deserializer=common__pb2.StopRequest.FromString,
+                    response_serializer=common__pb2.StopResponse.SerializeToString,
             ),
             'RegisterInterval': grpc.unary_unary_rpc_method_handler(
                     servicer.RegisterInterval,
@@ -1225,6 +1257,60 @@ class Scheduler(object):
             '/bos.Scheduler/Run',
             common__pb2.RunRequest.SerializeToString,
             common__pb2.RunResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def RunningJobs(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bos.Scheduler/RunningJobs',
+            common__pb2.RunningJobsRequest.SerializeToString,
+            common__pb2.RunningJobsResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def Stop(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bos.Scheduler/Stop',
+            common__pb2.StopRequest.SerializeToString,
+            common__pb2.StopResponse.FromString,
             options,
             channel_credentials,
             insecure,

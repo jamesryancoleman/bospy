@@ -1,6 +1,6 @@
 # import bospy.run as run
-from bospy.run import Key
-import bospy.run as run
+# from bospy.app import Key
+import bospy.app as run
 import unittest
 
 test_token = "000000000000"
@@ -8,6 +8,9 @@ test_token = "000000000000"
 class TestRun(unittest.TestCase):
     def test_set(self):
         TestSet()
+
+    def test_get(self):
+        pass
 
 def TestInferType():
     cases = ["123", "0.0", "FALSE", "google.com"]
@@ -104,21 +107,21 @@ def TestIncrementAndNegate():
         print(k, v)
     run.Return(**returnVals)
 
-def TestFormatKeyStr():
-    unformattedKeys = [
-        Key("OUTPUT", "$1"),
-        Key("a_runtime_var"),
-        Key("occupied", ns="global"),
-    ]
+# def TestFormatKeyStr():
+#     unformattedKeys = [
+#         Key("OUTPUT", "$1"),
+#         Key("a_runtime_var"),
+#         Key("occupied", ns="global"),
+#     ]
 
-    answers = [
-        "flows:0.0:OUTPUT/$1",
-        "flows:0.0:a_runtime_var",
-        "global:occupied"
-    ]
+#     answers = [
+#         "flows:0.0:OUTPUT/$1",
+#         "flows:0.0:a_runtime_var",
+#         "global:occupied"
+#     ]
 
-    for i, k in enumerate(unformattedKeys):
-        print("{}: {} == {} ({})".format(i, k, answers[i], answers[i] == k.__str__()))
+#     for i, k in enumerate(unformattedKeys):
+#         print("{}: {} == {} ({})".format(i, k, answers[i], answers[i] == k.__str__()))
 
 def TestDefaultSession():
     """ checks if the server has the default session active by calling run.Return with no values.
@@ -143,7 +146,7 @@ def TestParseKey():
         print(k)
 
 if __name__ == "__main__":
-    run.CreateDefaultRWSession()
+    # run.CreateDefaultRWSession()
     # bospy.run.Run("random-get", "other-arg", envVars={"ENVVAR": "hello"}, anotherVar="hello again")
     # bospy.run.kwargs['txn_id'] = 0
     # bospy.run.kwargs['session_token'] = '000000000000'

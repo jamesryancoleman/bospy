@@ -133,18 +133,20 @@ class Empty(_message.Message):
     def __init__(self) -> None: ...
 
 class Header(_message.Message):
-    __slots__ = ("Src", "Dst", "TxnId", "SessionToken", "Time")
+    __slots__ = ("Src", "Dst", "TxnId", "SessionToken", "Time", "app")
     SRC_FIELD_NUMBER: _ClassVar[int]
     DST_FIELD_NUMBER: _ClassVar[int]
     TXNID_FIELD_NUMBER: _ClassVar[int]
     SESSIONTOKEN_FIELD_NUMBER: _ClassVar[int]
     TIME_FIELD_NUMBER: _ClassVar[int]
+    APP_FIELD_NUMBER: _ClassVar[int]
     Src: str
     Dst: str
     TxnId: int
     SessionToken: str
     Time: _timestamp_pb2.Timestamp
-    def __init__(self, Src: _Optional[str] = ..., Dst: _Optional[str] = ..., TxnId: _Optional[int] = ..., SessionToken: _Optional[str] = ..., Time: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ...) -> None: ...
+    app: str
+    def __init__(self, Src: _Optional[str] = ..., Dst: _Optional[str] = ..., TxnId: _Optional[int] = ..., SessionToken: _Optional[str] = ..., Time: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., app: _Optional[str] = ...) -> None: ...
 
 class GetPair(_message.Message):
     __slots__ = ("Key", "Value", "Dtype", "time", "Error", "ErrorMsg")
@@ -615,3 +617,42 @@ class UnregisterHandlerResponse(_message.Message):
     Header: Header
     Ok: bool
     def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Ok: bool = ...) -> None: ...
+
+class RunningJobsRequest(_message.Message):
+    __slots__ = ("Header", "Txns")
+    HEADER_FIELD_NUMBER: _ClassVar[int]
+    TXNS_FIELD_NUMBER: _ClassVar[int]
+    Header: Header
+    Txns: _containers.RepeatedScalarFieldContainer[int]
+    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Txns: _Optional[_Iterable[int]] = ...) -> None: ...
+
+class RunningJobsResponse(_message.Message):
+    __slots__ = ("Header", "jobs")
+    class JobsEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: int
+        value: str
+        def __init__(self, key: _Optional[int] = ..., value: _Optional[str] = ...) -> None: ...
+    HEADER_FIELD_NUMBER: _ClassVar[int]
+    JOBS_FIELD_NUMBER: _ClassVar[int]
+    Header: Header
+    jobs: _containers.ScalarMap[int, str]
+    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., jobs: _Optional[_Mapping[int, str]] = ...) -> None: ...
+
+class StopRequest(_message.Message):
+    __slots__ = ("header", "txn", "id")
+    HEADER_FIELD_NUMBER: _ClassVar[int]
+    TXN_FIELD_NUMBER: _ClassVar[int]
+    ID_FIELD_NUMBER: _ClassVar[int]
+    header: Header
+    txn: int
+    id: str
+    def __init__(self, header: _Optional[_Union[Header, _Mapping]] = ..., txn: _Optional[int] = ..., id: _Optional[str] = ...) -> None: ...
+
+class StopResponse(_message.Message):
+    __slots__ = ("Header",)
+    HEADER_FIELD_NUMBER: _ClassVar[int]
+    Header: Header
+    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ...) -> None: ...
