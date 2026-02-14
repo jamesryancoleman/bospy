@@ -1,4 +1,5 @@
 from bospy import common_pb2_grpc, common_pb2
+from bospy.config import get_orchestrator_addr
 from typing import Any
 import grpc
 import os
@@ -7,8 +8,6 @@ import re
 envVars:dict[str,str]
 args:list[str] = []
 kwargs:dict[str, str] = {}
-
-SCHEDULER_ADDR = os.environ.get('SCHEDULER_ADDR', "localhost:2824")
 
 # values will be set by the Scheduler and are constant for lifetime of a container
 TXN = os.environ.get('TXN_ID', 0)
@@ -20,11 +19,11 @@ TOKEN = os.environ.get('TOKEN', DEFAULT_TOKEN)
 OUTPUT_HASH = "OUTPUT"
 
 keyRe = re.compile(r"^(?:(?P<ns>[a-zA-Z0-9\/\-\/.]+):)?(?:(?P<scope>[^:]*):)?(?:(?P<txn>[0-9]+):)?(?P<key>[^\/\n\r]+)(\/)?(?:(\$)?(?P<field>[^\/\n\r]+))?")
-scopeRe = re.compile(r"^(?P<flow>[0-9]+)(?:\.(?P<node>[0-9]+))?")
-positionRe = re.compile(r'^\\$(?P<position>[0-9]+)$')
+# scopeRe = re.compile(r"^(?P<flow>[0-9]+)(?:\.(?P<node>[0-9]+))?")
+positionRe = re.compile(r'^\$(?P<position>[0-9]+)$')
 
 # client calls
-def Get(keys:str|list[str], infer_type=True, token:str=None, txn:int=0) -> dict[str,Any]:
+def load(keys:str|list[str], infer_type=True, token:str=None, txn:int=0) -> dict[str,Any]:
     """
     Passing no namespace implies flows. Keys returned from the server have their 
     scopes and txns removed so the returned keys are NS:KEY.
@@ -47,12 +46,13 @@ def Get(keys:str|list[str], infer_type=True, token:str=None, txn:int=0) -> dict[
         txn = int(kwargs.get('TXN_ID', 0))
 
     response: common_pb2.GetResponse
-    with grpc.insecure_channel(SCHEDULER_ADDR) as channel:
+    with grpc.insecure_channel(get_orchestrator_addr()) as channel:
         header = common_pb2.Header(Src="python_client",
-                                   Dst=SCHEDULER_ADDR, 
+                                   Dst=get_orchestrator_addr(), 
                                    SessionToken=token,
                                    TxnId=txn)
-        if app := kwargs.get("APP"):
+        # print(f'the value of kwargs["IMAGE"] is {kwargs.get("IMAGE")}')
+        if app := kwargs.get("IMAGE"):
             header.app = app
         stub = common_pb2_grpc.SchedulerStub(channel)
         response = stub.Get(common_pb2.GetRequest(
@@ -66,58 +66,13 @@ def Get(keys:str|list[str], infer_type=True, token:str=None, txn:int=0) -> dict[
     for p in response.Pairs:
         v:int|float|bool|str|None
         if infer_type:
-            v = InferType(p.Value)
+            v = infer_type(p.Value)
         values[p.Key] = v
 
     return values
 
 
-def Run(image:str, *args, envVars:dict[str, str]=None, timeout=0, **_kwargs) -> common_pb2.RunResponse:
-    """
-    Docstring for Run
-    
-    :param image: Description
-    :type image: str
-    :param args: Description
-    :param envVars: Description
-    :type envVars: dict[str, str]
-    :param timeout: -1 = return immediately, 0 = wait forever, >= 1 wait timeout seconds
-    :param kwargs: Description
-    :return: Description
-    :rtype: RunResponse
-    """
-    # global DEFAULT_SESSION_ACTIVE, kwargs
-    # if DEFAULT_SESSION_ACTIVE:
-    #     if envVars is None:
-    #         envVars = {}
-    #     envVars = envVars | {
-    #         "TXN_ID": str(kwargs["TXN_ID"]),
-    #         "TOKEN": str(kwargs["TOKEN"]),
-    #     }
-    if len(_kwargs) > 0:
-        for k, v in _kwargs:
-            _kwargs[k] = str(v)
-            print(f'{k} {type(k)} {v} {type(v)}')
-    
-    # print(f'the type of kwargs is {type(_kwargs)}')
-    # print(f'the type of envVArs is {type(envVars)}')
-
-    response: common_pb2.RunResponse
-    with grpc.insecure_channel(SCHEDULER_ADDR) as channel:
-        stub = common_pb2_grpc.SchedulerStub(channel)
-        response = stub.Run(common_pb2.RunRequest(
-            Image=image, 
-            EnvVars=envVars,
-            Args=args,
-            Kwargs=_kwargs,
-            Timeout=timeout,
-        ))
-        if response.ExitCode > 0:
-            print("scheduler.Run error:", response.ErrorMsg)
-    
-    return response
-
-def Set(pairs:str|dict[str,Any], value:Any|None=None) -> common_pb2.SetResponse:
+def store(pairs:str|dict[str,Any], value:Any|None=None) -> common_pb2.SetResponse:
     """ Set writes the a dictionary of keys and values to the subnamespace
         allocated to this flow.
     """
@@ -138,10 +93,11 @@ def Set(pairs:str|dict[str,Any], value:Any|None=None) -> common_pb2.SetResponse:
         setPairs[i] = common_pb2.SetPair(Key=k, Value=str(v))
 
     response:common_pb2.SetResponse
-    with grpc.insecure_channel(SCHEDULER_ADDR) as channel:
+    with grpc.insecure_channel(get_orchestrator_addr()) as channel:
         stub = common_pb2_grpc.SchedulerStub(channel)
         header = common_pb2.Header(TxnId=txn, SessionToken=token)
-        if app := kwargs.get("APP"):
+        # print(f'the value of kwargs["IMAGE"] is {kwargs.get("IMAGE")}')
+        if app := kwargs.get("IMAGE"):
             header.app = app
         response = stub.Set(common_pb2.SetRequest(
             Header=header,
@@ -151,7 +107,7 @@ def Set(pairs:str|dict[str,Any], value:Any|None=None) -> common_pb2.SetResponse:
         print("error:", response.Error, ", errMsg:",response.ErrorMsg)
     return response
 
-def Return(*_args, **_kwargs) -> common_pb2.SetResponse:
+def store_output(*_args, app_name:str=None, **_kwargs) -> common_pb2.SetResponse:
     """ Return exposes all positional and keywork arguments provided to shared
         memory in the BOS.
 
@@ -166,60 +122,62 @@ def Return(*_args, **_kwargs) -> common_pb2.SetResponse:
         # key = ParseKey("{}/${}".format(OUTPUT_HASH, i+1))
         # pairs.append(common_pb2.SetPair(Key=key.__str__(), Value=str(_args[i])))
         _kwargs[f"{OUTPUT_HASH}/${i+1}"] = arg
-    return Set(_kwargs)
+    return store(_kwargs)
 
 
-def LoadInput(*keys:str, app:str=None, token:str=None, txn:int=None) -> tuple[list[str], dict[str,Any]]:
+def load_input(*keys:str, app_name:str=None, ns='apps', token:str=None, txn:int=None) -> tuple[list[str], dict[str,Any]]:
     """ Load results is used to get the output of a previous container execution.
     """
-    if app is None:
+    if app_name is None:
         app_name = kwargs["IMAGE"]
     if token is None:
         token = kwargs["TOKEN"]
     if txn is None:
         txn = kwargs["TXN_ID"]
     if len(keys) == 0:
-        keys = ["OUTPUT/"]
+        keys = [f"{ns}:{app_name}:OUTPUT/"]
 
-    print("requesting output of app {} with token '{}'".format(app_name, token))
-    print(keys)
-
-    header = common_pb2.Header(SessionToken=token, Src="python_client", Dst=SCHEDULER_ADDR)
+    # print("requesting output of app {} with token '{}'".format(app_name, token))
+    # print(keys)
+    header = common_pb2.Header(Src="python_client", Dst=get_orchestrator_addr(),
+        SessionToken=token,
+        app=app_name)
 
     # call the Get method of the Scheduler services
     response:common_pb2.SetResponse
-    with grpc.insecure_channel(SCHEDULER_ADDR) as channel:
+    with grpc.insecure_channel(get_orchestrator_addr()) as channel:
         # When no Pairs are set all variables are returned if the token is valid
         stub = common_pb2_grpc.SchedulerStub(channel)
         response = stub.Get(common_pb2.GetRequest(
             Header=header,
             Keys=keys,
         ))
-        print("error:", response.Error, ", errMsg:",response.ErrorMsg)
+        # print("error:", response.Error, ", errMsg:",response.ErrorMsg)
         if response.Error != common_pb2.ServiceError.SERVICE_ERROR_NONE:
             return {}
 
-        print(response.Pairs)
         if len(response.Pairs) > 0:
             _args_dict = {}
             _kwargs = {}
             for p in response.Pairs:
-                m = positionRe.match(p.Key)
-                if m is None:
-                    # found a kwarg
-                    _kwargs[p.Key] = p.Value
-                else:
-                    # found a positional int
-                    i = int(m.group("position"))
-                    _args_dict[i] = p.Value
+                parts = p.Key.split("/")
+                if len(parts) > 0:
+                    m = positionRe.match(parts[-1])
+                    if m is None:
+                        # found a kwarg
+                        _kwargs[parts[-1]] = p.Value
+                    else:
+                        # found a positional int
+                        i = int(m.group("position"))
+                        _args_dict[i] = p.Value
             
             _args = [None] * len(_args_dict)
             for i, v in _args_dict.items():
-                _args[i] = v
+                _args[i-1] = v
             return _args, _kwargs
 
 
-def InferType(s:str) -> (int|float|bool|str):
+def inter_type(s:str) -> (int|float|bool|str):
     """ InferType takes a str typed value and converts to an int, float, bool,
         or falls back on str.
     """
@@ -247,7 +205,8 @@ def InferType(s:str) -> (int|float|bool|str):
     return s   
 
 # container management functions 
-def LoadArgs(values:dict[str,str]=None) -> list[str]|None:
+def load_args(values:dict[str,str]=None) -> list[str]|None:
+    global args
     if values is None:
         # populate args from the OS environment
         i = 1
@@ -258,28 +217,20 @@ def LoadArgs(values:dict[str,str]=None) -> list[str]|None:
                 i += 1
             except KeyError:
                 break
-        return
+        return args
         
 
-def LoadKwargs(values:dict[str,str]=None):
+def load_kwargs(values:dict[str,str]=None):
+    global kwargs
     # collect all the args
     for k, v in os.environ.items():
         if "kwarg:" in k:
             kwargs[k[6:]] = os.environ.pop(k)
+    return kwargs
 
 
-def SetAppName(name:str):
-    """
-    ** testing only ** This manually sets the app name. Only applies to test apps
-    writing to the "tmp" namespace. This will be overridden if call in a production app.
-    
-    :param image: Description
-    :type image: str
-    """
-    APP = name
-    kwargs["IMAGE"] = APP
-
-def LoadEnv():      
+def load_env():
+    global APP, TXN, TOKEN, kwargs
     APP = os.environ.pop("IMAGE", "")
     kwargs["IMAGE"] = APP
 
@@ -290,8 +241,19 @@ def LoadEnv():
     TOKEN = os.environ.pop('TOKEN', DEFAULT_TOKEN)
     kwargs["TOKEN"] = TOKEN
     # kwargs["READ_TOKEN"] = READ_TOKEN
-    LoadArgs()
-    LoadKwargs()
+    load_args()
+    load_kwargs()
 
-LoadEnv()
-# print(kwargs)
+def set_app_name(name:str):
+    """
+    ** testing only ** This manually sets the app name. Only applies to test apps
+    writing to the "tmp" namespace. This will be overridden if call in a production app.
+    
+    :param image: Description
+    :type image: str
+    """
+    global APP, kwargs
+    APP = name
+    kwargs["IMAGE"] = APP
+
+load_env()

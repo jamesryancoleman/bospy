@@ -1,16 +1,59 @@
 # import bospy.run as run
 # from bospy.app import Key
-import bospy.app as run
+import bospy.config as config
+import bospy.app as app
 import unittest
+import os
 
 test_token = "000000000000"
 
-class TestRun(unittest.TestCase):
-    def test_set(self):
-        TestSet()
+class TestLoad(unittest.TestCase):
+    def setUp(self):
+        self.app_name = "thinker"
 
-    def test_get(self):
+        orch_addr = config.get_orchestrator_addr()
+        print(f'test will use orchestator address: {orch_addr}')
+    
+    def test_load_input(self):
+        args, kwargs = app.load_input(app_name=self.app_name)
+        print("args:", args)
+        print("kwargs:", kwargs)
+
+    def tearDown(self):
+        # return super().tearDown()
         pass
+
+
+class TestStoreLoad(unittest.TestCase):
+    def setUp(self):
+        orch_addr = config.get_orchestrator_addr()
+        print(f'test will use orchestator address: {orch_addr}')
+
+    def test_01_return(self):
+        app.store_output("bos://localhost/dev/5/pts/14")
+    
+    def test_02_load_input(self):
+        args, kwargs = app.load_input(ns='tmp')
+        print("args:", args)
+        print("kwargs:", kwargs)
+
+    def tearDown(self):
+        # return super().tearDown()
+        pass
+
+
+# class TestRun(unittest.TestCase):
+#     def setUp(self):
+#         orch_addr = config.get_orchestrator_addr()
+#         print(f'test will use orchestator address: {orch_addr}')
+
+#     def test_01_run(self):
+#         .Run('thinker', envVars={
+#             'lower_bound': 10,
+#             'upper_bound': 100,
+#             'minutes': 0.5
+#         }, timeout=-1)
+
 
 def TestInferType():
     cases = ["123", "0.0", "FALSE", "google.com"]
@@ -18,7 +61,7 @@ def TestInferType():
 
     results = []
     for i, s in enumerate(cases):
-        typed_str = run.InferType(s)
+        typed_str = app.inter_type(s)
         print("'{}' is instance of {}".format(s, type(typed_str)))
         assert isinstance(typed_str, answers[i])
 
@@ -34,13 +77,13 @@ def TestReturnValues():
         "times_accessed": 11,
     }
 
-    resp = run.Return(*args, **kwargs)
+    resp = app.Return(*args, **kwargs)
     print(resp)
 
 def TestLoadInput():
     """ demonstrates how to load output from a previous node or instance of a flow.
     """
-    args, kwargs = run.LoadInput()
+    args, kwargs = app.LoadInput()
     print("args:  ", args)
     print("kwargs:", kwargs)
 
@@ -54,7 +97,7 @@ def TestMatchPositional():
 
     positional_dict:dict[int, str] = {}
     for k, v in test_cases.items():
-        m = run.positionRe.match(k)
+        m = app.positionRe.match(k)
         if m is not None:
             positional_dict[int(m.group('position'))] = v
         else:
@@ -73,7 +116,7 @@ def TestSet():
         "OUTPUT/count": 1,
         "tmp/process_value": ">9000",
     }
-    resp = run.Set(pairs)
+    resp = app.Set(pairs)
     if resp.Error > 0:
         print(resp.Error, resp.ErrorMsg)
 
@@ -82,7 +125,7 @@ def TestGet():
             "OUTPUT/count",
             "an_invalid_token",
             ]
-    results = run.Get(keys)
+    results = app.Get(keys)
     for k, v in results.items():
         print(k, v)
 
@@ -92,7 +135,7 @@ def TestIncrementAndNegate():
         "OUTPUT/count",
         "an_invalid_token",
         ]
-    results = run.Get(keys)
+    results = app.Get(keys)
     returnVals = {}
     for k, v in results.items():
         print(k, v)
@@ -105,7 +148,7 @@ def TestIncrementAndNegate():
         elif v is None:
             continue
         print(k, v)
-    run.Return(**returnVals)
+    app.Return(**returnVals)
 
 # def TestFormatKeyStr():
 #     unformattedKeys = [
@@ -124,14 +167,14 @@ def TestIncrementAndNegate():
 #         print("{}: {} == {} ({})".format(i, k, answers[i], answers[i] == k.__str__()))
 
 def TestDefaultSession():
-    """ checks if the server has the default session active by calling run.Return with no values.
+    """ checks if the server has the default session active by calling app.Return with no values.
     The flow, node, txn, and token are manually coordinated with the server source code.
     """
-    resp = run.Return()
+    resp = app.Return()
     print(resp)
 
 def TestReturn():
-    resp = run.Return("bos://localhost/dev/1","bos://localhost/dev/2","bos://localhost/dev/3",
+    resp = app.Return("bos://localhost/dev/1","bos://localhost/dev/2","bos://localhost/dev/3",
                       User="James")
     print(resp)
 
@@ -142,16 +185,16 @@ def TestParseKey():
         "global:occupied",
     ]
     for c in cases:
-        k = run.ParseKey(c)
+        k = app.ParseKey(c)
         print(k)
 
 if __name__ == "__main__":
-    # run.CreateDefaultRWSession()
-    # bospy.run.Run("random-get", "other-arg", envVars={"ENVVAR": "hello"}, anotherVar="hello again")
-    # bospy.run.kwargs['txn_id'] = 0
-    # bospy.run.kwargs['session_token'] = '000000000000'
-    # print( bospy.run.kwargs.get('txn_id'), bospy.run.kwargs.get('session_token'))
-    # resp = bospy.run.Return("hello", True, 10, 100.1, name="James", age=30)
+    # app.CreateDefaultRWSession()
+    # bospy.app.Run("random-get", "other-arg", envVars={"ENVVAR": "hello"}, anotherVar="hello again")
+    # bospy.app.kwargs['txn_id'] = 0
+    # bospy.app.kwargs['session_token'] = '000000000000'
+    # print( bospy.app.kwargs.get('txn_id'), bospy.app.kwargs.get('session_token'))
+    # resp = bospy.app.Return("hello", True, 10, 100.1, name="James", age=30)
     # print(resp.ErrorMsg, resp.Error)
     # TestInferType()
     # TestMatchPositional()

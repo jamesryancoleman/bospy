@@ -1042,15 +1042,20 @@ class SchedulerStub(object):
                 request_serializer=common__pb2.StopRequest.SerializeToString,
                 response_deserializer=common__pb2.StopResponse.FromString,
                 _registered_method=True)
-        self.RegisterInterval = channel.unary_unary(
-                '/bos.Scheduler/RegisterInterval',
-                request_serializer=common__pb2.RegisterIntervalRequest.SerializeToString,
-                response_deserializer=common__pb2.RegisterIntervalReponse.FromString,
-                _registered_method=True)
         self.RegisterCron = channel.unary_unary(
                 '/bos.Scheduler/RegisterCron',
                 request_serializer=common__pb2.CronRequest.SerializeToString,
                 response_deserializer=common__pb2.CronResponse.FromString,
+                _registered_method=True)
+        self.CronTable = channel.unary_unary(
+                '/bos.Scheduler/CronTable',
+                request_serializer=common__pb2.CronTableResponse.SerializeToString,
+                response_deserializer=common__pb2.CronTableResponse.FromString,
+                _registered_method=True)
+        self.UnregisterCron = channel.unary_unary(
+                '/bos.Scheduler/UnregisterCron',
+                request_serializer=common__pb2.UnregisterCronRequest.SerializeToString,
+                response_deserializer=common__pb2.UnregisterCronResponse.FromString,
                 _registered_method=True)
         self.RegisterHandler = channel.unary_unary(
                 '/bos.Scheduler/RegisterHandler',
@@ -1068,15 +1073,13 @@ class SchedulerServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def Get(self, request, context):
-        """when called against the Schedule service writes to Redis
-        """
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def Set(self, request, context):
-        """when called against the Schedule service writes to Redis
-        """
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -1100,16 +1103,24 @@ class SchedulerServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def RegisterInterval(self, request, context):
+    def RegisterCron(self, request, context):
         """scheule an rpc to run periodicially
+        rpc RegisterInterval(RegisterIntervalRequest) returns(RegisterIntervalReponse);
+
+        schedule a cron job
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def RegisterCron(self, request, context):
-        """schedule a cron job
-        """
+    def CronTable(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def UnregisterCron(self, request, context):
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -1155,15 +1166,20 @@ def add_SchedulerServicer_to_server(servicer, server):
                     request_deserializer=common__pb2.StopRequest.FromString,
                     response_serializer=common__pb2.StopResponse.SerializeToString,
             ),
-            'RegisterInterval': grpc.unary_unary_rpc_method_handler(
-                    servicer.RegisterInterval,
-                    request_deserializer=common__pb2.RegisterIntervalRequest.FromString,
-                    response_serializer=common__pb2.RegisterIntervalReponse.SerializeToString,
-            ),
             'RegisterCron': grpc.unary_unary_rpc_method_handler(
                     servicer.RegisterCron,
                     request_deserializer=common__pb2.CronRequest.FromString,
                     response_serializer=common__pb2.CronResponse.SerializeToString,
+            ),
+            'CronTable': grpc.unary_unary_rpc_method_handler(
+                    servicer.CronTable,
+                    request_deserializer=common__pb2.CronTableResponse.FromString,
+                    response_serializer=common__pb2.CronTableResponse.SerializeToString,
+            ),
+            'UnregisterCron': grpc.unary_unary_rpc_method_handler(
+                    servicer.UnregisterCron,
+                    request_deserializer=common__pb2.UnregisterCronRequest.FromString,
+                    response_serializer=common__pb2.UnregisterCronResponse.SerializeToString,
             ),
             'RegisterHandler': grpc.unary_unary_rpc_method_handler(
                     servicer.RegisterHandler,
@@ -1322,33 +1338,6 @@ class Scheduler(object):
             _registered_method=True)
 
     @staticmethod
-    def RegisterInterval(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            '/bos.Scheduler/RegisterInterval',
-            common__pb2.RegisterIntervalRequest.SerializeToString,
-            common__pb2.RegisterIntervalReponse.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
-
-    @staticmethod
     def RegisterCron(request,
             target,
             options=(),
@@ -1365,6 +1354,60 @@ class Scheduler(object):
             '/bos.Scheduler/RegisterCron',
             common__pb2.CronRequest.SerializeToString,
             common__pb2.CronResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def CronTable(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bos.Scheduler/CronTable',
+            common__pb2.CronTableResponse.SerializeToString,
+            common__pb2.CronTableResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def UnregisterCron(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bos.Scheduler/UnregisterCron',
+            common__pb2.UnregisterCronRequest.SerializeToString,
+            common__pb2.UnregisterCronResponse.FromString,
             options,
             channel_credentials,
             insecure,

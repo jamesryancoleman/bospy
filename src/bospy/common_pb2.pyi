@@ -540,28 +540,6 @@ class RunResponse(_message.Message):
     ReturnValues: _containers.RepeatedScalarFieldContainer[str]
     def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., ExitCode: _Optional[int] = ..., StdOut: _Optional[str] = ..., ErrorMsg: _Optional[str] = ..., ReturnValues: _Optional[_Iterable[str]] = ...) -> None: ...
 
-class RegisterIntervalRequest(_message.Message):
-    __slots__ = ("Header", "Interval", "Requests", "RunNow")
-    HEADER_FIELD_NUMBER: _ClassVar[int]
-    INTERVAL_FIELD_NUMBER: _ClassVar[int]
-    REQUESTS_FIELD_NUMBER: _ClassVar[int]
-    RUNNOW_FIELD_NUMBER: _ClassVar[int]
-    Header: Header
-    Interval: int
-    Requests: _containers.RepeatedCompositeFieldContainer[RunRequest]
-    RunNow: bool
-    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Interval: _Optional[int] = ..., Requests: _Optional[_Iterable[_Union[RunRequest, _Mapping]]] = ..., RunNow: bool = ...) -> None: ...
-
-class RegisterIntervalReponse(_message.Message):
-    __slots__ = ("Header", "IntervalId", "ContainerIds")
-    HEADER_FIELD_NUMBER: _ClassVar[int]
-    INTERVALID_FIELD_NUMBER: _ClassVar[int]
-    CONTAINERIDS_FIELD_NUMBER: _ClassVar[int]
-    Header: Header
-    IntervalId: int
-    ContainerIds: _containers.RepeatedScalarFieldContainer[str]
-    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., IntervalId: _Optional[int] = ..., ContainerIds: _Optional[_Iterable[str]] = ...) -> None: ...
-
 class CronRequest(_message.Message):
     __slots__ = ("Header", "CronStr", "Requests", "OnStart")
     HEADER_FIELD_NUMBER: _ClassVar[int]
@@ -575,12 +553,14 @@ class CronRequest(_message.Message):
     def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., CronStr: _Optional[str] = ..., Requests: _Optional[_Iterable[_Union[RunRequest, _Mapping]]] = ..., OnStart: bool = ...) -> None: ...
 
 class CronResponse(_message.Message):
-    __slots__ = ("Header", "Ok")
+    __slots__ = ("header", "ok", "uuid")
     HEADER_FIELD_NUMBER: _ClassVar[int]
     OK_FIELD_NUMBER: _ClassVar[int]
-    Header: Header
-    Ok: bool
-    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Ok: bool = ...) -> None: ...
+    UUID_FIELD_NUMBER: _ClassVar[int]
+    header: Header
+    ok: bool
+    uuid: str
+    def __init__(self, header: _Optional[_Union[Header, _Mapping]] = ..., ok: bool = ..., uuid: _Optional[str] = ...) -> None: ...
 
 class RegisterHandlerRequest(_message.Message):
     __slots__ = ("Header", "Event", "Requests")
@@ -642,17 +622,41 @@ class RunningJobsResponse(_message.Message):
     def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., jobs: _Optional[_Mapping[int, str]] = ...) -> None: ...
 
 class StopRequest(_message.Message):
-    __slots__ = ("header", "txn", "id")
+    __slots__ = ("header", "txns", "ids")
     HEADER_FIELD_NUMBER: _ClassVar[int]
-    TXN_FIELD_NUMBER: _ClassVar[int]
-    ID_FIELD_NUMBER: _ClassVar[int]
+    TXNS_FIELD_NUMBER: _ClassVar[int]
+    IDS_FIELD_NUMBER: _ClassVar[int]
     header: Header
-    txn: int
-    id: str
-    def __init__(self, header: _Optional[_Union[Header, _Mapping]] = ..., txn: _Optional[int] = ..., id: _Optional[str] = ...) -> None: ...
+    txns: _containers.RepeatedScalarFieldContainer[int]
+    ids: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(self, header: _Optional[_Union[Header, _Mapping]] = ..., txns: _Optional[_Iterable[int]] = ..., ids: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class StopResponse(_message.Message):
-    __slots__ = ("Header",)
+    __slots__ = ("header",)
     HEADER_FIELD_NUMBER: _ClassVar[int]
-    Header: Header
-    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ...) -> None: ...
+    header: Header
+    def __init__(self, header: _Optional[_Union[Header, _Mapping]] = ...) -> None: ...
+
+class CronTableRequest(_message.Message):
+    __slots__ = ("header",)
+    HEADER_FIELD_NUMBER: _ClassVar[int]
+    header: Header
+    def __init__(self, header: _Optional[_Union[Header, _Mapping]] = ...) -> None: ...
+
+class CronTableResponse(_message.Message):
+    __slots__ = ("header",)
+    HEADER_FIELD_NUMBER: _ClassVar[int]
+    header: Header
+    def __init__(self, header: _Optional[_Union[Header, _Mapping]] = ...) -> None: ...
+
+class UnregisterCronRequest(_message.Message):
+    __slots__ = ("header",)
+    HEADER_FIELD_NUMBER: _ClassVar[int]
+    header: Header
+    def __init__(self, header: _Optional[_Union[Header, _Mapping]] = ...) -> None: ...
+
+class UnregisterCronResponse(_message.Message):
+    __slots__ = ("header",)
+    HEADER_FIELD_NUMBER: _ClassVar[int]
+    header: Header
+    def __init__(self, header: _Optional[_Union[Header, _Mapping]] = ...) -> None: ...
