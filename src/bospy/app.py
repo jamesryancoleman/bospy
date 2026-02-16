@@ -1,5 +1,5 @@
 from bospy import common_pb2_grpc, common_pb2
-from bospy.config import get_orchestrator_addr
+import bospy.config as config
 from typing import Any
 import grpc
 import os
@@ -23,7 +23,7 @@ keyRe = re.compile(r"^(?:(?P<ns>[a-zA-Z0-9\/\-\/.]+):)?(?:(?P<scope>[^:]*):)?(?:
 positionRe = re.compile(r'^\$(?P<position>[0-9]+)$')
 
 # client calls
-def load(keys:str|list[str], infer_type=True, token:str=None, txn:int=0) -> dict[str,Any]:
+def load(keys:str|list[str], typed_values=True, token:str=None, txn:int=0) -> dict[str,Any]:
     """
     Passing no namespace implies flows. Keys returned from the server have their 
     scopes and txns removed so the returned keys are NS:KEY.
@@ -46,9 +46,9 @@ def load(keys:str|list[str], infer_type=True, token:str=None, txn:int=0) -> dict
         txn = int(kwargs.get('TXN_ID', 0))
 
     response: common_pb2.GetResponse
-    with grpc.insecure_channel(get_orchestrator_addr()) as channel:
+    with grpc.insecure_channel(config.get_orchestrator_addr()) as channel:
         header = common_pb2.Header(Src="python_client",
-                                   Dst=get_orchestrator_addr(), 
+                                   Dst=config.get_orchestrator_addr(), 
                                    SessionToken=token,
                                    TxnId=txn)
         # print(f'the value of kwargs["IMAGE"] is {kwargs.get("IMAGE")}')
@@ -65,7 +65,7 @@ def load(keys:str|list[str], infer_type=True, token:str=None, txn:int=0) -> dict
     values:dict={}
     for p in response.Pairs:
         v:int|float|bool|str|None
-        if infer_type:
+        if typed_values:
             v = infer_type(p.Value)
         values[p.Key] = v
 
@@ -93,7 +93,8 @@ def store(pairs:str|dict[str,Any], value:Any|None=None) -> common_pb2.SetRespons
         setPairs[i] = common_pb2.SetPair(Key=k, Value=str(v))
 
     response:common_pb2.SetResponse
-    with grpc.insecure_channel(get_orchestrator_addr()) as channel:
+    print(f"the orchestrator address is: {config.get_orchestrator_addr()}")
+    with grpc.insecure_channel(config.get_orchestrator_addr()) as channel:
         stub = common_pb2_grpc.SchedulerStub(channel)
         header = common_pb2.Header(TxnId=txn, SessionToken=token)
         # print(f'the value of kwargs["IMAGE"] is {kwargs.get("IMAGE")}')
@@ -139,13 +140,13 @@ def load_input(*keys:str, app_name:str=None, ns='apps', token:str=None, txn:int=
 
     # print("requesting output of app {} with token '{}'".format(app_name, token))
     # print(keys)
-    header = common_pb2.Header(Src="python_client", Dst=get_orchestrator_addr(),
+    header = common_pb2.Header(Src="python_client", Dst=config.get_orchestrator_addr(),
         SessionToken=token,
         app=app_name)
 
     # call the Get method of the Scheduler services
     response:common_pb2.SetResponse
-    with grpc.insecure_channel(get_orchestrator_addr()) as channel:
+    with grpc.insecure_channel(config.get_orchestrator_addr()) as channel:
         # When no Pairs are set all variables are returned if the token is valid
         stub = common_pb2_grpc.SchedulerStub(channel)
         response = stub.Get(common_pb2.GetRequest(
@@ -177,7 +178,7 @@ def load_input(*keys:str, app_name:str=None, ns='apps', token:str=None, txn:int=
             return _args, _kwargs
 
 
-def inter_type(s:str) -> (int|float|bool|str):
+def infer_type(s:str) -> (int|float|bool|str):
     """ InferType takes a str typed value and converts to an int, float, bool,
         or falls back on str.
     """

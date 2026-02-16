@@ -1027,6 +1027,11 @@ class SchedulerStub(object):
                 request_serializer=common__pb2.SetRequest.SerializeToString,
                 response_deserializer=common__pb2.SetResponse.FromString,
                 _registered_method=True)
+        self.Apps = channel.unary_unary(
+                '/bos.Scheduler/Apps',
+                request_serializer=common__pb2.AppsRequest.SerializeToString,
+                response_deserializer=common__pb2.AppsResponse.FromString,
+                _registered_method=True)
         self.Run = channel.unary_unary(
                 '/bos.Scheduler/Run',
                 request_serializer=common__pb2.RunRequest.SerializeToString,
@@ -1049,8 +1054,8 @@ class SchedulerStub(object):
                 _registered_method=True)
         self.CronTable = channel.unary_unary(
                 '/bos.Scheduler/CronTable',
-                request_serializer=common__pb2.CronTableResponse.SerializeToString,
-                response_deserializer=common__pb2.CronTableResponse.FromString,
+                request_serializer=common__pb2.RunningJobsRequest.SerializeToString,
+                response_deserializer=common__pb2.RunningJobsResponse.FromString,
                 _registered_method=True)
         self.UnregisterCron = channel.unary_unary(
                 '/bos.Scheduler/UnregisterCron',
@@ -1061,6 +1066,11 @@ class SchedulerStub(object):
                 '/bos.Scheduler/RegisterHandler',
                 request_serializer=common__pb2.RegisterHandlerRequest.SerializeToString,
                 response_deserializer=common__pb2.RegisterHandlerResponse.FromString,
+                _registered_method=True)
+        self.EventHandlers = channel.unary_unary(
+                '/bos.Scheduler/EventHandlers',
+                request_serializer=common__pb2.EventHandlersRequest.SerializeToString,
+                response_deserializer=common__pb2.EventHandlersResponse.FromString,
                 _registered_method=True)
         self.UnregisterHandler = channel.unary_unary(
                 '/bos.Scheduler/UnregisterHandler',
@@ -1079,6 +1089,12 @@ class SchedulerServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def Set(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def Apps(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -1132,6 +1148,12 @@ class SchedulerServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def EventHandlers(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def UnregisterHandler(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -1150,6 +1172,11 @@ def add_SchedulerServicer_to_server(servicer, server):
                     servicer.Set,
                     request_deserializer=common__pb2.SetRequest.FromString,
                     response_serializer=common__pb2.SetResponse.SerializeToString,
+            ),
+            'Apps': grpc.unary_unary_rpc_method_handler(
+                    servicer.Apps,
+                    request_deserializer=common__pb2.AppsRequest.FromString,
+                    response_serializer=common__pb2.AppsResponse.SerializeToString,
             ),
             'Run': grpc.unary_unary_rpc_method_handler(
                     servicer.Run,
@@ -1173,8 +1200,8 @@ def add_SchedulerServicer_to_server(servicer, server):
             ),
             'CronTable': grpc.unary_unary_rpc_method_handler(
                     servicer.CronTable,
-                    request_deserializer=common__pb2.CronTableResponse.FromString,
-                    response_serializer=common__pb2.CronTableResponse.SerializeToString,
+                    request_deserializer=common__pb2.RunningJobsRequest.FromString,
+                    response_serializer=common__pb2.RunningJobsResponse.SerializeToString,
             ),
             'UnregisterCron': grpc.unary_unary_rpc_method_handler(
                     servicer.UnregisterCron,
@@ -1185,6 +1212,11 @@ def add_SchedulerServicer_to_server(servicer, server):
                     servicer.RegisterHandler,
                     request_deserializer=common__pb2.RegisterHandlerRequest.FromString,
                     response_serializer=common__pb2.RegisterHandlerResponse.SerializeToString,
+            ),
+            'EventHandlers': grpc.unary_unary_rpc_method_handler(
+                    servicer.EventHandlers,
+                    request_deserializer=common__pb2.EventHandlersRequest.FromString,
+                    response_serializer=common__pb2.EventHandlersResponse.SerializeToString,
             ),
             'UnregisterHandler': grpc.unary_unary_rpc_method_handler(
                     servicer.UnregisterHandler,
@@ -1246,6 +1278,33 @@ class Scheduler(object):
             '/bos.Scheduler/Set',
             common__pb2.SetRequest.SerializeToString,
             common__pb2.SetResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def Apps(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bos.Scheduler/Apps',
+            common__pb2.AppsRequest.SerializeToString,
+            common__pb2.AppsResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -1379,8 +1438,8 @@ class Scheduler(object):
             request,
             target,
             '/bos.Scheduler/CronTable',
-            common__pb2.CronTableResponse.SerializeToString,
-            common__pb2.CronTableResponse.FromString,
+            common__pb2.RunningJobsRequest.SerializeToString,
+            common__pb2.RunningJobsResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -1435,6 +1494,33 @@ class Scheduler(object):
             '/bos.Scheduler/RegisterHandler',
             common__pb2.RegisterHandlerRequest.SerializeToString,
             common__pb2.RegisterHandlerResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def EventHandlers(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bos.Scheduler/EventHandlers',
+            common__pb2.EventHandlersRequest.SerializeToString,
+            common__pb2.EventHandlersResponse.FromString,
             options,
             channel_credentials,
             insecure,

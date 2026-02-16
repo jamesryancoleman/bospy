@@ -1,4 +1,5 @@
 from google.protobuf.timestamp_pb2 import Timestamp
+import bospy.config as config
 from bospy import common_pb2_grpc
 from bospy import common_pb2
 import grpc
@@ -20,23 +21,23 @@ VERSION = "0.0.10"
 # uri -> name cache
 point_name_cache = {}
 
-SYSMOD_ADDR = "localhost:2821"
-DEVCTRL_ADDR = "localhost:2822"
-HISTORY_ADDR = "localhost:2823"
-# SCHEDULER_ADDR = "localhost:2824"
-FORECAST_ADDR = "localhost:2925"
+# config.get_sysmod_addr() = "localhost:2821"
+# DEVCTRL_ADDR = "localhost:2822"
+# HISTORY_ADDR = "localhost:2823"
+# # SCHEDULER_ADDR = "localhost:2824"
+# FORECAST_ADDR = "localhost:2825"
 
-# apply defaults
-def LoadEnv():
-    """ Called to load/reload the env vars. Does nothing if env vars not set
-    """
-    global SYSMOD_ADDR, DEVCTRL_ADDR, HISTORY_ADDR, FORECAST_ADDR
-    SYSMOD_ADDR = os.environ.get('SYSMOD_ADDR', SYSMOD_ADDR)
-    DEVCTRL_ADDR = os.environ.get('DEVCTRL_ADDR', DEVCTRL_ADDR)
-    HISTORY_ADDR = os.environ.get('HISTORY_ADDR', HISTORY_ADDR)
-    FORECAST_ADDR = os.environ.get('FORECAST_ADDR', FORECAST_ADDR)
+# # apply defaults
+# def LoadEnv():
+#     """ Called to load/reload the env vars. Does nothing if env vars not set
+#     """
+#     global config.get_sysmod_addr(), DEVCTRL_ADDR, HISTORY_ADDR, FORECAST_ADDR
+#     config.get_sysmod_addr() = os.environ.get('config.get_sysmod_addr()', config.get_sysmod_addr())
+#     DEVCTRL_ADDR = os.environ.get('DEVCTRL_ADDR', DEVCTRL_ADDR)
+#     HISTORY_ADDR = os.environ.get('HISTORY_ADDR', HISTORY_ADDR)
+#     FORECAST_ADDR = os.environ.get('FORECAST_ADDR', FORECAST_ADDR)
 
-LoadEnv()
+# LoadEnv()
 
 # client calls for the sysmod rpc calls
 def NameToPoint(names:str|list[str], multiple_matches:bool=False) -> None | list[str]:
@@ -46,7 +47,7 @@ def NameToPoint(names:str|list[str], multiple_matches:bool=False) -> None | list
         multiple_matches = True
 
     response: common_pb2.QueryResponse
-    with grpc.insecure_channel(SYSMOD_ADDR) as channel:
+    with grpc.insecure_channel(config.get_sysmod_addr()) as channel:
         stub = common_pb2_grpc.SysmodStub(channel)
         response = stub.QueryPoints(common_pb2.PointQueryRequest(
             Names=names
@@ -64,7 +65,7 @@ def NameToPoint(names:str|list[str], multiple_matches:bool=False) -> None | list
     
 def GetName(pt:str) -> None | str:
     response: common_pb2.QueryResponse
-    with grpc.insecure_channel(SYSMOD_ADDR) as channel:
+    with grpc.insecure_channel(config.get_sysmod_addr()) as channel:
         stub = common_pb2_grpc.SysmodStub(channel)
         response = stub.GetName(common_pb2.GetRequest(
             Keys=[pt]
@@ -81,7 +82,7 @@ def TypeToPoint(types:str|list[str]) -> None | str | list[str]:
     if isinstance(types, str):
         types = [types]
     response: common_pb2.QueryResponse
-    with grpc.insecure_channel(SYSMOD_ADDR) as channel:
+    with grpc.insecure_channel(config.get_sysmod_addr()) as channel:
         stub = common_pb2_grpc.SysmodStub(channel)
         response = stub.TypeToPoint(common_pb2.GetRequest(
             Keys=types))
@@ -96,7 +97,7 @@ def LocationToPoint(locations:str|list[str]) -> None | str | list[str]:
     if isinstance(locations, str):
         locations = [locations]
     response: common_pb2.QueryResponse
-    with grpc.insecure_channel(SYSMOD_ADDR) as channel:
+    with grpc.insecure_channel(config.get_sysmod_addr()) as channel:
         stub = common_pb2_grpc.SysmodStub(channel)
         response = stub.LocationToPoint(common_pb2.GetRequest(
             Keys=locations))
@@ -121,7 +122,7 @@ def QueryPoints(query:str=None, names:str|list[str]=None, types:str|list[str]=No
         parent_types = [parent_types]
 
     response: common_pb2.QueryResponse
-    with grpc.insecure_channel(SYSMOD_ADDR) as channel:
+    with grpc.insecure_channel(config.get_sysmod_addr()) as channel:
         stub = common_pb2_grpc.SysmodStub(channel)
         if query is None:
             response = stub.QueryPoints(common_pb2.PointQueryRequest(
@@ -153,7 +154,7 @@ def QueryDevices(query:str=None, names:str|list[str]=None, types:str|list[str]=N
         child_types = [child_types]
 
     response:common_pb2.QueryResponse
-    with grpc.insecure_channel(SYSMOD_ADDR) as channel:
+    with grpc.insecure_channel(config.get_sysmod_addr()) as channel:
         stub = common_pb2_grpc.SysmodStub(channel)
         if query is None:
             response = stub.QueryDevices(common_pb2.DeviceQueryRequest(
@@ -185,7 +186,7 @@ def MakeDevice(name:str, types:str|list[str]=None, locations:str|list[str]=None,
         properties = [common_pb2.Triple(Subject=p[0], Predicate=p[1], Object=p[2]) for p in properties]
     
     response:common_pb2.MakeResponse
-    with grpc.insecure_channel(SYSMOD_ADDR) as channel:
+    with grpc.insecure_channel(config.get_sysmod_addr()) as channel:
         stub = common_pb2_grpc.SysmodStub(channel)
         response = stub.MakeDevice(common_pb2.MakeDeviceRequest(
             Name=name,
@@ -212,7 +213,7 @@ def MakePoint(name:str, device:str, types:str|list[str]=None, locations:str|list
         properties = [common_pb2.Triple(Subject=p[0], Predicate=p[1], Object=p[2]) for p in properties]
     
     response:common_pb2.MakeResponse
-    with grpc.insecure_channel(SYSMOD_ADDR) as channel:
+    with grpc.insecure_channel(config.get_sysmod_addr()) as channel:
         stub = common_pb2_grpc.SysmodStub(channel)
         response = stub.MakePoint(common_pb2.MakePointRequest(
             Device=device,
@@ -236,7 +237,7 @@ def MakeDriver(name:str, host:str, port:int, image:str=None, container:str=None)
         container   name of the container if it doesn't match the hostname
     """
     response: common_pb2.MakeResponse
-    with grpc.insecure_channel(SYSMOD_ADDR) as channel:
+    with grpc.insecure_channel(config.get_sysmod_addr()) as channel:
         stub = common_pb2_grpc.SysmodStub(channel)
         response = stub.MakeDriver(common_pb2.MakeDriverRequest(
             Name=name,
@@ -254,7 +255,7 @@ def Delete(sub:str="", pred:str="", obj:str=""):
         print("must provide at least one of subject, predicate, or object")
         return
     response:common_pb2.DeleteResponse
-    with grpc.insecure_channel(SYSMOD_ADDR) as channel:
+    with grpc.insecure_channel(config.get_sysmod_addr()) as channel:
         stub = common_pb2_grpc.SysmodStub(channel)
         response = stub.Delete(common_pb2.DeleteRequest(
             Triple=common_pb2.Triple(
@@ -282,7 +283,7 @@ def SetSampleRate(pts:str|list[str], rates:str|list[str]) -> bool:
         return False
     
     response: common_pb2.SetResponse
-    with grpc.insecure_channel(HISTORY_ADDR) as channel:
+    with grpc.insecure_channel(config.get_history_addr()) as channel:
         stub = common_pb2_grpc.HistoryStub(channel)
         response = stub.SetSampleRate(common_pb2.SetRequest(
             Pairs=pairs
@@ -296,7 +297,7 @@ def SetSampleRate(pts:str|list[str], rates:str|list[str]) -> bool:
 
 def RefreshRates():
     response: common_pb2.RefreshRatesResponse
-    with grpc.insecure_channel(HISTORY_ADDR) as channel:
+    with grpc.insecure_channel(config.get_history_addr()) as channel:
         stub = common_pb2_grpc.HistoryStub(channel)
         response = stub.RefreshRates(common_pb2.RefreshRatesRequest())
         if response.Error > 0:
@@ -314,7 +315,7 @@ def GetHistory(pts:str|list[str], start:str=None, end:str=None, limit:int=14400,
     if end is None:
         end = ""
     response: common_pb2.HistoryResponse
-    with grpc.insecure_channel(HISTORY_ADDR) as channel:
+    with grpc.insecure_channel(config.get_history_addr()) as channel:
         stub = common_pb2_grpc.HistoryStub(channel)
         response = stub.GetHistory(common_pb2.HistoryRequest(
             Start=start, 
@@ -426,12 +427,12 @@ def CheckLatency(addr:str, num_pings:int=5) -> dt.timedelta | None:
     return running_total / num_pings
         
 
-def Get(keys:str|list[str], full_response=False) -> list[GetResponse] | dict[str, object]:
+def get_pt(keys:str|list[str], full_response=False) -> list[GetResponse] | dict[str, object]:
     if type(keys) == str:
         keys = [keys]
 
     response: common_pb2.GetResponse
-    with grpc.insecure_channel(DEVCTRL_ADDR) as channel:
+    with grpc.insecure_channel(config.get_devctrl_addr()) as channel:
         stub = common_pb2_grpc.DeviceControlStub(channel)
         response = stub.Get(common_pb2.GetRequest(Keys=keys))
     R = NewGetValues(response)
@@ -442,7 +443,7 @@ def Get(keys:str|list[str], full_response=False) -> list[GetResponse] | dict[str
         D[r.Key] = r.Value
     return D
 
-def Set(keys:str|list[str], values:str|list[str], full_response=False) -> SetResponse | dict[str, bool] | bool:
+def set_pt(keys:str|list[str], values:str|list[str], full_response=False) -> SetResponse | dict[str, bool] | bool:
     if isinstance(keys, str):
         keys = [keys]
     if isinstance(values, (str, float, int, bool)):
@@ -461,7 +462,7 @@ def Set(keys:str|list[str], values:str|list[str], full_response=False) -> SetRes
     pairs = [common_pb2.SetPair(Key=k, Value=str(values[i])) for i, k in enumerate(keys)]
 
     response: common_pb2.SetResponse
-    with grpc.insecure_channel(DEVCTRL_ADDR) as channel:
+    with grpc.insecure_channel(config.get_devctrl_addr()) as channel:
         stub = common_pb2_grpc.DeviceControlStub(channel)
         response = stub.Set(common_pb2.SetRequest(Pairs=pairs))
         if response.Error > 0:
@@ -496,7 +497,7 @@ def DecodeValue(s:str, dtype:common_pb2.Dtype=common_pb2.UNSPECIFIED):
 def BasicQuery(query:str) -> Graph:
     # call the BasicQuery endpoint
     resp: common_pb2.BasicQueryResponse
-    with grpc.insecure_channel(SYSMOD_ADDR) as channel:
+    with grpc.insecure_channel(config.get_sysmod_addr()) as channel:
         stub = common_pb2_grpc.SysmodStub(channel)
         resp = stub.BasicQuery(common_pb2.BasicQueryRequest(
             Query=query
@@ -549,12 +550,12 @@ def GetForecast(point: str="", forecast_id: str="",
         end = dt.datetime.fromisoformat(end)
 
     resp: common_pb2.GetForecastResponse
-    with grpc.insecure_channel(FORECAST_ADDR) as channel:
+    with grpc.insecure_channel(config.get_forecast_addr()) as channel:
         stub = common_pb2_grpc.ForecastStub(channel)
         resp = stub.Get(common_pb2.GetForecastRequest(
             header=common_pb2.Header(
                 Src="python-client",
-                Dst=FORECAST_ADDR),
+                Dst=config.get_forecast_addr()),
             forecast_id=forecast_id,
             point_uri=point,
             start=start,
@@ -614,7 +615,7 @@ def SetForecast(point:str, values:list[tuple[dt.datetime, float]], model:str="",
             model_version=model_version,
             values=V))
     resp: common_pb2.SetForecastResponse
-    with grpc.insecure_channel(FORECAST_ADDR) as channel:
+    with grpc.insecure_channel(config.get_forecast_addr()) as channel:
         stub = common_pb2_grpc.ForecastStub(channel)
         resp = stub.Set(req)
 
@@ -632,41 +633,41 @@ class PointUri(str):
     """
 
 
-if __name__ == "__main__":
-    """ running this file will do a health check on the devctrl and sysmod services.
-    """
-    devctrl_addr = os.environ.get('DEVCTRL_ADDR')
-    if devctrl_addr is None:
-        print("environment variable DEVCTRL_ADDR not set. Try running:")
-        print("\t$ source serivces/config-env")
-        sys.exit(1)
+# if __name__ == "__main__":
+#     """ running this file will do a health check on the devctrl and sysmod services.
+#     """
+#     devctrl_addr = os.environ.get('DEVCTRL_ADDR')
+#     if devctrl_addr is None:
+#         print("environment variable DEVCTRL_ADDR not set. Try running:")
+#         print("\t$ source serivces/config-env")
+#         sys.exit(1)
 
-    # make sure devCtrl is running
-    try:
-        resp = CheckLatency(devctrl_addr)
-    except Exception as e:
-        print("devctrl did not respond at {}\n\tis it running?".format(devctrl_addr))
-        template = "An exception of type {0} occurred. Arguments:\n{1!r}"
-        message = template.format(type(e).__name__, e.args)
-        print(message)
-        sys.exit(1)
-    else:
-        print("devctrl running. RTT = {:.2f} ms".format(resp.total_seconds()*1000))
+#     # make sure devCtrl is running
+#     try:
+#         resp = CheckLatency(devctrl_addr)
+#     except Exception as e:
+#         print("devctrl did not respond at {}\n\tis it running?".format(devctrl_addr))
+#         template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+#         message = template.format(type(e).__name__, e.args)
+#         print(message)
+#         sys.exit(1)
+#     else:
+#         print("devctrl running. RTT = {:.2f} ms".format(resp.total_seconds()*1000))
 
-    sysmod_addr = os.environ.get('SYSMOD_ADDR')
-    if sysmod_addr is None:
-        print("environment variable DEVCTRL_ADDR not set. Try running:")
-        print("\t$ source serivces/config-env")
-        sys.exit(1)
+#     config.get_sysmod_addr() = os.environ.get('config.get_sysmod_addr()')
+#     if config.get_sysmod_addr() is None:
+#         print("environment variable DEVCTRL_ADDR not set. Try running:")
+#         print("\t$ source serivces/config-env")
+#         sys.exit(1)
 
-    # make sure devCtrl is running
-    try:
-        resp = CheckLatency(sysmod_addr)
-    except Exception as e:
-        print("devCtrl did not respond at {}\n\tis it running?".format(sysmod_addr))
-        template = "An exception of type {0} occurred. Arguments:\n{1!r}"
-        message = template.format(type(e).__name__, e.args)
-        print(message)
-        sys.exit(1)
-    else:
-        print("sysmod running. RTT = {:.2f} ms".format(resp.total_seconds()*1000))
+#     # make sure devCtrl is running
+#     try:
+#         resp = CheckLatency(config.get_sysmod_addr())
+#     except Exception as e:
+#         print("devCtrl did not respond at {}\n\tis it running?".format(config.get_sysmod_addr()))
+#         template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+#         message = template.format(type(e).__name__, e.args)
+#         print(message)
+#         sys.exit(1)
+#     else:
+#         print("sysmod running. RTT = {:.2f} ms".format(resp.total_seconds()*1000))
