@@ -1027,10 +1027,10 @@ class SchedulerStub(object):
                 request_serializer=common__pb2.SetRequest.SerializeToString,
                 response_deserializer=common__pb2.SetResponse.FromString,
                 _registered_method=True)
-        self.Apps = channel.unary_unary(
-                '/bos.Scheduler/Apps',
-                request_serializer=common__pb2.AppsRequest.SerializeToString,
-                response_deserializer=common__pb2.AppsResponse.FromString,
+        self.Library = channel.unary_unary(
+                '/bos.Scheduler/Library',
+                request_serializer=common__pb2.LibraryRequest.SerializeToString,
+                response_deserializer=common__pb2.LibraryResponse.FromString,
                 _registered_method=True)
         self.Run = channel.unary_unary(
                 '/bos.Scheduler/Run',
@@ -1094,7 +1094,7 @@ class SchedulerServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def Apps(self, request, context):
+    def Library(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -1173,10 +1173,10 @@ def add_SchedulerServicer_to_server(servicer, server):
                     request_deserializer=common__pb2.SetRequest.FromString,
                     response_serializer=common__pb2.SetResponse.SerializeToString,
             ),
-            'Apps': grpc.unary_unary_rpc_method_handler(
-                    servicer.Apps,
-                    request_deserializer=common__pb2.AppsRequest.FromString,
-                    response_serializer=common__pb2.AppsResponse.SerializeToString,
+            'Library': grpc.unary_unary_rpc_method_handler(
+                    servicer.Library,
+                    request_deserializer=common__pb2.LibraryRequest.FromString,
+                    response_serializer=common__pb2.LibraryResponse.SerializeToString,
             ),
             'Run': grpc.unary_unary_rpc_method_handler(
                     servicer.Run,
@@ -1289,7 +1289,7 @@ class Scheduler(object):
             _registered_method=True)
 
     @staticmethod
-    def Apps(request,
+    def Library(request,
             target,
             options=(),
             channel_credentials=None,
@@ -1302,9 +1302,9 @@ class Scheduler(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/bos.Scheduler/Apps',
-            common__pb2.AppsRequest.SerializeToString,
-            common__pb2.AppsResponse.FromString,
+            '/bos.Scheduler/Library',
+            common__pb2.LibraryRequest.SerializeToString,
+            common__pb2.LibraryResponse.FromString,
             options,
             channel_credentials,
             insecure,

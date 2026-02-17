@@ -40,7 +40,7 @@ point_name_cache = {}
 # LoadEnv()
 
 # client calls for the sysmod rpc calls
-def NameToPoint(names:str|list[str], multiple_matches:bool=False) -> None | list[str]:
+def name_to_point(names:str|list[str], multiple_matches:bool=False) -> None | list[str]:
     if isinstance(names, str):
         names = [names]
     else:
@@ -63,7 +63,7 @@ def NameToPoint(names:str|list[str], multiple_matches:bool=False) -> None | list
     else:
         return None
     
-def GetName(pt:str) -> None | str:
+def get_name(pt:str) -> None | str:
     response: common_pb2.QueryResponse
     with grpc.insecure_channel(config.get_sysmod_addr()) as channel:
         stub = common_pb2_grpc.SysmodStub(channel)
@@ -78,7 +78,7 @@ def GetName(pt:str) -> None | str:
     else:
         return None
 
-def TypeToPoint(types:str|list[str]) -> None | str | list[str]:
+def type_to_point(types:str|list[str]) -> None | str | list[str]:
     if isinstance(types, str):
         types = [types]
     response: common_pb2.QueryResponse
@@ -92,7 +92,7 @@ def TypeToPoint(types:str|list[str]) -> None | str | list[str]:
     # cast as a more user-friendly type
     return response.Values
 
-def LocationToPoint(locations:str|list[str]) -> None | str | list[str]:
+def location_to_point(locations:str|list[str]) -> None | str | list[str]:
     print(locations, type(locations))
     if isinstance(locations, str):
         locations = [locations]
@@ -106,7 +106,7 @@ def LocationToPoint(locations:str|list[str]) -> None | str | list[str]:
                                               response.Error))
     return response.Values
 
-def QueryPoints(query:str=None, names:str|list[str]=None, types:str|list[str]=None,
+def query_points(query:str=None, names:str|list[str]=None, types:str|list[str]=None,
                 locations:str|list[str]=None, inherit_device_loc:bool=True,
                 parent_types:str|list[str]=None):
     """ if query, types, and locations are all none. This returns all pts in sysmod.
@@ -141,7 +141,7 @@ def QueryPoints(query:str=None, names:str|list[str]=None, types:str|list[str]=No
                                               response.Error))                              
     return sorted(response.Values)
 
-def QueryDevices(query:str=None, names:str|list[str]=None, types:str|list[str]=None, 
+def query_devices(query:str=None, names:str|list[str]=None, types:str|list[str]=None, 
                 locations:str|list[str]=None, child_types:str|list[str]=None) -> list[str]:
     
     if isinstance(names, str):
@@ -171,7 +171,7 @@ def QueryDevices(query:str=None, names:str|list[str]=None, types:str|list[str]=N
             print("get '{}' error: {}".format(response.Query, response.Error))
     return sorted(response.Values)
 
-def MakeDevice(name:str, types:str|list[str]=None, locations:str|list[str]=None, 
+def make_device(name:str, types:str|list[str]=None, locations:str|list[str]=None, 
                driver:str=None, properties:list[tuple]=None) -> str:
     """ takes the name, types, locations, driver, and any other properties you 
         wish to associate with the device.
@@ -199,7 +199,7 @@ def MakeDevice(name:str, types:str|list[str]=None, locations:str|list[str]=None,
         return "error: {}".format(response.Error, response.ErrorMsg)
     return response.Url
 
-def MakePoint(name:str, device:str, types:str|list[str]=None, locations:str|list[str]=None, 
+def make_point(name:str, device:str, types:str|list[str]=None, locations:str|list[str]=None, 
               xref:str=None, properties:list[tuple]=None, ) -> str:
     """ takes the name, types, locations, and any other properties you 
         wish to associate with the device.
@@ -227,7 +227,7 @@ def MakePoint(name:str, device:str, types:str|list[str]=None, locations:str|list
         return "error: {}".format(response.Error, response.ErrorMsg)
     return response.Url
 
-def MakeDriver(name:str, host:str, port:int, image:str=None, container:str=None) -> common_pb2.MakeResponse:
+def make_driver(name:str, host:str, port:int, image:str=None, container:str=None) -> common_pb2.MakeResponse:
     """ name    of the driver
         host    the hostname (preferred) or IP that the service can be found at
         port    starts at 50061 by convention
@@ -267,7 +267,7 @@ def Delete(sub:str="", pred:str="", obj:str=""):
     return
 
 # History rpc calls
-def SetSampleRate(pts:str|list[str], rates:str|list[str]) -> bool:
+def set_sample_rate(pts:str|list[str], rates:str|list[str]) -> bool:
     if isinstance(pts, str):
         pts = [pts]
     if isinstance(rates, str):
@@ -292,10 +292,10 @@ def SetSampleRate(pts:str|list[str], rates:str|list[str]) -> bool:
             print("SetSampleRates: error code {}".format(response.Error))
             return False
     #  trigger a refresh
-    RefreshRates()
+    refresh_rates()
     return True
 
-def RefreshRates():
+def refresh_rates():
     response: common_pb2.RefreshRatesResponse
     with grpc.insecure_channel(config.get_history_addr()) as channel:
         stub = common_pb2_grpc.HistoryStub(channel)
@@ -305,7 +305,7 @@ def RefreshRates():
             return False
     return True
 
-def GetHistory(pts:str|list[str], start:str=None, end:str=None, limit:int=14400, 
+def get_history(pts:str|list[str], start:str=None, end:str=None, limit:int=14400, 
                pandas:bool=False, tz:str=None, group_by_id:bool=True, 
                get_names:bool=False, resample_to:str=None) -> list[common_pb2.HisRow] | None:
     if isinstance(pts, str):

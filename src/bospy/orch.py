@@ -110,10 +110,10 @@ def get_event_handlers() -> list[common_pb2.JobData]:
     return []
 
 def get_apps() -> list[common_pb2.AppDesciption]:
-    resp : common_pb2.AppsResponse
+    resp : common_pb2.LibraryResponse
     with grpc.insecure_channel(get_orchestrator_addr()) as channel:
         stub = common_pb2_grpc.SchedulerStub(channel)
-        resp = stub.Apps(common_pb2.AppsRequest())
+        resp = stub.Library(common_pb2.LibraryRequest())
     return resp.apps
 
 def stop_apps(ids:int|list[int]):
@@ -131,7 +131,7 @@ def stop_apps(ids:int|list[int]):
 
 def unschedule_app(id:str):
     resp: common_pb2.StopResponse
-    print(f'unregistering {id}')
+    print(f'unregisterin {id}')
     with grpc.insecure_channel(get_orchestrator_addr()) as channel:
         stub = common_pb2_grpc.SchedulerStub(channel)
         resp = stub.UnregisterCron(common_pb2.UnregisterCronRequest(

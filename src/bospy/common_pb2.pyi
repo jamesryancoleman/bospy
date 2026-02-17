@@ -707,13 +707,13 @@ class UnregisterCronResponse(_message.Message):
     ok: bool
     def __init__(self, header: _Optional[_Union[Header, _Mapping]] = ..., ok: bool = ...) -> None: ...
 
-class AppsRequest(_message.Message):
+class LibraryRequest(_message.Message):
     __slots__ = ("header",)
     HEADER_FIELD_NUMBER: _ClassVar[int]
     header: Header
     def __init__(self, header: _Optional[_Union[Header, _Mapping]] = ...) -> None: ...
 
-class AppsResponse(_message.Message):
+class LibraryResponse(_message.Message):
     __slots__ = ("header", "apps")
     HEADER_FIELD_NUMBER: _ClassVar[int]
     APPS_FIELD_NUMBER: _ClassVar[int]
@@ -722,9 +722,11 @@ class AppsResponse(_message.Message):
     def __init__(self, header: _Optional[_Union[Header, _Mapping]] = ..., apps: _Optional[_Iterable[_Union[AppDesciption, _Mapping]]] = ...) -> None: ...
 
 class AppDesciption(_message.Message):
-    __slots__ = ("image", "last_update")
+    __slots__ = ("image", "description", "usage")
     IMAGE_FIELD_NUMBER: _ClassVar[int]
-    LAST_UPDATE_FIELD_NUMBER: _ClassVar[int]
+    DESCRIPTION_FIELD_NUMBER: _ClassVar[int]
+    USAGE_FIELD_NUMBER: _ClassVar[int]
     image: str
-    last_update: _timestamp_pb2.Timestamp
-    def __init__(self, image: _Optional[str] = ..., last_update: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ...) -> None: ...
+    description: str
+    usage: str
+    def __init__(self, image: _Optional[str] = ..., description: _Optional[str] = ..., usage: _Optional[str] = ...) -> None: ...

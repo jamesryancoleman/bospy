@@ -85,11 +85,11 @@ class TestSchedule(unittest.TestCase):
 
     def test_01_schedule_cron(self):
         # blocks until schedule returns
-        resp = orch.schedule("thinker", "* * * * *",
+        resp = orch.schedule("thinker", "*/5 * * * *",
                              on_start=True, 
                              envVars={
                                 "ORCHESTRATOR_ADDR":"nuc.local:2824",
-                                "minutes": 1,
+                                "minutes": 5,
                                 "lower_bound": 10,
                                 "upper_bound": 100,
                                 })
@@ -99,7 +99,7 @@ class TestSchedule(unittest.TestCase):
         print(jobs)
 
     def test_02_schedule_job(self): 
-        future_dt = datetime.datetime.now(_tz) + datetime.timedelta(seconds=90)
+        future_dt = datetime.datetime.now(_tz) + datetime.timedelta(seconds=30)
         dt_str = future_dt.isoformat()
         resp = orch.schedule("thinker", dt_str, on_start=False, 
                              envVars={"ORCHESTRATOR_ADDR":"nuc.local:2824"})
