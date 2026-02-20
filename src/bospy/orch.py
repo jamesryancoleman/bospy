@@ -106,8 +106,27 @@ def get_scheduled_apps() -> list[common_pb2.JobData]:
         resp = stub.CronTable(common_pb2.RunningJobsRequest())
     return resp.jobs
 
+def register_handler(app: str, topic: str, envVars: dict[str, str] = None) -> common_pb2.RegisterHandlerResponse:
+    if envVars is not None:
+        envVars = {k: str(v) for k, v in envVars.items()}
+    resp: common_pb2.RegisterHandlerResponse
+    with grpc.insecure_channel(get_orchestrator_addr()) as channel:
+        stub = common_pb2_grpc.SchedulerStub(channel)
+        resp = stub.RegisterHandler(common_pb2.RegisterHandlerRequest(
+            Event=topic,
+            Requests=[common_pb2.RunRequest(
+                Image=app,
+                EnvVars=envVars,
+            )],
+        ))
+    return resp
+
 def get_event_handlers() -> list[common_pb2.JobData]:
-    return []
+    resp: common_pb2.EventHandlersResponse
+    with grpc.insecure_channel(get_orchestrator_addr()) as channel:
+        stub = common_pb2_grpc.SchedulerStub(channel)
+        resp = stub.EventHandlers(common_pb2.EventHandlersRequest())
+    return list(resp.handlers)
 
 def get_apps() -> list[common_pb2.AppDesciption]:
     resp : common_pb2.LibraryResponse
@@ -129,6 +148,15 @@ def stop_apps(ids:int|list[int]):
         ))
     return resp
 
+def get_completed_apps() -> list[common_pb2.JobData]:
+    resp: common_pb2.RunningJobsResponse
+    with grpc.insecure_channel(get_orchestrator_addr()) as channel:
+        stub = common_pb2_grpc.SchedulerStub(channel)
+        resp = stub.CompletedJobs(common_pb2.RunningJobsRequest(
+            Header=common_pb2.Header(),
+        ))
+    return list(resp.jobs)
+
 def unschedule_app(id:str):
     resp: common_pb2.StopResponse
     print(f'unregisterin {id}')
@@ -137,5 +165,14 @@ def unschedule_app(id:str):
         resp = stub.UnregisterCron(common_pb2.UnregisterCronRequest(
             header=common_pb2.Header(),
             uuid=id,
+        ))
+    return resp
+
+def unregister_handler(id:str):
+    with grpc.insecure_channel(get_orchestrator_addr()) as channel:
+        stub = common_pb2_grpc.SchedulerStub(channel)
+        resp = stub.UnregisterHandler(common_pb2.UnregisterHandlerRequest(
+            Header=common_pb2.Header(),
+            id=id,
         ))
     return resp

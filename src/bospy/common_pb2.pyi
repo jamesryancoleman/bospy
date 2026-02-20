@@ -84,6 +84,13 @@ class AppStatus(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     STATUS_STOPPING: _ClassVar[AppStatus]
     STATUS_SCHEDULED: _ClassVar[AppStatus]
     STATUS_RUNNING: _ClassVar[AppStatus]
+
+class StartPosition(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = ()
+    LATEST: _ClassVar[StartPosition]
+    EARLIEST: _ClassVar[StartPosition]
+    AT_TIMESTAMP: _ClassVar[StartPosition]
+    AT_OFFSET: _ClassVar[StartPosition]
 SERVICE_ERROR_NONE: ServiceError
 SERVICE_ERROR_UNSPECIFIED: ServiceError
 SERVICE_ERROR_NO_RESPONSE: ServiceError
@@ -140,6 +147,10 @@ STATUS_STOPPED: AppStatus
 STATUS_STOPPING: AppStatus
 STATUS_SCHEDULED: AppStatus
 STATUS_RUNNING: AppStatus
+LATEST: StartPosition
+EARLIEST: StartPosition
+AT_TIMESTAMP: StartPosition
+AT_OFFSET: StartPosition
 
 class Empty(_message.Message):
     __slots__ = ()
@@ -592,12 +603,14 @@ class RegisterHandlerRequest(_message.Message):
     def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Event: _Optional[str] = ..., Requests: _Optional[_Iterable[_Union[RunRequest, _Mapping]]] = ...) -> None: ...
 
 class RegisterHandlerResponse(_message.Message):
-    __slots__ = ("Header", "Ok")
+    __slots__ = ("Header", "Ok", "id")
     HEADER_FIELD_NUMBER: _ClassVar[int]
     OK_FIELD_NUMBER: _ClassVar[int]
+    ID_FIELD_NUMBER: _ClassVar[int]
     Header: Header
     Ok: bool
-    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Ok: bool = ...) -> None: ...
+    id: str
+    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Ok: bool = ..., id: _Optional[str] = ...) -> None: ...
 
 class EventHandlersRequest(_message.Message):
     __slots__ = ("header",)
@@ -606,20 +619,20 @@ class EventHandlersRequest(_message.Message):
     def __init__(self, header: _Optional[_Union[Header, _Mapping]] = ...) -> None: ...
 
 class EventHandlersResponse(_message.Message):
-    __slots__ = ("header",)
+    __slots__ = ("header", "handlers")
     HEADER_FIELD_NUMBER: _ClassVar[int]
+    HANDLERS_FIELD_NUMBER: _ClassVar[int]
     header: Header
-    def __init__(self, header: _Optional[_Union[Header, _Mapping]] = ...) -> None: ...
+    handlers: _containers.RepeatedCompositeFieldContainer[JobData]
+    def __init__(self, header: _Optional[_Union[Header, _Mapping]] = ..., handlers: _Optional[_Iterable[_Union[JobData, _Mapping]]] = ...) -> None: ...
 
 class UnregisterHandlerRequest(_message.Message):
-    __slots__ = ("Header", "Event", "Requests")
+    __slots__ = ("Header", "id")
     HEADER_FIELD_NUMBER: _ClassVar[int]
-    EVENT_FIELD_NUMBER: _ClassVar[int]
-    REQUESTS_FIELD_NUMBER: _ClassVar[int]
+    ID_FIELD_NUMBER: _ClassVar[int]
     Header: Header
-    Event: str
-    Requests: _containers.RepeatedCompositeFieldContainer[RunRequest]
-    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Event: _Optional[str] = ..., Requests: _Optional[_Iterable[_Union[RunRequest, _Mapping]]] = ...) -> None: ...
+    id: str
+    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., id: _Optional[str] = ...) -> None: ...
 
 class UnregisterHandlerResponse(_message.Message):
     __slots__ = ("Header", "Ok")
@@ -730,3 +743,101 @@ class AppDesciption(_message.Message):
     description: str
     usage: str
     def __init__(self, image: _Optional[str] = ..., description: _Optional[str] = ..., usage: _Optional[str] = ...) -> None: ...
+
+class Event(_message.Message):
+    __slots__ = ("id", "topic", "source", "type", "timestamp", "payload", "payload_content_type", "metadata", "offset")
+    class MetadataEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: str
+        value: str
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
+    ID_FIELD_NUMBER: _ClassVar[int]
+    TOPIC_FIELD_NUMBER: _ClassVar[int]
+    SOURCE_FIELD_NUMBER: _ClassVar[int]
+    TYPE_FIELD_NUMBER: _ClassVar[int]
+    TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
+    PAYLOAD_FIELD_NUMBER: _ClassVar[int]
+    PAYLOAD_CONTENT_TYPE_FIELD_NUMBER: _ClassVar[int]
+    METADATA_FIELD_NUMBER: _ClassVar[int]
+    OFFSET_FIELD_NUMBER: _ClassVar[int]
+    id: str
+    topic: str
+    source: str
+    type: str
+    timestamp: _timestamp_pb2.Timestamp
+    payload: bytes
+    payload_content_type: str
+    metadata: _containers.ScalarMap[str, str]
+    offset: int
+    def __init__(self, id: _Optional[str] = ..., topic: _Optional[str] = ..., source: _Optional[str] = ..., type: _Optional[str] = ..., timestamp: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., payload: _Optional[bytes] = ..., payload_content_type: _Optional[str] = ..., metadata: _Optional[_Mapping[str, str]] = ..., offset: _Optional[int] = ...) -> None: ...
+
+class PublishRequest(_message.Message):
+    __slots__ = ("topic", "type", "payload", "payload_content_type", "metadata", "partition_key")
+    class MetadataEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: str
+        value: str
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
+    TOPIC_FIELD_NUMBER: _ClassVar[int]
+    TYPE_FIELD_NUMBER: _ClassVar[int]
+    PAYLOAD_FIELD_NUMBER: _ClassVar[int]
+    PAYLOAD_CONTENT_TYPE_FIELD_NUMBER: _ClassVar[int]
+    METADATA_FIELD_NUMBER: _ClassVar[int]
+    PARTITION_KEY_FIELD_NUMBER: _ClassVar[int]
+    topic: str
+    type: str
+    payload: bytes
+    payload_content_type: str
+    metadata: _containers.ScalarMap[str, str]
+    partition_key: str
+    def __init__(self, topic: _Optional[str] = ..., type: _Optional[str] = ..., payload: _Optional[bytes] = ..., payload_content_type: _Optional[str] = ..., metadata: _Optional[_Mapping[str, str]] = ..., partition_key: _Optional[str] = ...) -> None: ...
+
+class PublishResponse(_message.Message):
+    __slots__ = ("event_id", "offset", "accepted_at")
+    EVENT_ID_FIELD_NUMBER: _ClassVar[int]
+    OFFSET_FIELD_NUMBER: _ClassVar[int]
+    ACCEPTED_AT_FIELD_NUMBER: _ClassVar[int]
+    event_id: str
+    offset: int
+    accepted_at: _timestamp_pb2.Timestamp
+    def __init__(self, event_id: _Optional[str] = ..., offset: _Optional[int] = ..., accepted_at: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ...) -> None: ...
+
+class SubscribeRequest(_message.Message):
+    __slots__ = ("topics", "consumer_id", "filters", "start")
+    TOPICS_FIELD_NUMBER: _ClassVar[int]
+    CONSUMER_ID_FIELD_NUMBER: _ClassVar[int]
+    FILTERS_FIELD_NUMBER: _ClassVar[int]
+    START_FIELD_NUMBER: _ClassVar[int]
+    topics: _containers.RepeatedScalarFieldContainer[str]
+    consumer_id: str
+    filters: _containers.RepeatedCompositeFieldContainer[Filter]
+    start: StartPosition
+    def __init__(self, topics: _Optional[_Iterable[str]] = ..., consumer_id: _Optional[str] = ..., filters: _Optional[_Iterable[_Union[Filter, _Mapping]]] = ..., start: _Optional[_Union[StartPosition, str]] = ...) -> None: ...
+
+class Filter(_message.Message):
+    __slots__ = ("field", "pattern")
+    FIELD_FIELD_NUMBER: _ClassVar[int]
+    PATTERN_FIELD_NUMBER: _ClassVar[int]
+    field: str
+    pattern: str
+    def __init__(self, field: _Optional[str] = ..., pattern: _Optional[str] = ...) -> None: ...
+
+class ReplayRequest(_message.Message):
+    __slots__ = ("topic", "from_timestamp", "from_offset", "from_event_id", "until", "filters")
+    TOPIC_FIELD_NUMBER: _ClassVar[int]
+    FROM_TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
+    FROM_OFFSET_FIELD_NUMBER: _ClassVar[int]
+    FROM_EVENT_ID_FIELD_NUMBER: _ClassVar[int]
+    UNTIL_FIELD_NUMBER: _ClassVar[int]
+    FILTERS_FIELD_NUMBER: _ClassVar[int]
+    topic: str
+    from_timestamp: _timestamp_pb2.Timestamp
+    from_offset: int
+    from_event_id: str
+    until: _timestamp_pb2.Timestamp
+    filters: _containers.RepeatedCompositeFieldContainer[Filter]
+    def __init__(self, topic: _Optional[str] = ..., from_timestamp: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., from_offset: _Optional[int] = ..., from_event_id: _Optional[str] = ..., until: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., filters: _Optional[_Iterable[_Union[Filter, _Mapping]]] = ...) -> None: ...

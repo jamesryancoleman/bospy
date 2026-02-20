@@ -69,8 +69,18 @@ def load(keys:str|list[str], typed_values=True, token:str=None, txn:int=0) -> di
             v = infer_type(p.Value)
         values[p.Key] = v
 
+    # guarantee every requested key is present; None means not found/unavailable
+    for k in keys:
+        values.setdefault(k, None)
+
     return values
 
+
+def load_values(*keys:str, **kwargs):
+    """Like load but returns a single value for one key, or an ordered tuple for multiple."""
+    result = load(list(keys), **kwargs)
+    values = tuple(result.get(k) for k in keys)
+    return values[0] if len(keys) == 1 else values
 
 def store(pairs:str|dict[str,Any], value:Any|None=None) -> common_pb2.SetResponse:
     """ Set writes the a dictionary of keys and values to the subnamespace

@@ -427,7 +427,13 @@ def CheckLatency(addr:str, num_pings:int=5) -> dt.timedelta | None:
     return running_total / num_pings
         
 
-def get_pt(keys:str|list[str], full_response=False) -> list[GetResponse] | dict[str, object]:
+def _get_pt_values(*keys:str):
+    """Like _get_pt but returns a single value for one key, or an ordered tuple for multiple."""
+    result = _get_pt(list(keys))
+    values = tuple(result.get(k) for k in keys)
+    return values[0] if len(keys) == 1 else values
+
+def _get_pt(keys:str|list[str], full_response=False) -> list[GetResponse] | dict[str, object]:
     if type(keys) == str:
         keys = [keys]
 
@@ -441,9 +447,14 @@ def get_pt(keys:str|list[str], full_response=False) -> list[GetResponse] | dict[
     D = {}
     for r in R:
         D[r.Key] = r.Value
+
+    # guarantee every requested key is present; None means not found/unavailable
+    for k in keys:
+        D.setdefault(k, None)
+
     return D
 
-def set_pt(keys:str|list[str], values:str|list[str], full_response=False) -> SetResponse | dict[str, bool] | bool:
+def _set_pt(keys:str|list[str], values:str|list[str], full_response=False) -> SetResponse | dict[str, bool] | bool:
     if isinstance(keys, str):
         keys = [keys]
     if isinstance(values, (str, float, int, bool)):

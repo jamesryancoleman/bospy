@@ -1077,6 +1077,11 @@ class SchedulerStub(object):
                 request_serializer=common__pb2.UnregisterHandlerRequest.SerializeToString,
                 response_deserializer=common__pb2.UnregisterHandlerResponse.FromString,
                 _registered_method=True)
+        self.CompletedJobs = channel.unary_unary(
+                '/bos.Scheduler/CompletedJobs',
+                request_serializer=common__pb2.RunningJobsRequest.SerializeToString,
+                response_deserializer=common__pb2.RunningJobsResponse.FromString,
+                _registered_method=True)
 
 
 class SchedulerServicer(object):
@@ -1160,6 +1165,13 @@ class SchedulerServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def CompletedJobs(self, request, context):
+        """session-scoped history of completed jobs
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_SchedulerServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -1222,6 +1234,11 @@ def add_SchedulerServicer_to_server(servicer, server):
                     servicer.UnregisterHandler,
                     request_deserializer=common__pb2.UnregisterHandlerRequest.FromString,
                     response_serializer=common__pb2.UnregisterHandlerResponse.SerializeToString,
+            ),
+            'CompletedJobs': grpc.unary_unary_rpc_method_handler(
+                    servicer.CompletedJobs,
+                    request_deserializer=common__pb2.RunningJobsRequest.FromString,
+                    response_serializer=common__pb2.RunningJobsResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -1558,54 +1575,8 @@ class Scheduler(object):
             metadata,
             _registered_method=True)
 
-
-class EventsStub(object):
-    """Missing associated documentation comment in .proto file."""
-
-    def __init__(self, channel):
-        """Constructor.
-
-        Args:
-            channel: A grpc.Channel.
-        """
-        self.Set = channel.unary_unary(
-                '/bos.Events/Set',
-                request_serializer=common__pb2.SetRequest.SerializeToString,
-                response_deserializer=common__pb2.SetResponse.FromString,
-                _registered_method=True)
-
-
-class EventsServicer(object):
-    """Missing associated documentation comment in .proto file."""
-
-    def Set(self, request, context):
-        """the SetRequests are TOPIC: MSG
-        """
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-
-def add_EventsServicer_to_server(servicer, server):
-    rpc_method_handlers = {
-            'Set': grpc.unary_unary_rpc_method_handler(
-                    servicer.Set,
-                    request_deserializer=common__pb2.SetRequest.FromString,
-                    response_serializer=common__pb2.SetResponse.SerializeToString,
-            ),
-    }
-    generic_handler = grpc.method_handlers_generic_handler(
-            'bos.Events', rpc_method_handlers)
-    server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('bos.Events', rpc_method_handlers)
-
-
- # This class is part of an EXPERIMENTAL API.
-class Events(object):
-    """Missing associated documentation comment in .proto file."""
-
     @staticmethod
-    def Set(request,
+    def CompletedJobs(request,
             target,
             options=(),
             channel_credentials=None,
@@ -1618,9 +1589,185 @@ class Events(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/bos.Events/Set',
-            common__pb2.SetRequest.SerializeToString,
-            common__pb2.SetResponse.FromString,
+            '/bos.Scheduler/CompletedJobs',
+            common__pb2.RunningJobsRequest.SerializeToString,
+            common__pb2.RunningJobsResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+
+class EventBusStub(object):
+    """service Events {
+    // the SetRequests are TOPIC: MSG
+    rpc Publish(PublishRequest) returns(PublishResponse);
+    rpc Subscribe(SubscribeRequest) returns (stream Event);
+    }
+
+    """
+
+    def __init__(self, channel):
+        """Constructor.
+
+        Args:
+            channel: A grpc.Channel.
+        """
+        self.Publish = channel.unary_unary(
+                '/bos.EventBus/Publish',
+                request_serializer=common__pb2.PublishRequest.SerializeToString,
+                response_deserializer=common__pb2.PublishResponse.FromString,
+                _registered_method=True)
+        self.Subscribe = channel.unary_stream(
+                '/bos.EventBus/Subscribe',
+                request_serializer=common__pb2.SubscribeRequest.SerializeToString,
+                response_deserializer=common__pb2.Event.FromString,
+                _registered_method=True)
+        self.Replay = channel.unary_stream(
+                '/bos.EventBus/Replay',
+                request_serializer=common__pb2.ReplayRequest.SerializeToString,
+                response_deserializer=common__pb2.Event.FromString,
+                _registered_method=True)
+
+
+class EventBusServicer(object):
+    """service Events {
+    // the SetRequests are TOPIC: MSG
+    rpc Publish(PublishRequest) returns(PublishResponse);
+    rpc Subscribe(SubscribeRequest) returns (stream Event);
+    }
+
+    """
+
+    def Publish(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def Subscribe(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def Replay(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+
+def add_EventBusServicer_to_server(servicer, server):
+    rpc_method_handlers = {
+            'Publish': grpc.unary_unary_rpc_method_handler(
+                    servicer.Publish,
+                    request_deserializer=common__pb2.PublishRequest.FromString,
+                    response_serializer=common__pb2.PublishResponse.SerializeToString,
+            ),
+            'Subscribe': grpc.unary_stream_rpc_method_handler(
+                    servicer.Subscribe,
+                    request_deserializer=common__pb2.SubscribeRequest.FromString,
+                    response_serializer=common__pb2.Event.SerializeToString,
+            ),
+            'Replay': grpc.unary_stream_rpc_method_handler(
+                    servicer.Replay,
+                    request_deserializer=common__pb2.ReplayRequest.FromString,
+                    response_serializer=common__pb2.Event.SerializeToString,
+            ),
+    }
+    generic_handler = grpc.method_handlers_generic_handler(
+            'bos.EventBus', rpc_method_handlers)
+    server.add_generic_rpc_handlers((generic_handler,))
+    server.add_registered_method_handlers('bos.EventBus', rpc_method_handlers)
+
+
+ # This class is part of an EXPERIMENTAL API.
+class EventBus(object):
+    """service Events {
+    // the SetRequests are TOPIC: MSG
+    rpc Publish(PublishRequest) returns(PublishResponse);
+    rpc Subscribe(SubscribeRequest) returns (stream Event);
+    }
+
+    """
+
+    @staticmethod
+    def Publish(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bos.EventBus/Publish',
+            common__pb2.PublishRequest.SerializeToString,
+            common__pb2.PublishResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def Subscribe(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_stream(
+            request,
+            target,
+            '/bos.EventBus/Subscribe',
+            common__pb2.SubscribeRequest.SerializeToString,
+            common__pb2.Event.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def Replay(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_stream(
+            request,
+            target,
+            '/bos.EventBus/Replay',
+            common__pb2.ReplayRequest.SerializeToString,
+            common__pb2.Event.FromString,
             options,
             channel_credentials,
             insecure,
