@@ -322,6 +322,46 @@ def delete_node(uri: str) -> bool:
         ))
     return True
 
+_KIND_TO_ENTITY_TYPE = {
+    'bos:Device':   common_pb2.ENTITY_TYPE_DEVICE,
+    'bos:Point':    common_pb2.ENTITY_TYPE_POINT,
+    'bos:Location': common_pb2.ENTITY_TYPE_SPACE,
+    'bos:Driver':   common_pb2.ENTITY_TYPE_DRIVER,
+}
+
+def update_entity(uri: str, kind: str = None, updates: list[dict] = None,
+                  deletions: list[dict] = None,
+                  additions: list[dict] = None) -> dict:
+    """Call the sysmod Update RPC.
+
+    Each triple dict has keys 's', 'p', 'o'.
+    - kind:      compact bos: type string (e.g. 'bos:Device'); passed as EntityType to skip
+                 the server-side graph query for type detection
+    - updates:   functional upserts — atomically replaces any existing value for (s, p)
+    - deletions: exact (s, p, o) removals
+    - additions: new triples appended without removing existing values
+
+    Returns {'deleted': [...], 'inserted': [...]} or raises on error.
+    """
+    def _triple(d: dict) -> common_pb2.Triple:
+        return common_pb2.Triple(s=d.get('s', ''), p=d.get('p', ''), o=d.get('o', ''))
+
+    entity_type = _KIND_TO_ENTITY_TYPE.get(kind or '', common_pb2.ENTITY_TYPE_UNSPECIFIED)
+
+    with grpc.insecure_channel(config.get_sysmod_addr()) as channel:
+        stub = common_pb2_grpc.SysmodStub(channel)
+        response = stub.Update(common_pb2.UpdateRequest(
+            root_uri=uri,
+            kind=entity_type,
+            updates=[_triple(t) for t in (updates or [])],
+            deletions=[_triple(t) for t in (deletions or [])],
+            additions=[_triple(t) for t in (additions or [])],
+        ))
+    return {
+        'deleted':  [{'s': t.s, 'p': t.p, 'o': t.o} for t in response.deleted],
+        'inserted': [{'s': t.s, 'p': t.p, 'o': t.o} for t in response.inserted],
+    }
+
 # History rpc calls
 def set_sample_rate(pts:str|list[str], rates:str|list[str]) -> bool:
     if isinstance(pts, str):
@@ -576,7 +616,7 @@ def BasicQuery(query:str) -> Graph:
     # translate the results 
     g = Graph()
     for t in resp.Results:
-        g.parse(data=f"{t.Subject} {t.Predicate} {t.Object} .", format="turtle")
+        g.parse(data=f"{t.s} {t.p} {t.o} .", format="turtle")
     return g
 
 def get_spaces() -> list[dict]:

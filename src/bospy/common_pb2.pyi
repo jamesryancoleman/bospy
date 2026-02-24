@@ -43,6 +43,14 @@ class SetError(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     SET_ERROR_READ_ONLY: _ClassVar[SetError]
     SET_ERROR_INVALID_VALUE_TYPE: _ClassVar[SetError]
 
+class EntityType(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = ()
+    ENTITY_TYPE_UNSPECIFIED: _ClassVar[EntityType]
+    ENTITY_TYPE_SPACE: _ClassVar[EntityType]
+    ENTITY_TYPE_DEVICE: _ClassVar[EntityType]
+    ENTITY_TYPE_POINT: _ClassVar[EntityType]
+    ENTITY_TYPE_DRIVER: _ClassVar[EntityType]
+
 class QueryError(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = ()
     QUERY_ERROR_NONE: _ClassVar[QueryError]
@@ -114,6 +122,11 @@ SET_ERROR_COULD_NOT_RESOLVE_XREF: SetError
 SET_ERROR_ACCESS_DENIED: SetError
 SET_ERROR_READ_ONLY: SetError
 SET_ERROR_INVALID_VALUE_TYPE: SetError
+ENTITY_TYPE_UNSPECIFIED: EntityType
+ENTITY_TYPE_SPACE: EntityType
+ENTITY_TYPE_DEVICE: EntityType
+ENTITY_TYPE_POINT: EntityType
+ENTITY_TYPE_DRIVER: EntityType
 QUERY_ERROR_NONE: QueryError
 QUERY_ERROR_UNSPECIFIED: QueryError
 QUERY_ERROR_TIMEOUT: QueryError
@@ -327,44 +340,106 @@ class QueryResponse(_message.Message):
     def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Query: _Optional[str] = ..., Values: _Optional[_Iterable[str]] = ..., Dtype: _Optional[_Union[Dtype, str]] = ..., Error: _Optional[_Union[QueryError, str]] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...
 
 class Triple(_message.Message):
-    __slots__ = ("Subject", "Predicate", "Object")
-    SUBJECT_FIELD_NUMBER: _ClassVar[int]
-    PREDICATE_FIELD_NUMBER: _ClassVar[int]
-    OBJECT_FIELD_NUMBER: _ClassVar[int]
-    Subject: str
-    Predicate: str
-    Object: str
-    def __init__(self, Subject: _Optional[str] = ..., Predicate: _Optional[str] = ..., Object: _Optional[str] = ...) -> None: ...
+    __slots__ = ("s", "p", "o")
+    S_FIELD_NUMBER: _ClassVar[int]
+    P_FIELD_NUMBER: _ClassVar[int]
+    O_FIELD_NUMBER: _ClassVar[int]
+    s: str
+    p: str
+    o: str
+    def __init__(self, s: _Optional[str] = ..., p: _Optional[str] = ..., o: _Optional[str] = ...) -> None: ...
 
 class MakeDeviceRequest(_message.Message):
-    __slots__ = ("Name", "Types", "Locations", "Driver", "OtherProperties")
+    __slots__ = ("Name", "Types", "Locations", "Driver", "other_properties", "referenced_by")
+    class OtherPropertiesEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: str
+        value: str
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
+    class ReferencedByEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: str
+        value: str
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
     NAME_FIELD_NUMBER: _ClassVar[int]
     TYPES_FIELD_NUMBER: _ClassVar[int]
     LOCATIONS_FIELD_NUMBER: _ClassVar[int]
     DRIVER_FIELD_NUMBER: _ClassVar[int]
-    OTHERPROPERTIES_FIELD_NUMBER: _ClassVar[int]
+    OTHER_PROPERTIES_FIELD_NUMBER: _ClassVar[int]
+    REFERENCED_BY_FIELD_NUMBER: _ClassVar[int]
     Name: str
     Types: _containers.RepeatedScalarFieldContainer[str]
     Locations: _containers.RepeatedScalarFieldContainer[str]
     Driver: str
-    OtherProperties: _containers.RepeatedCompositeFieldContainer[Triple]
-    def __init__(self, Name: _Optional[str] = ..., Types: _Optional[_Iterable[str]] = ..., Locations: _Optional[_Iterable[str]] = ..., Driver: _Optional[str] = ..., OtherProperties: _Optional[_Iterable[_Union[Triple, _Mapping]]] = ...) -> None: ...
+    other_properties: _containers.ScalarMap[str, str]
+    referenced_by: _containers.ScalarMap[str, str]
+    def __init__(self, Name: _Optional[str] = ..., Types: _Optional[_Iterable[str]] = ..., Locations: _Optional[_Iterable[str]] = ..., Driver: _Optional[str] = ..., other_properties: _Optional[_Mapping[str, str]] = ..., referenced_by: _Optional[_Mapping[str, str]] = ...) -> None: ...
 
 class MakePointRequest(_message.Message):
-    __slots__ = ("Device", "Name", "Types", "Locations", "Xref", "OtherProperties")
+    __slots__ = ("Device", "Name", "Types", "Locations", "Xref", "other_properties", "referenced_by")
+    class OtherPropertiesEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: str
+        value: str
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
+    class ReferencedByEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: str
+        value: str
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
     DEVICE_FIELD_NUMBER: _ClassVar[int]
     NAME_FIELD_NUMBER: _ClassVar[int]
     TYPES_FIELD_NUMBER: _ClassVar[int]
     LOCATIONS_FIELD_NUMBER: _ClassVar[int]
     XREF_FIELD_NUMBER: _ClassVar[int]
-    OTHERPROPERTIES_FIELD_NUMBER: _ClassVar[int]
+    OTHER_PROPERTIES_FIELD_NUMBER: _ClassVar[int]
+    REFERENCED_BY_FIELD_NUMBER: _ClassVar[int]
     Device: str
     Name: str
     Types: _containers.RepeatedScalarFieldContainer[str]
     Locations: _containers.RepeatedScalarFieldContainer[str]
     Xref: str
-    OtherProperties: _containers.RepeatedCompositeFieldContainer[Triple]
-    def __init__(self, Device: _Optional[str] = ..., Name: _Optional[str] = ..., Types: _Optional[_Iterable[str]] = ..., Locations: _Optional[_Iterable[str]] = ..., Xref: _Optional[str] = ..., OtherProperties: _Optional[_Iterable[_Union[Triple, _Mapping]]] = ...) -> None: ...
+    other_properties: _containers.ScalarMap[str, str]
+    referenced_by: _containers.ScalarMap[str, str]
+    def __init__(self, Device: _Optional[str] = ..., Name: _Optional[str] = ..., Types: _Optional[_Iterable[str]] = ..., Locations: _Optional[_Iterable[str]] = ..., Xref: _Optional[str] = ..., other_properties: _Optional[_Mapping[str, str]] = ..., referenced_by: _Optional[_Mapping[str, str]] = ...) -> None: ...
+
+class Entity(_message.Message):
+    __slots__ = ("root_uri", "entity_type", "label", "comment", "other_properties", "referenced_by")
+    class OtherPropertiesEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: str
+        value: str
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
+    class ReferencedByEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: str
+        value: str
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
+    ROOT_URI_FIELD_NUMBER: _ClassVar[int]
+    ENTITY_TYPE_FIELD_NUMBER: _ClassVar[int]
+    LABEL_FIELD_NUMBER: _ClassVar[int]
+    COMMENT_FIELD_NUMBER: _ClassVar[int]
+    OTHER_PROPERTIES_FIELD_NUMBER: _ClassVar[int]
+    REFERENCED_BY_FIELD_NUMBER: _ClassVar[int]
+    root_uri: str
+    entity_type: EntityType
+    label: str
+    comment: str
+    other_properties: _containers.ScalarMap[str, str]
+    referenced_by: _containers.ScalarMap[str, str]
+    def __init__(self, root_uri: _Optional[str] = ..., entity_type: _Optional[_Union[EntityType, str]] = ..., label: _Optional[str] = ..., comment: _Optional[str] = ..., other_properties: _Optional[_Mapping[str, str]] = ..., referenced_by: _Optional[_Mapping[str, str]] = ...) -> None: ...
 
 class MakeDriverRequest(_message.Message):
     __slots__ = ("Name", "Host", "Port", "Image", "Container")
@@ -410,22 +485,30 @@ class MakeResponse(_message.Message):
     def __init__(self, Url: _Optional[str] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...
 
 class UpdateRequest(_message.Message):
-    __slots__ = ("header", "triples")
+    __slots__ = ("header", "kind", "root_uri", "deletions", "updates", "additions")
     HEADER_FIELD_NUMBER: _ClassVar[int]
-    TRIPLES_FIELD_NUMBER: _ClassVar[int]
+    KIND_FIELD_NUMBER: _ClassVar[int]
+    ROOT_URI_FIELD_NUMBER: _ClassVar[int]
+    DELETIONS_FIELD_NUMBER: _ClassVar[int]
+    UPDATES_FIELD_NUMBER: _ClassVar[int]
+    ADDITIONS_FIELD_NUMBER: _ClassVar[int]
     header: Header
-    triples: _containers.RepeatedCompositeFieldContainer[Triple]
-    def __init__(self, header: _Optional[_Union[Header, _Mapping]] = ..., triples: _Optional[_Iterable[_Union[Triple, _Mapping]]] = ...) -> None: ...
+    kind: EntityType
+    root_uri: str
+    deletions: _containers.RepeatedCompositeFieldContainer[Triple]
+    updates: _containers.RepeatedCompositeFieldContainer[Triple]
+    additions: _containers.RepeatedCompositeFieldContainer[Triple]
+    def __init__(self, header: _Optional[_Union[Header, _Mapping]] = ..., kind: _Optional[_Union[EntityType, str]] = ..., root_uri: _Optional[str] = ..., deletions: _Optional[_Iterable[_Union[Triple, _Mapping]]] = ..., updates: _Optional[_Iterable[_Union[Triple, _Mapping]]] = ..., additions: _Optional[_Iterable[_Union[Triple, _Mapping]]] = ...) -> None: ...
 
 class UpdateResponse(_message.Message):
-    __slots__ = ("header", "updated", "rejected")
+    __slots__ = ("header", "deleted", "inserted")
     HEADER_FIELD_NUMBER: _ClassVar[int]
-    UPDATED_FIELD_NUMBER: _ClassVar[int]
-    REJECTED_FIELD_NUMBER: _ClassVar[int]
+    DELETED_FIELD_NUMBER: _ClassVar[int]
+    INSERTED_FIELD_NUMBER: _ClassVar[int]
     header: Header
-    updated: _containers.RepeatedCompositeFieldContainer[Triple]
-    rejected: _containers.RepeatedCompositeFieldContainer[Triple]
-    def __init__(self, header: _Optional[_Union[Header, _Mapping]] = ..., updated: _Optional[_Iterable[_Union[Triple, _Mapping]]] = ..., rejected: _Optional[_Iterable[_Union[Triple, _Mapping]]] = ...) -> None: ...
+    deleted: _containers.RepeatedCompositeFieldContainer[Triple]
+    inserted: _containers.RepeatedCompositeFieldContainer[Triple]
+    def __init__(self, header: _Optional[_Union[Header, _Mapping]] = ..., deleted: _Optional[_Iterable[_Union[Triple, _Mapping]]] = ..., inserted: _Optional[_Iterable[_Union[Triple, _Mapping]]] = ...) -> None: ...
 
 class DeleteRequest(_message.Message):
     __slots__ = ("Header", "Query", "Triple", "root_node")
