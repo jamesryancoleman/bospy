@@ -203,6 +203,16 @@ class SysmodStub(object):
                 request_serializer=common__pb2.MakeDriverRequest.SerializeToString,
                 response_deserializer=common__pb2.MakeResponse.FromString,
                 _registered_method=True)
+        self.MakeSpace = channel.unary_unary(
+                '/bos.Sysmod/MakeSpace',
+                request_serializer=common__pb2.MakeSpaceRequest.SerializeToString,
+                response_deserializer=common__pb2.MakeResponse.FromString,
+                _registered_method=True)
+        self.Update = channel.unary_unary(
+                '/bos.Sysmod/Update',
+                request_serializer=common__pb2.UpdateRequest.SerializeToString,
+                response_deserializer=common__pb2.UpdateResponse.FromString,
+                _registered_method=True)
         self.Delete = channel.unary_unary(
                 '/bos.Sysmod/Delete',
                 request_serializer=common__pb2.DeleteRequest.SerializeToString,
@@ -271,6 +281,18 @@ class SysmodServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def MakeSpace(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def Update(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def Delete(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -324,6 +346,16 @@ def add_SysmodServicer_to_server(servicer, server):
                     servicer.MakeDriver,
                     request_deserializer=common__pb2.MakeDriverRequest.FromString,
                     response_serializer=common__pb2.MakeResponse.SerializeToString,
+            ),
+            'MakeSpace': grpc.unary_unary_rpc_method_handler(
+                    servicer.MakeSpace,
+                    request_deserializer=common__pb2.MakeSpaceRequest.FromString,
+                    response_serializer=common__pb2.MakeResponse.SerializeToString,
+            ),
+            'Update': grpc.unary_unary_rpc_method_handler(
+                    servicer.Update,
+                    request_deserializer=common__pb2.UpdateRequest.FromString,
+                    response_serializer=common__pb2.UpdateResponse.SerializeToString,
             ),
             'Delete': grpc.unary_unary_rpc_method_handler(
                     servicer.Delete,
@@ -575,6 +607,60 @@ class Sysmod(object):
             '/bos.Sysmod/MakeDriver',
             common__pb2.MakeDriverRequest.SerializeToString,
             common__pb2.MakeResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def MakeSpace(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bos.Sysmod/MakeSpace',
+            common__pb2.MakeSpaceRequest.SerializeToString,
+            common__pb2.MakeResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def Update(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bos.Sysmod/Update',
+            common__pb2.UpdateRequest.SerializeToString,
+            common__pb2.UpdateResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -917,7 +1003,7 @@ class ForecastServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def Get(self, request, context):
-        """returns 
+        """returns
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')

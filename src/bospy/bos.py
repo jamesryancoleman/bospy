@@ -227,6 +227,26 @@ def make_point(name:str, device:str, types:str|list[str]=None, locations:str|lis
         return "error: {}".format(response.Error, response.ErrorMsg)
     return response.Url
 
+def query_drivers() -> list[dict]:
+    """Return all registered drivers as [{"uri": ..., "name": ...}], sorted by name."""
+    query = """
+        SELECT DISTINCT ?uri ?pred ?name WHERE {
+            ?uri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+                 <https://openbos.org/schema/bos#Driver> .
+            ?uri <https://openbos.org/schema/bos#Name> ?name .
+            BIND(<https://openbos.org/schema/bos#Name> AS ?pred)
+        } ORDER BY ?name
+    """
+    g = BasicQuery(query)
+    seen = set()
+    results = []
+    for s, p, o in g:
+        uri = str(s)
+        if uri not in seen:
+            seen.add(uri)
+            results.append({"uri": uri, "name": str(o)})
+    return results
+
 def make_driver(name:str, host:str, port:int, image:str=None, container:str=None) -> common_pb2.MakeResponse:
     """ name    of the driver
         host    the hostname (preferred) or IP that the service can be found at
@@ -265,6 +285,42 @@ def Delete(sub:str="", pred:str="", obj:str=""):
             )
         ))
     return
+
+def make_space(name: str, kind: str, parents: list[str] = None, children: list[str] = None) -> str:
+    """Create a new location/space node in the system model.
+
+    name     — human-readable label (e.g. "CHAOS Lab")
+    kind     — REC class URI (e.g. "https://w3id.org/rec#Room")
+    parents  — list of parent space URIs (the parent gains a rec:hasPart edge to this node)
+    children — list of child space URIs (this node gains rec:hasPart edges to them)
+    Returns the URI of the new node, or a string starting with "error:" on failure.
+    """
+    if parents is None:
+        parents = []
+    if children is None:
+        children = []
+    response: common_pb2.MakeResponse
+    with grpc.insecure_channel(config.get_sysmod_addr()) as channel:
+        stub = common_pb2_grpc.SysmodStub(channel)
+        response = stub.MakeSpace(common_pb2.MakeSpaceRequest(
+            name=name,
+            kind=kind,
+            parent_uuids=parents,
+            child_uuids=children,
+        ))
+    if response.ErrorMsg:
+        return "error: {}".format(response.ErrorMsg)
+    return response.Url
+
+def delete_node(uri: str) -> bool:
+    """Delete all triples where uri is the subject or the object."""
+    response: common_pb2.DeleteResponse
+    with grpc.insecure_channel(config.get_sysmod_addr()) as channel:
+        stub = common_pb2_grpc.SysmodStub(channel)
+        response = stub.Delete(common_pb2.DeleteRequest(
+            root_node=uri,
+        ))
+    return True
 
 # History rpc calls
 def set_sample_rate(pts:str|list[str], rates:str|list[str]) -> bool:
@@ -522,6 +578,77 @@ def BasicQuery(query:str) -> Graph:
     for t in resp.Results:
         g.parse(data=f"{t.Subject} {t.Predicate} {t.Object} .", format="turtle")
     return g
+
+def get_spaces() -> list[dict]:
+    """Return all space/location nodes (rdf:type bos:Location) with their rdfs:label, kind, and hasPart children."""
+    query = """
+        SELECT DISTINCT ?sub ?pred ?obj WHERE {
+            ?sub <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://openbos.org/schema/bos#Location> .
+            ?sub ?pred ?obj .
+            FILTER(?pred IN (
+                <http://www.w3.org/2000/01/rdf-schema#label>,
+                <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>,
+                <https://w3id.org/rec#hasPart>
+            ))
+        }
+    """
+    g = BasicQuery(query)
+    if not g:
+        return []
+
+    TYPE_P = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+    LABEL_P = "http://www.w3.org/2000/01/rdf-schema#label"
+    LOCATION_T = "https://openbos.org/schema/bos#Location"
+    HASPART_P = "https://w3id.org/rec#hasPart"
+
+    spaces = {}
+    for s, p, o in g:
+        uri = str(s)
+        pred = str(p)
+        obj = str(o)
+        if uri not in spaces:
+            spaces[uri] = {"uri": uri, "label": "", "kind": "", "parts": []}
+        if pred == LABEL_P:
+            spaces[uri]["label"] = obj
+        elif pred == TYPE_P and obj != LOCATION_T:
+            kind = obj.rsplit("#", 1)[-1] if "#" in obj else obj.rsplit("/", 1)[-1]
+            spaces[uri]["kind"] = kind
+        elif pred == HASPART_P:
+            spaces[uri]["parts"].append(obj)
+
+    return list(spaces.values())
+
+
+def get_ontology_subclasses(root_uri: str, graph_uri: str, transitive: bool = True) -> list[dict]:
+    """Return subclasses of root_uri within a named graph in Oxigraph.
+
+    Uses a 3-column SELECT (?class ?pred ?label) so results map cleanly to
+    the (Subject, Predicate, Object) triple format that BasicQuery returns.
+    Requires the ontology to already be loaded as the named graph graph_uri.
+    Set transitive=False to return only direct subclasses.
+    """
+    path = "+" if transitive else ""
+    query = f"""
+        SELECT DISTINCT ?class ?pred ?label WHERE {{
+            GRAPH <{graph_uri}> {{
+                ?class <http://www.w3.org/2000/01/rdf-schema#subClassOf>{path} <{root_uri}> .
+                ?class <http://www.w3.org/2000/01/rdf-schema#label> ?label .
+                BIND(<http://www.w3.org/2000/01/rdf-schema#label> AS ?pred)
+            }}
+        }} ORDER BY ?label
+    """
+    g = BasicQuery(query)
+    if not g:
+        return []
+    seen = set()
+    results = []
+    for s, p, o in g:
+        uri = str(s)
+        if uri not in seen:
+            seen.add(uri)
+            results.append({"uri": uri, "label": str(o)})
+    return results
+
 
 def GetAllLocation() -> set[str]:
     query = """

@@ -1,7 +1,7 @@
 import datetime
 
-from google.protobuf import timestamp_pb2 as _timestamp_pb2
 from google.protobuf import struct_pb2 as _struct_pb2
+from google.protobuf import timestamp_pb2 as _timestamp_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
@@ -380,6 +380,27 @@ class MakeDriverRequest(_message.Message):
     Container: str
     def __init__(self, Name: _Optional[str] = ..., Host: _Optional[str] = ..., Port: _Optional[str] = ..., Image: _Optional[str] = ..., Container: _Optional[str] = ...) -> None: ...
 
+class MakeSpaceRequest(_message.Message):
+    __slots__ = ("name", "kind", "parent_uuids", "child_uuids", "metadata")
+    class MetadataEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: str
+        value: str
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    KIND_FIELD_NUMBER: _ClassVar[int]
+    PARENT_UUIDS_FIELD_NUMBER: _ClassVar[int]
+    CHILD_UUIDS_FIELD_NUMBER: _ClassVar[int]
+    METADATA_FIELD_NUMBER: _ClassVar[int]
+    name: str
+    kind: str
+    parent_uuids: _containers.RepeatedScalarFieldContainer[str]
+    child_uuids: _containers.RepeatedScalarFieldContainer[str]
+    metadata: _containers.ScalarMap[str, str]
+    def __init__(self, name: _Optional[str] = ..., kind: _Optional[str] = ..., parent_uuids: _Optional[_Iterable[str]] = ..., child_uuids: _Optional[_Iterable[str]] = ..., metadata: _Optional[_Mapping[str, str]] = ...) -> None: ...
+
 class MakeResponse(_message.Message):
     __slots__ = ("Url", "ErrorMsg")
     URL_FIELD_NUMBER: _ClassVar[int]
@@ -388,15 +409,35 @@ class MakeResponse(_message.Message):
     ErrorMsg: str
     def __init__(self, Url: _Optional[str] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...
 
+class UpdateRequest(_message.Message):
+    __slots__ = ("header", "triples")
+    HEADER_FIELD_NUMBER: _ClassVar[int]
+    TRIPLES_FIELD_NUMBER: _ClassVar[int]
+    header: Header
+    triples: _containers.RepeatedCompositeFieldContainer[Triple]
+    def __init__(self, header: _Optional[_Union[Header, _Mapping]] = ..., triples: _Optional[_Iterable[_Union[Triple, _Mapping]]] = ...) -> None: ...
+
+class UpdateResponse(_message.Message):
+    __slots__ = ("header", "updated", "rejected")
+    HEADER_FIELD_NUMBER: _ClassVar[int]
+    UPDATED_FIELD_NUMBER: _ClassVar[int]
+    REJECTED_FIELD_NUMBER: _ClassVar[int]
+    header: Header
+    updated: _containers.RepeatedCompositeFieldContainer[Triple]
+    rejected: _containers.RepeatedCompositeFieldContainer[Triple]
+    def __init__(self, header: _Optional[_Union[Header, _Mapping]] = ..., updated: _Optional[_Iterable[_Union[Triple, _Mapping]]] = ..., rejected: _Optional[_Iterable[_Union[Triple, _Mapping]]] = ...) -> None: ...
+
 class DeleteRequest(_message.Message):
-    __slots__ = ("Header", "Query", "Triple")
+    __slots__ = ("Header", "Query", "Triple", "root_node")
     HEADER_FIELD_NUMBER: _ClassVar[int]
     QUERY_FIELD_NUMBER: _ClassVar[int]
     TRIPLE_FIELD_NUMBER: _ClassVar[int]
+    ROOT_NODE_FIELD_NUMBER: _ClassVar[int]
     Header: Header
     Query: str
     Triple: Triple
-    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Query: _Optional[str] = ..., Triple: _Optional[_Union[Triple, _Mapping]] = ...) -> None: ...
+    root_node: str
+    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Query: _Optional[str] = ..., Triple: _Optional[_Union[Triple, _Mapping]] = ..., root_node: _Optional[str] = ...) -> None: ...
 
 class DeleteResponse(_message.Message):
     __slots__ = ("Urls",)
