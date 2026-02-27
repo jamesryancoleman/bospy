@@ -859,14 +859,18 @@ class LibraryResponse(_message.Message):
     def __init__(self, header: _Optional[_Union[Header, _Mapping]] = ..., apps: _Optional[_Iterable[_Union[AppDesciption, _Mapping]]] = ...) -> None: ...
 
 class AppDesciption(_message.Message):
-    __slots__ = ("image", "description", "usage")
+    __slots__ = ("image", "description", "usage", "env_keys", "env_optional_keys")
     IMAGE_FIELD_NUMBER: _ClassVar[int]
     DESCRIPTION_FIELD_NUMBER: _ClassVar[int]
     USAGE_FIELD_NUMBER: _ClassVar[int]
+    ENV_KEYS_FIELD_NUMBER: _ClassVar[int]
+    ENV_OPTIONAL_KEYS_FIELD_NUMBER: _ClassVar[int]
     image: str
     description: str
     usage: str
-    def __init__(self, image: _Optional[str] = ..., description: _Optional[str] = ..., usage: _Optional[str] = ...) -> None: ...
+    env_keys: _containers.RepeatedScalarFieldContainer[str]
+    env_optional_keys: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(self, image: _Optional[str] = ..., description: _Optional[str] = ..., usage: _Optional[str] = ..., env_keys: _Optional[_Iterable[str]] = ..., env_optional_keys: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class Event(_message.Message):
     __slots__ = ("id", "topic", "source", "type", "timestamp", "payload", "payload_content_type", "metadata", "offset")

@@ -183,8 +183,8 @@ def make_device(name:str, types:str|list[str]=None, locations:str|list[str]=None
     if isinstance(locations, str):
         locations = [locations]
     if properties:
-        properties = [common_pb2.Triple(Subject=p[0], Predicate=p[1], Object=p[2]) for p in properties]
-    
+        properties = [common_pb2.Triple(s=p[0], p=p[1], o=p[2]) for p in properties]
+
     response:common_pb2.MakeResponse
     with grpc.insecure_channel(config.get_sysmod_addr()) as channel:
         stub = common_pb2_grpc.SysmodStub(channel)
@@ -193,7 +193,7 @@ def make_device(name:str, types:str|list[str]=None, locations:str|list[str]=None
             Types=types,
             Locations=locations,
             Driver=driver,
-            OtherProperties=properties,
+            other_properties=properties,
         ))
     if response.ErrorMsg != "":
         return "error: {}".format(response.Error, response.ErrorMsg)
@@ -210,8 +210,8 @@ def make_point(name:str, device:str, types:str|list[str]=None, locations:str|lis
     if isinstance(locations, str):
         locations = [locations]
     if properties:
-        properties = [common_pb2.Triple(Subject=p[0], Predicate=p[1], Object=p[2]) for p in properties]
-    
+        properties = [common_pb2.Triple(s=p[0], p=p[1], o=p[2]) for p in properties]
+
     response:common_pb2.MakeResponse
     with grpc.insecure_channel(config.get_sysmod_addr()) as channel:
         stub = common_pb2_grpc.SysmodStub(channel)
@@ -221,7 +221,7 @@ def make_point(name:str, device:str, types:str|list[str]=None, locations:str|lis
             Types=types,
             Locations=locations,
             Xref=xref,
-            OtherProperties=properties,
+            other_properties=properties,
         ))
     if response.ErrorMsg != "":
         return "error: {}".format(response.Error, response.ErrorMsg)
