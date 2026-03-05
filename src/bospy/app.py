@@ -23,7 +23,7 @@ keyRe = re.compile(r"^(?:(?P<ns>[a-zA-Z0-9\/\-\/.]+):)?(?:(?P<scope>[^:]*):)?(?:
 positionRe = re.compile(r'^\$(?P<position>[0-9]+)$')
 
 # client calls
-def load(keys:str|list[str], typed_values=True, token:str=None, txn:int=0) -> dict[str,Any]:
+def load(keys:str|list[str], typed_values:bool=True, token:str=None, txn:int=0) -> dict[str,Any]:
     """
     Passing no namespace implies flows. Keys returned from the server have their 
     scopes and txns removed so the returned keys are NS:KEY.
@@ -65,8 +65,7 @@ def load(keys:str|list[str], typed_values=True, token:str=None, txn:int=0) -> di
     values:dict={}
     for p in response.Pairs:
         v:int|float|bool|str|None
-        if typed_values:
-            v = infer_type(p.Value)
+        v = infer_type(p.Value) if typed_values else p.Value
         values[p.Key] = v
 
     # guarantee every requested key is present; None means not found/unavailable

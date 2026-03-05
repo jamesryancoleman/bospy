@@ -800,6 +800,11 @@ class HistoryStub(object):
                 request_serializer=common__pb2.RefreshRatesRequest.SerializeToString,
                 response_deserializer=common__pb2.RefreshRatesResponse.FromString,
                 _registered_method=True)
+        self.RefreshNames = channel.unary_unary(
+                '/bos.History/RefreshNames',
+                request_serializer=common__pb2.RefreshNamesRequest.SerializeToString,
+                response_deserializer=common__pb2.RefreshNamesResponse.FromString,
+                _registered_method=True)
 
 
 class HistoryServicer(object):
@@ -835,6 +840,12 @@ class HistoryServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def RefreshNames(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_HistoryServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -857,6 +868,11 @@ def add_HistoryServicer_to_server(servicer, server):
                     servicer.RefreshRates,
                     request_deserializer=common__pb2.RefreshRatesRequest.FromString,
                     response_serializer=common__pb2.RefreshRatesResponse.SerializeToString,
+            ),
+            'RefreshNames': grpc.unary_unary_rpc_method_handler(
+                    servicer.RefreshNames,
+                    request_deserializer=common__pb2.RefreshNamesRequest.FromString,
+                    response_serializer=common__pb2.RefreshNamesResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -967,6 +983,33 @@ class History(object):
             '/bos.History/RefreshRates',
             common__pb2.RefreshRatesRequest.SerializeToString,
             common__pb2.RefreshRatesResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def RefreshNames(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bos.History/RefreshNames',
+            common__pb2.RefreshNamesRequest.SerializeToString,
+            common__pb2.RefreshNamesResponse.FromString,
             options,
             channel_credentials,
             insecure,

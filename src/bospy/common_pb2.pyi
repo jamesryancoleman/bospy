@@ -572,6 +572,14 @@ class RefreshRatesResponse(_message.Message):
     ErrorMsg: str
     def __init__(self, Error: _Optional[_Union[ServiceError, str]] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...
 
+class RefreshNamesRequest(_message.Message):
+    __slots__ = ()
+    def __init__(self) -> None: ...
+
+class RefreshNamesResponse(_message.Message):
+    __slots__ = ()
+    def __init__(self) -> None: ...
+
 class SetForecastRequest(_message.Message):
     __slots__ = ("header", "forecast")
     HEADER_FIELD_NUMBER: _ClassVar[int]

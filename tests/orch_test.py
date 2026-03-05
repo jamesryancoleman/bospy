@@ -20,7 +20,7 @@ class TestRun(unittest.TestCase):
             'lower_bound': 10,
             'upper_bound': 100,
             'minutes':  1
-        } | {"ORCHESTRATOR_ADDR": "nuc.local:2824"},
+        } | {"ORCHESTRATOR_ADDR": "localhost:2824"},
         timeout=-1)
 
 class TestGetRunning(unittest.TestCase):
@@ -88,7 +88,7 @@ class TestSchedule(unittest.TestCase):
         resp = orch.schedule("thinker", "*/5 * * * *",
                              on_start=True, 
                              envVars={
-                                "ORCHESTRATOR_ADDR":"nuc.local:2824",
+                                "ORCHESTRATOR_ADDR":"localhost:2824",
                                 "minutes": 5,
                                 "lower_bound": 10,
                                 "upper_bound": 100,
@@ -102,7 +102,7 @@ class TestSchedule(unittest.TestCase):
         future_dt = datetime.datetime.now(_tz) + datetime.timedelta(seconds=30)
         dt_str = future_dt.isoformat()
         resp = orch.schedule("thinker", dt_str, on_start=False, 
-                             envVars={"ORCHESTRATOR_ADDR":"nuc.local:2824"})
+                             envVars={"ORCHESTRATOR_ADDR":"localhost:2824"})
         print(resp)
         jobs = orch.get_scheduled_apps()
         print(f'there are {len(jobs)} scheduled.')

@@ -6,6 +6,7 @@ import grpc
 
 from rdflib import Graph, URIRef, parser
 
+from typing import cast
 import datetime as dt
 import pandas as pd
 import sys
@@ -78,33 +79,33 @@ def get_name(pt:str) -> None | str:
     else:
         return None
 
-def type_to_point(types:str|list[str]) -> None | str | list[str]:
-    if isinstance(types, str):
-        types = [types]
-    response: common_pb2.QueryResponse
-    with grpc.insecure_channel(config.get_sysmod_addr()) as channel:
-        stub = common_pb2_grpc.SysmodStub(channel)
-        response = stub.TypeToPoint(common_pb2.GetRequest(
-            Keys=types))
-        if response.Error > 0:
-            print("get '{}' error: {}".format(response.Query,
-                                              response.Error))
-    # cast as a more user-friendly type
-    return response.Values
+# def type_to_point(types:str|list[str]) -> None | str | list[str]:
+#     if isinstance(types, str):
+#         types = [types]
+#     response: common_pb2.QueryResponse
+#     with grpc.insecure_channel(config.get_sysmod_addr()) as channel:
+#         stub = common_pb2_grpc.SysmodStub(channel)
+#         response = stub.TypeToPoint(common_pb2.GetRequest(
+#             Keys=types))
+#         if response.Error > 0:
+#             print("get '{}' error: {}".format(response.Query,
+#                                               response.Error))
+#     # cast as a more user-friendly type
+#     return response.Values
 
-def location_to_point(locations:str|list[str]) -> None | str | list[str]:
-    print(locations, type(locations))
-    if isinstance(locations, str):
-        locations = [locations]
-    response: common_pb2.QueryResponse
-    with grpc.insecure_channel(config.get_sysmod_addr()) as channel:
-        stub = common_pb2_grpc.SysmodStub(channel)
-        response = stub.LocationToPoint(common_pb2.GetRequest(
-            Keys=locations))
-        if response.Error > 0:
-            print("get '{}' error: {}".format(response.Query,
-                                              response.Error))
-    return response.Values
+# def location_to_point(locations:str|list[str]) -> None | str | list[str]:
+#     print(locations, type(locations))
+#     if isinstance(locations, str):
+#         locations = [locations]
+#     response: common_pb2.QueryResponse
+#     with grpc.insecure_channel(config.get_sysmod_addr()) as channel:
+#         stub = common_pb2_grpc.SysmodStub(channel)
+#         response = stub.LocationToPoint(common_pb2.GetRequest(
+#             Keys=locations))
+#         if response.Error > 0:
+#             print("get '{}' error: {}".format(response.Query,
+#                                               response.Error))
+#     return response.Values
 
 def query_points(query:str=None, names:str|list[str]=None, types:str|list[str]=None,
                 locations:str|list[str]=None, inherit_device_loc:bool=True,
@@ -196,7 +197,7 @@ def make_device(name:str, types:str|list[str]=None, locations:str|list[str]=None
             other_properties=properties,
         ))
     if response.ErrorMsg != "":
-        return "error: {}".format(response.Error, response.ErrorMsg)
+        return f"error: { response.ErrorMsg}"
     return response.Url
 
 def make_point(name:str, device:str, types:str|list[str]=None, locations:str|list[str]=None, 
@@ -224,7 +225,7 @@ def make_point(name:str, device:str, types:str|list[str]=None, locations:str|lis
             other_properties=properties,
         ))
     if response.ErrorMsg != "":
-        return "error: {}".format(response.Error, response.ErrorMsg)
+        return f"error: {response.ErrorMsg}"
     return response.Url
 
 def query_drivers() -> list[dict]:
@@ -247,7 +248,7 @@ def query_drivers() -> list[dict]:
             results.append({"uri": uri, "name": str(o)})
     return results
 
-def make_driver(name:str, host:str, port:int, image:str=None, container:str=None) -> common_pb2.MakeResponse:
+def make_driver(name:str, host:str, port:int, image:str=None, container:str=None) -> str:
     """ name    of the driver
         host    the hostname (preferred) or IP that the service can be found at
         port    starts at 50061 by convention
@@ -267,24 +268,24 @@ def make_driver(name:str, host:str, port:int, image:str=None, container:str=None
             Container=container,
         ))
     if response.ErrorMsg != "":
-        return "error: {}".format(response.Error, response.ErrorMsg)
+        return "error: {response.ErrorMsg}"
     return response.Url
 
-def Delete(sub:str="", pred:str="", obj:str=""):
+def Delete(sub:str="", pred:str="", obj:str="") -> common_pb2.DeleteResponse:
     if sub == "" and pred == "" and obj == "":
         print("must provide at least one of subject, predicate, or object")
-        return
+        return common_pb2.DeleteResponse()
     response:common_pb2.DeleteResponse
     with grpc.insecure_channel(config.get_sysmod_addr()) as channel:
         stub = common_pb2_grpc.SysmodStub(channel)
         response = stub.Delete(common_pb2.DeleteRequest(
             Triple=common_pb2.Triple(
-                Subject=sub,
-                Predicate=pred,
-                Object=obj,
+                s=sub,
+                p=pred,
+                o=obj,
             )
         ))
-    return
+    return response
 
 def make_space(name: str, kind: str, parents: list[str] = None, children: list[str] = None) -> str:
     """Create a new location/space node in the system model.
@@ -450,7 +451,7 @@ def get_history(pts:str|list[str], start:str=None, end:str=None, limit:int=14400
         if resample_to:
             df = df.resample(resample_to).mean()
         if get_names:
-            df.columns = [GetName(pt) for pt in df.columns]
+            df.columns = [get_name(pt) for pt in df.columns]
         return df.sort_index()
     return R
 
@@ -507,25 +508,25 @@ def Ping(addr:str) -> bool:
         return False
 
 
-def CheckLatency(addr:str, num_pings:int=5) -> dt.timedelta | None:
-    running_total:dt.timedelta
-    for i in range(num_pings):
-        start = dt.datetime.now()
-        ok = Ping(addr)
-        end = dt.datetime.now()
-        if not ok:
-            return None
-        diff = end-start
-        if i == 0:
-            running_total = diff
-        else:
-            running_total = running_total + diff
-    return running_total / num_pings
+# def CheckLatency(addr:str, num_pings:int=5) -> dt.timedelta | None:
+#     running_total:dt.timedelta
+#     for i in range(num_pings):
+#         start = dt.datetime.now()
+#         ok = Ping(addr)
+#         end = dt.datetime.now()
+#         if not ok:
+#             return None
+#         diff = end-start
+#         if i == 0:
+#             running_total = diff
+#         else:
+#             running_total = running_total + diff
+#     return running_total / num_pings
         
 
 def _get_pt_values(*keys:str):
     """Like _get_pt but returns a single value for one key, or an ordered tuple for multiple."""
-    result = _get_pt(list(keys))
+    result = cast(dict, _get_pt(list(keys)))
     values = tuple(result.get(k) for k in keys)
     return values[0] if len(keys) == 1 else values
 
@@ -810,42 +811,11 @@ class PointUri(str):
     """ Used to indicate that a value is not just a str but specifically a point uri.
     """
 
-
-# if __name__ == "__main__":
-#     """ running this file will do a health check on the devctrl and sysmod services.
-#     """
-#     devctrl_addr = os.environ.get('DEVCTRL_ADDR')
-#     if devctrl_addr is None:
-#         print("environment variable DEVCTRL_ADDR not set. Try running:")
-#         print("\t$ source serivces/config-env")
-#         sys.exit(1)
-
-#     # make sure devCtrl is running
-#     try:
-#         resp = CheckLatency(devctrl_addr)
-#     except Exception as e:
-#         print("devctrl did not respond at {}\n\tis it running?".format(devctrl_addr))
-#         template = "An exception of type {0} occurred. Arguments:\n{1!r}"
-#         message = template.format(type(e).__name__, e.args)
-#         print(message)
-#         sys.exit(1)
-#     else:
-#         print("devctrl running. RTT = {:.2f} ms".format(resp.total_seconds()*1000))
-
-#     config.get_sysmod_addr() = os.environ.get('config.get_sysmod_addr()')
-#     if config.get_sysmod_addr() is None:
-#         print("environment variable DEVCTRL_ADDR not set. Try running:")
-#         print("\t$ source serivces/config-env")
-#         sys.exit(1)
-
-#     # make sure devCtrl is running
-#     try:
-#         resp = CheckLatency(config.get_sysmod_addr())
-#     except Exception as e:
-#         print("devCtrl did not respond at {}\n\tis it running?".format(config.get_sysmod_addr()))
-#         template = "An exception of type {0} occurred. Arguments:\n{1!r}"
-#         message = template.format(type(e).__name__, e.args)
-#         print(message)
-#         sys.exit(1)
-#     else:
-#         print("sysmod running. RTT = {:.2f} ms".format(resp.total_seconds()*1000))
+def RefreshNameTable():
+    """ Calls the RefreshNames rpc of the History service. Used primarily to have
+    user friendly names in Grafana.
+    """
+    with grpc.insecure_channel(config.get_history_addr()) as channel:
+        stub = common_pb2_grpc.HistoryStub(channel)
+        stub.RefreshNames(common_pb2.RefreshNamesRequest())
+    return True

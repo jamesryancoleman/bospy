@@ -15,8 +15,9 @@ def SimplifyPoint(pts:list[str]) -> list[str]:
             prefix = m.groupdict()['prefix']
             pt_str = pts[i][len(prefix):]
             m2 = dev_point_re.match(pt_str)
-            parts = [m2.groupdict()['device'], m2.groupdict()['point']]
-            pts[i] = ".".join(parts)
+            if m2 is not None:
+                parts = [m2.groupdict()['device'], m2.groupdict()['point']]
+                pts[i] = ".".join(parts)
     if len(pts) == 1:
         return pts[0]
     return pts

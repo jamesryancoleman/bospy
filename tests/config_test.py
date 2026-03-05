@@ -4,11 +4,11 @@ import os
 
 class TestConfig(unittest.TestCase):
     def setUp(self):
-        os.environ["SYSMOD_ADDR"] = "nuc:2821"
-        os.environ["DEVCTRL_ADDR"] = "nuc:2822"
-        os.environ["HISTORY_ADDR"] = "nuc:2823"
-        os.environ["ORCHESTRATOR_ADDR"] = "nuc:2824"
-        os.environ["FORECAST_ADDR"] = "nuc:2825"
+        os.environ["SYSMOD_ADDR"] = "localhost:2821"
+        os.environ["DEVCTRL_ADDR"] = "localhost:2822"
+        os.environ["HISTORY_ADDR"] = "localhost:2823"
+        os.environ["ORCHESTRATOR_ADDR"] = "localhost:2824"
+        os.environ["FORECAST_ADDR"] = "localhost:2825"
     
     def test_01_load_defaults(self):
         print("== default ==")

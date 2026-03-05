@@ -4,9 +4,9 @@ build-backend = "hatchling.build"
 
 [project]
 name = "bospy"
-version = "0.0.18"
+version = "0.0.19"
 authors = [
-  { name="James Coleman", email="jamesryancoleman@gmail.com" },
+  { name="James Coleman" },
 ]
 description = "a package for accessing bos resources."
 readme = "README.md"
