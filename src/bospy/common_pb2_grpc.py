@@ -5,7 +5,7 @@ import warnings
 
 from . import common_pb2 as common__pb2
 
-GRPC_GENERATED_VERSION = '1.74.0'
+GRPC_GENERATED_VERSION = '1.78.0'
 GRPC_VERSION = grpc.__version__
 _version_not_supported = False
 
@@ -18,7 +18,7 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in common_pb2_grpc.py depends on'
+        + ' but the generated code in common_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
@@ -168,6 +168,11 @@ class SysmodStub(object):
                 request_serializer=common__pb2.PointQueryRequest.SerializeToString,
                 response_deserializer=common__pb2.QueryResponse.FromString,
                 _registered_method=True)
+        self.SuggestPoints = channel.unary_unary(
+                '/bos.Sysmod/SuggestPoints',
+                request_serializer=common__pb2.SuggestPointsRequest.SerializeToString,
+                response_deserializer=common__pb2.SuggestPointsResponse.FromString,
+                _registered_method=True)
         self.BasicQuery = channel.unary_unary(
                 '/bos.Sysmod/BasicQuery',
                 request_serializer=common__pb2.BasicQueryRequest.SerializeToString,
@@ -232,6 +237,12 @@ class SysmodServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def QueryPoints(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SuggestPoints(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -311,6 +322,11 @@ def add_SysmodServicer_to_server(servicer, server):
                     servicer.QueryPoints,
                     request_deserializer=common__pb2.PointQueryRequest.FromString,
                     response_serializer=common__pb2.QueryResponse.SerializeToString,
+            ),
+            'SuggestPoints': grpc.unary_unary_rpc_method_handler(
+                    servicer.SuggestPoints,
+                    request_deserializer=common__pb2.SuggestPointsRequest.FromString,
+                    response_serializer=common__pb2.SuggestPointsResponse.SerializeToString,
             ),
             'BasicQuery': grpc.unary_unary_rpc_method_handler(
                     servicer.BasicQuery,
@@ -418,6 +434,33 @@ class Sysmod(object):
             '/bos.Sysmod/QueryPoints',
             common__pb2.PointQueryRequest.SerializeToString,
             common__pb2.QueryResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def SuggestPoints(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bos.Sysmod/SuggestPoints',
+            common__pb2.SuggestPointsRequest.SerializeToString,
+            common__pb2.SuggestPointsResponse.FromString,
             options,
             channel_credentials,
             insecure,

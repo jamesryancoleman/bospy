@@ -811,6 +811,43 @@ class PointUri(str):
     """ Used to indicate that a value is not just a str but specifically a point uri.
     """
 
+def suggest_points(preferred_class: str, accept_class: str,
+                   device: str = None, limit: int = 0) -> list[dict]:
+    """Return ranked point suggestions matching accept_class (or subclasses),
+    with points that also match preferred_class sorted first.
+
+    preferred_class  — ideal class as a CURIE or full URI
+                       (e.g. "brick:Zone_Air_Temperature_Sensor" or
+                        "https://brickschema.org/schema/Brick#Zone_Air_Temperature_Sensor")
+    accept_class     — minimum acceptable superclass as a CURIE or full URI
+    device           — optional device URI to filter results
+    limit            — max number of results (0 = unlimited)
+
+    Returns a list of dicts with keys: point, point_class, name, preferred.
+    """
+    req = common_pb2.SuggestPointsRequest(
+        preferred_class=preferred_class,
+        accept_class=accept_class,
+        limit=limit if limit > 0 else None,
+    )
+    if device:
+        req.device = device
+
+    with grpc.insecure_channel(config.get_sysmod_addr()) as channel:
+        stub = common_pb2_grpc.SysmodStub(channel)
+        resp = stub.SuggestPoints(req)
+
+    return [
+        {
+            "point":       s.point,
+            "point_class": s.point_class,
+            "name":        s.name,
+            "preferred":   s.preferred,
+        }
+        for s in resp.suggestions
+    ]
+
+
 def RefreshNameTable():
     """ Calls the RefreshNames rpc of the History service. Used primarily to have
     user friendly names in Grafana.

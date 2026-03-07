@@ -298,7 +298,7 @@ class DeviceQueryRequest(_message.Message):
     def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Query: _Optional[str] = ..., Names: _Optional[_Iterable[str]] = ..., Types: _Optional[_Iterable[str]] = ..., Locations: _Optional[_Iterable[str]] = ..., ChildTypes: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class PointQueryRequest(_message.Message):
-    __slots__ = ("Header", "Query", "Device", "Names", "Types", "Locations", "ConsiderDeviceLoc", "Resource", "ParentTypes", "Error", "ErrorMsg")
+    __slots__ = ("Header", "Query", "Device", "Names", "Types", "Locations", "ConsiderDeviceLoc", "Resource", "ParentTypes", "Error", "ErrorMsg", "accept_class")
     HEADER_FIELD_NUMBER: _ClassVar[int]
     QUERY_FIELD_NUMBER: _ClassVar[int]
     DEVICE_FIELD_NUMBER: _ClassVar[int]
@@ -310,6 +310,7 @@ class PointQueryRequest(_message.Message):
     PARENTTYPES_FIELD_NUMBER: _ClassVar[int]
     ERROR_FIELD_NUMBER: _ClassVar[int]
     ERRORMSG_FIELD_NUMBER: _ClassVar[int]
+    ACCEPT_CLASS_FIELD_NUMBER: _ClassVar[int]
     Header: Header
     Query: str
     Device: str
@@ -321,7 +322,8 @@ class PointQueryRequest(_message.Message):
     ParentTypes: _containers.RepeatedScalarFieldContainer[str]
     Error: QueryError
     ErrorMsg: str
-    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Query: _Optional[str] = ..., Device: _Optional[str] = ..., Names: _Optional[_Iterable[str]] = ..., Types: _Optional[_Iterable[str]] = ..., Locations: _Optional[_Iterable[str]] = ..., ConsiderDeviceLoc: bool = ..., Resource: _Optional[_Union[Dtype, str]] = ..., ParentTypes: _Optional[_Iterable[str]] = ..., Error: _Optional[_Union[QueryError, str]] = ..., ErrorMsg: _Optional[str] = ...) -> None: ...
+    accept_class: str
+    def __init__(self, Header: _Optional[_Union[Header, _Mapping]] = ..., Query: _Optional[str] = ..., Device: _Optional[str] = ..., Names: _Optional[_Iterable[str]] = ..., Types: _Optional[_Iterable[str]] = ..., Locations: _Optional[_Iterable[str]] = ..., ConsiderDeviceLoc: bool = ..., Resource: _Optional[_Union[Dtype, str]] = ..., ParentTypes: _Optional[_Iterable[str]] = ..., Error: _Optional[_Union[QueryError, str]] = ..., ErrorMsg: _Optional[str] = ..., accept_class: _Optional[str] = ...) -> None: ...
 
 class QueryResponse(_message.Message):
     __slots__ = ("Header", "Query", "Values", "Dtype", "Error", "ErrorMsg")
@@ -527,6 +529,40 @@ class DeleteResponse(_message.Message):
     URLS_FIELD_NUMBER: _ClassVar[int]
     Urls: _containers.RepeatedScalarFieldContainer[str]
     def __init__(self, Urls: _Optional[_Iterable[str]] = ...) -> None: ...
+
+class SuggestPointsRequest(_message.Message):
+    __slots__ = ("header", "preferred_class", "accept_class", "device", "limit")
+    HEADER_FIELD_NUMBER: _ClassVar[int]
+    PREFERRED_CLASS_FIELD_NUMBER: _ClassVar[int]
+    ACCEPT_CLASS_FIELD_NUMBER: _ClassVar[int]
+    DEVICE_FIELD_NUMBER: _ClassVar[int]
+    LIMIT_FIELD_NUMBER: _ClassVar[int]
+    header: Header
+    preferred_class: str
+    accept_class: str
+    device: str
+    limit: int
+    def __init__(self, header: _Optional[_Union[Header, _Mapping]] = ..., preferred_class: _Optional[str] = ..., accept_class: _Optional[str] = ..., device: _Optional[str] = ..., limit: _Optional[int] = ...) -> None: ...
+
+class PointSuggestion(_message.Message):
+    __slots__ = ("point", "point_class", "name", "preferred")
+    POINT_FIELD_NUMBER: _ClassVar[int]
+    POINT_CLASS_FIELD_NUMBER: _ClassVar[int]
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    PREFERRED_FIELD_NUMBER: _ClassVar[int]
+    point: str
+    point_class: str
+    name: str
+    preferred: bool
+    def __init__(self, point: _Optional[str] = ..., point_class: _Optional[str] = ..., name: _Optional[str] = ..., preferred: bool = ...) -> None: ...
+
+class SuggestPointsResponse(_message.Message):
+    __slots__ = ("header", "suggestions")
+    HEADER_FIELD_NUMBER: _ClassVar[int]
+    SUGGESTIONS_FIELD_NUMBER: _ClassVar[int]
+    header: Header
+    suggestions: _containers.RepeatedCompositeFieldContainer[PointSuggestion]
+    def __init__(self, header: _Optional[_Union[Header, _Mapping]] = ..., suggestions: _Optional[_Iterable[_Union[PointSuggestion, _Mapping]]] = ...) -> None: ...
 
 class HistoryRequest(_message.Message):
     __slots__ = ("Start", "End", "Keys", "Limit")
@@ -866,19 +902,43 @@ class LibraryResponse(_message.Message):
     apps: _containers.RepeatedCompositeFieldContainer[AppDesciption]
     def __init__(self, header: _Optional[_Union[Header, _Mapping]] = ..., apps: _Optional[_Iterable[_Union[AppDesciption, _Mapping]]] = ...) -> None: ...
 
+class EnvVarSpec(_message.Message):
+    __slots__ = ("label", "key", "input_type", "is_required", "usage", "placeholder", "default", "semantic_class", "semantic_min")
+    LABEL_FIELD_NUMBER: _ClassVar[int]
+    KEY_FIELD_NUMBER: _ClassVar[int]
+    INPUT_TYPE_FIELD_NUMBER: _ClassVar[int]
+    IS_REQUIRED_FIELD_NUMBER: _ClassVar[int]
+    USAGE_FIELD_NUMBER: _ClassVar[int]
+    PLACEHOLDER_FIELD_NUMBER: _ClassVar[int]
+    DEFAULT_FIELD_NUMBER: _ClassVar[int]
+    SEMANTIC_CLASS_FIELD_NUMBER: _ClassVar[int]
+    SEMANTIC_MIN_FIELD_NUMBER: _ClassVar[int]
+    label: str
+    key: str
+    input_type: str
+    is_required: bool
+    usage: str
+    placeholder: str
+    default: str
+    semantic_class: str
+    semantic_min: str
+    def __init__(self, label: _Optional[str] = ..., key: _Optional[str] = ..., input_type: _Optional[str] = ..., is_required: bool = ..., usage: _Optional[str] = ..., placeholder: _Optional[str] = ..., default: _Optional[str] = ..., semantic_class: _Optional[str] = ..., semantic_min: _Optional[str] = ...) -> None: ...
+
 class AppDesciption(_message.Message):
-    __slots__ = ("image", "description", "usage", "env_keys", "env_optional_keys")
+    __slots__ = ("image", "description", "usage", "env_keys", "env_optional_keys", "env_spec")
     IMAGE_FIELD_NUMBER: _ClassVar[int]
     DESCRIPTION_FIELD_NUMBER: _ClassVar[int]
     USAGE_FIELD_NUMBER: _ClassVar[int]
     ENV_KEYS_FIELD_NUMBER: _ClassVar[int]
     ENV_OPTIONAL_KEYS_FIELD_NUMBER: _ClassVar[int]
+    ENV_SPEC_FIELD_NUMBER: _ClassVar[int]
     image: str
     description: str
     usage: str
     env_keys: _containers.RepeatedScalarFieldContainer[str]
     env_optional_keys: _containers.RepeatedScalarFieldContainer[str]
-    def __init__(self, image: _Optional[str] = ..., description: _Optional[str] = ..., usage: _Optional[str] = ..., env_keys: _Optional[_Iterable[str]] = ..., env_optional_keys: _Optional[_Iterable[str]] = ...) -> None: ...
+    env_spec: _containers.RepeatedCompositeFieldContainer[EnvVarSpec]
+    def __init__(self, image: _Optional[str] = ..., description: _Optional[str] = ..., usage: _Optional[str] = ..., env_keys: _Optional[_Iterable[str]] = ..., env_optional_keys: _Optional[_Iterable[str]] = ..., env_spec: _Optional[_Iterable[_Union[EnvVarSpec, _Mapping]]] = ...) -> None: ...
 
 class Event(_message.Message):
     __slots__ = ("id", "topic", "source", "type", "timestamp", "payload", "payload_content_type", "metadata", "offset")
