@@ -168,6 +168,45 @@ def unschedule_app(id:str):
         ))
     return resp
 
+def set_cron_enabled(id: str, enabled: bool) -> common_pb2.SetCronEnabledResponse:
+    with grpc.insecure_channel(get_orchestrator_addr()) as channel:
+        stub = common_pb2_grpc.SchedulerStub(channel)
+        resp = stub.SetCronEnabled(common_pb2.SetCronEnabledRequest(
+            uuid=id,
+            enabled=enabled,
+        ))
+    return resp
+
+def get_job_detail(id: str) -> dict:
+    with grpc.insecure_channel(get_orchestrator_addr()) as channel:
+        stub = common_pb2_grpc.SchedulerStub(channel)
+        resp = stub.GetJobDetail(common_pb2.GetJobDetailRequest(id=id))
+    d = resp.detail
+    return {
+        "name": d.job.name,
+        "txn": str(d.job.txn),
+        "id": d.job.id,
+        "user": d.job.user,
+        "status": d.job.status,
+        "run_on": d.job.run_on,
+        "exit_code": d.job.exit_code if d.job.HasField("exit_code") else None,
+        "params": {
+            "args": list(d.params.args),
+            "kwargs": dict(d.params.kwargs),
+            "env": dict(d.params.env_vars),
+        },
+        "touched_points": [
+            {"point": a.point, "op": a.op, "value": a.value, "time": a.time.ToJsonString() if a.HasField("time") else None}
+            for a in d.touched_points
+        ],
+    }
+
+def delete_app(image: str) -> common_pb2.DeleteAppResponse:
+    with grpc.insecure_channel(get_orchestrator_addr()) as channel:
+        stub = common_pb2_grpc.SchedulerStub(channel)
+        resp = stub.DeleteApp(common_pb2.DeleteAppRequest(image=image))
+    return resp
+
 def unregister_handler(id:str):
     with grpc.insecure_channel(get_orchestrator_addr()) as channel:
         stub = common_pb2_grpc.SchedulerStub(channel)

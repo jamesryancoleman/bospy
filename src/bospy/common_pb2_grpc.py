@@ -46,6 +46,16 @@ class DeviceControlStub(object):
                 request_serializer=common__pb2.SetRequest.SerializeToString,
                 response_deserializer=common__pb2.SetResponse.FromString,
                 _registered_method=True)
+        self.ClearCache = channel.unary_unary(
+                '/bos.DeviceControl/ClearCache',
+                request_serializer=common__pb2.ClearCacheRequest.SerializeToString,
+                response_deserializer=common__pb2.ClearCacheResponse.FromString,
+                _registered_method=True)
+        self.GetJobAccesses = channel.unary_unary(
+                '/bos.DeviceControl/GetJobAccesses',
+                request_serializer=common__pb2.GetJobAccessesRequest.SerializeToString,
+                response_deserializer=common__pb2.GetJobAccessesResponse.FromString,
+                _registered_method=True)
 
 
 class DeviceControlServicer(object):
@@ -67,6 +77,20 @@ class DeviceControlServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def ClearCache(self, request, context):
+        """clear the xref and driver caches
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetJobAccesses(self, request, context):
+        """return all point accesses logged for a given transaction
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_DeviceControlServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -79,6 +103,16 @@ def add_DeviceControlServicer_to_server(servicer, server):
                     servicer.Set,
                     request_deserializer=common__pb2.SetRequest.FromString,
                     response_serializer=common__pb2.SetResponse.SerializeToString,
+            ),
+            'ClearCache': grpc.unary_unary_rpc_method_handler(
+                    servicer.ClearCache,
+                    request_deserializer=common__pb2.ClearCacheRequest.FromString,
+                    response_serializer=common__pb2.ClearCacheResponse.SerializeToString,
+            ),
+            'GetJobAccesses': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetJobAccesses,
+                    request_deserializer=common__pb2.GetJobAccessesRequest.FromString,
+                    response_serializer=common__pb2.GetJobAccessesResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -137,6 +171,60 @@ class DeviceControl(object):
             '/bos.DeviceControl/Set',
             common__pb2.SetRequest.SerializeToString,
             common__pb2.SetResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def ClearCache(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bos.DeviceControl/ClearCache',
+            common__pb2.ClearCacheRequest.SerializeToString,
+            common__pb2.ClearCacheResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetJobAccesses(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bos.DeviceControl/GetJobAccesses',
+            common__pb2.GetJobAccessesRequest.SerializeToString,
+            common__pb2.GetJobAccessesResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -1204,6 +1292,11 @@ class SchedulerStub(object):
                 request_serializer=common__pb2.LibraryRequest.SerializeToString,
                 response_deserializer=common__pb2.LibraryResponse.FromString,
                 _registered_method=True)
+        self.DeleteApp = channel.unary_unary(
+                '/bos.Scheduler/DeleteApp',
+                request_serializer=common__pb2.DeleteAppRequest.SerializeToString,
+                response_deserializer=common__pb2.DeleteAppResponse.FromString,
+                _registered_method=True)
         self.Run = channel.unary_unary(
                 '/bos.Scheduler/Run',
                 request_serializer=common__pb2.RunRequest.SerializeToString,
@@ -1219,6 +1312,11 @@ class SchedulerStub(object):
                 request_serializer=common__pb2.StopRequest.SerializeToString,
                 response_deserializer=common__pb2.StopResponse.FromString,
                 _registered_method=True)
+        self.GetJobDetail = channel.unary_unary(
+                '/bos.Scheduler/GetJobDetail',
+                request_serializer=common__pb2.GetJobDetailRequest.SerializeToString,
+                response_deserializer=common__pb2.GetJobDetailResponse.FromString,
+                _registered_method=True)
         self.RegisterCron = channel.unary_unary(
                 '/bos.Scheduler/RegisterCron',
                 request_serializer=common__pb2.CronRequest.SerializeToString,
@@ -1233,6 +1331,11 @@ class SchedulerStub(object):
                 '/bos.Scheduler/UnregisterCron',
                 request_serializer=common__pb2.UnregisterCronRequest.SerializeToString,
                 response_deserializer=common__pb2.UnregisterCronResponse.FromString,
+                _registered_method=True)
+        self.SetCronEnabled = channel.unary_unary(
+                '/bos.Scheduler/SetCronEnabled',
+                request_serializer=common__pb2.SetCronEnabledRequest.SerializeToString,
+                response_deserializer=common__pb2.SetCronEnabledResponse.FromString,
                 _registered_method=True)
         self.RegisterHandler = channel.unary_unary(
                 '/bos.Scheduler/RegisterHandler',
@@ -1277,6 +1380,12 @@ class SchedulerServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def DeleteApp(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def Run(self, request, context):
         """run an image 1 time
         """
@@ -1292,6 +1401,13 @@ class SchedulerServicer(object):
 
     def Stop(self, request, context):
         """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetJobDetail(self, request, context):
+        """get full detail for any job by id
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -1313,6 +1429,12 @@ class SchedulerServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def UnregisterCron(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SetCronEnabled(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -1362,6 +1484,11 @@ def add_SchedulerServicer_to_server(servicer, server):
                     request_deserializer=common__pb2.LibraryRequest.FromString,
                     response_serializer=common__pb2.LibraryResponse.SerializeToString,
             ),
+            'DeleteApp': grpc.unary_unary_rpc_method_handler(
+                    servicer.DeleteApp,
+                    request_deserializer=common__pb2.DeleteAppRequest.FromString,
+                    response_serializer=common__pb2.DeleteAppResponse.SerializeToString,
+            ),
             'Run': grpc.unary_unary_rpc_method_handler(
                     servicer.Run,
                     request_deserializer=common__pb2.RunRequest.FromString,
@@ -1377,6 +1504,11 @@ def add_SchedulerServicer_to_server(servicer, server):
                     request_deserializer=common__pb2.StopRequest.FromString,
                     response_serializer=common__pb2.StopResponse.SerializeToString,
             ),
+            'GetJobDetail': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetJobDetail,
+                    request_deserializer=common__pb2.GetJobDetailRequest.FromString,
+                    response_serializer=common__pb2.GetJobDetailResponse.SerializeToString,
+            ),
             'RegisterCron': grpc.unary_unary_rpc_method_handler(
                     servicer.RegisterCron,
                     request_deserializer=common__pb2.CronRequest.FromString,
@@ -1391,6 +1523,11 @@ def add_SchedulerServicer_to_server(servicer, server):
                     servicer.UnregisterCron,
                     request_deserializer=common__pb2.UnregisterCronRequest.FromString,
                     response_serializer=common__pb2.UnregisterCronResponse.SerializeToString,
+            ),
+            'SetCronEnabled': grpc.unary_unary_rpc_method_handler(
+                    servicer.SetCronEnabled,
+                    request_deserializer=common__pb2.SetCronEnabledRequest.FromString,
+                    response_serializer=common__pb2.SetCronEnabledResponse.SerializeToString,
             ),
             'RegisterHandler': grpc.unary_unary_rpc_method_handler(
                     servicer.RegisterHandler,
@@ -1505,6 +1642,33 @@ class Scheduler(object):
             _registered_method=True)
 
     @staticmethod
+    def DeleteApp(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bos.Scheduler/DeleteApp',
+            common__pb2.DeleteAppRequest.SerializeToString,
+            common__pb2.DeleteAppResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
     def Run(request,
             target,
             options=(),
@@ -1586,6 +1750,33 @@ class Scheduler(object):
             _registered_method=True)
 
     @staticmethod
+    def GetJobDetail(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bos.Scheduler/GetJobDetail',
+            common__pb2.GetJobDetailRequest.SerializeToString,
+            common__pb2.GetJobDetailResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
     def RegisterCron(request,
             target,
             options=(),
@@ -1656,6 +1847,33 @@ class Scheduler(object):
             '/bos.Scheduler/UnregisterCron',
             common__pb2.UnregisterCronRequest.SerializeToString,
             common__pb2.UnregisterCronResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def SetCronEnabled(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bos.Scheduler/SetCronEnabled',
+            common__pb2.SetCronEnabledRequest.SerializeToString,
+            common__pb2.SetCronEnabledResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -1940,6 +2158,78 @@ class EventBus(object):
             '/bos.EventBus/Replay',
             common__pb2.ReplayRequest.SerializeToString,
             common__pb2.Event.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+
+class SysStub(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def __init__(self, channel):
+        """Constructor.
+
+        Args:
+            channel: A grpc.Channel.
+        """
+        self.RestartService = channel.unary_unary(
+                '/bos.Sys/RestartService',
+                request_serializer=common__pb2.RestartServiceRequest.SerializeToString,
+                response_deserializer=common__pb2.RestartServiceResponse.FromString,
+                _registered_method=True)
+
+
+class SysServicer(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def RestartService(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+
+def add_SysServicer_to_server(servicer, server):
+    rpc_method_handlers = {
+            'RestartService': grpc.unary_unary_rpc_method_handler(
+                    servicer.RestartService,
+                    request_deserializer=common__pb2.RestartServiceRequest.FromString,
+                    response_serializer=common__pb2.RestartServiceResponse.SerializeToString,
+            ),
+    }
+    generic_handler = grpc.method_handlers_generic_handler(
+            'bos.Sys', rpc_method_handlers)
+    server.add_generic_rpc_handlers((generic_handler,))
+    server.add_registered_method_handlers('bos.Sys', rpc_method_handlers)
+
+
+ # This class is part of an EXPERIMENTAL API.
+class Sys(object):
+    """Missing associated documentation comment in .proto file."""
+
+    @staticmethod
+    def RestartService(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/bos.Sys/RestartService',
+            common__pb2.RestartServiceRequest.SerializeToString,
+            common__pb2.RestartServiceResponse.FromString,
             options,
             channel_credentials,
             insecure,

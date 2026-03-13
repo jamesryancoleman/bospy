@@ -19,6 +19,8 @@ from typing import Any, Optional
 
 VERSION = "0.0.10"
 
+_TXN_ID = int(os.environ.get('TXN_ID', 0))
+
 # uri -> name cache
 point_name_cache = {}
 
@@ -109,7 +111,7 @@ def get_name(pt:str) -> None | str:
 
 def query_points(query:str=None, names:str|list[str]=None, types:str|list[str]=None,
                 locations:str|list[str]=None, inherit_device_loc:bool=True,
-                parent_types:str|list[str]=None):
+                parent_types:str|list[str]=None, device:str=None):
     """ if query, types, and locations are all none. This returns all pts in sysmod.
     """
 
@@ -132,6 +134,7 @@ def query_points(query:str=None, names:str|list[str]=None, types:str|list[str]=N
                 Locations=locations,
                 ConsiderDeviceLoc=inherit_device_loc,
                 ParentTypes=parent_types,
+                Device=device,
             ))
         else:
             response = stub.QueryPoints(common_pb2.PointQueryRequest(
@@ -537,7 +540,10 @@ def _get_pt(keys:str|list[str], full_response=False) -> list[GetResponse] | dict
     response: common_pb2.GetResponse
     with grpc.insecure_channel(config.get_devctrl_addr()) as channel:
         stub = common_pb2_grpc.DeviceControlStub(channel)
-        response = stub.Get(common_pb2.GetRequest(Keys=keys))
+        response = stub.Get(common_pb2.GetRequest(
+            Header=common_pb2.Header(TxnId=_TXN_ID),
+            Keys=keys,
+        ))
     R = NewGetValues(response)
     if full_response:
         return R
@@ -572,7 +578,10 @@ def _set_pt(keys:str|list[str], values:str|list[str], full_response=False) -> Se
     response: common_pb2.SetResponse
     with grpc.insecure_channel(config.get_devctrl_addr()) as channel:
         stub = common_pb2_grpc.DeviceControlStub(channel)
-        response = stub.Set(common_pb2.SetRequest(Pairs=pairs))
+        response = stub.Set(common_pb2.SetRequest(
+            Header=common_pb2.Header(TxnId=_TXN_ID),
+            Pairs=pairs,
+        ))
         if response.Error > 0:
             print("SET_ERROR_{}: {}".format(response.Error, response.ErrorMsg))
             return False
@@ -846,6 +855,54 @@ def suggest_points(preferred_class: str, accept_class: str,
         }
         for s in resp.suggestions
     ]
+
+
+_BOS_NS = "https://openbos.org/schema/bos#"
+
+def set_point_range(
+    pts: str | list[str],
+    *,
+    off_value: str | int | float | bool = None,
+    on_value: str | int | float | bool = None,
+    min_value: str | int | float = None,
+    max_value: str | int | float = None,
+) -> list[dict]:
+    """Assign on/off/min/max metadata to one or more points in the system model.
+
+    All values are stored as strings.  Pass only the fields you want to set;
+    omitted fields are left unchanged.  Existing values are atomically replaced
+    (upsert semantics via update_entity's `updates` list).
+
+    Example — analog 0-10V device with dead zone:
+        set_point_range(pts, off_value="0", on_value="2.0", min_value="2.0", max_value="10.0")
+
+    Example — binary device:
+        set_point_range(pts, off_value="false", on_value="true")
+    """
+    if isinstance(pts, str):
+        pts = [pts]
+
+    field_map = {
+        f"{_BOS_NS}offValue": str(off_value).lower() if isinstance(off_value, bool) else (str(off_value) if off_value is not None else None),
+        f"{_BOS_NS}onValue":  str(on_value).lower()  if isinstance(on_value,  bool) else (str(on_value)  if on_value  is not None else None),
+        f"{_BOS_NS}minValue": str(min_value) if min_value is not None else None,
+        f"{_BOS_NS}maxValue": str(max_value) if max_value is not None else None,
+    }
+    updates = [{"s": "", "p": pred, "o": val}
+               for pred, val in field_map.items() if val is not None]
+
+    if not updates:
+        return []
+
+    results = []
+    for pt in pts:
+        if not isinstance(pt, str):
+            raise TypeError(f"set_point_range: expected a point URI string, got {type(pt).__name__}: {pt!r}. "
+                            "If passing a dict, use .keys() instead of .items().")
+        triples = [{"s": pt, "p": t["p"], "o": t["o"]} for t in updates]
+        result = update_entity(pt, kind="bos:Point", updates=triples)
+        results.append({"point": pt, **result})
+    return results
 
 
 def RefreshNameTable():
